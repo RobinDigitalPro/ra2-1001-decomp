@@ -33,6 +33,7 @@ The repository contains all our source, including functions that are **not byte-
 - `src/recovered/` and `src/platform/`: an earlier, separate level-1 behavioural recovery (bounded, tested paths) and its test runtime. Not part of the readable byte-matching source.
 - `metadata/level2_functions.json`: every claim (RVA, mangled symbol, translation unit).
 - `metadata/level2_symbols.json`: the bound symbol map (symbol to original address, with evidence).
+- `tools/`: our level-2 matching and checking tools (see `tools/README.md`).
 - `docs/`:
   - `GUIDE.md`: the matching guide with the VC6 rules we use;
   - `compare/`: annotated comparisons of our code against community solutions;
@@ -59,7 +60,6 @@ Reference-only projects (logic, never code): OpenRA, VERA20K and omarelarab/ra2-
 
 ## Not yet included
 
-- The matching and link-check tools are to follow; they still carry local paths.
 - Build files for a complete executable.
 
 Red Alert 2 is a trademark of Electronic Arts. This is an unofficial, non-commercial preservation and research project.
