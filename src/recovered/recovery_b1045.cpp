@@ -1,0 +1,17 @@
+#include "recovered/recovery_b1045.hpp"
+#include "recovered/leaf_b56_b.hpp"
+#include <stdexcept>
+#include <array>
+namespace ra2::recovered::b1045 {namespace {
+void need(bool x,const char*s){if(!x)throw std::domain_error(s);}
+unsigned find(Memory&m,unsigned h,unsigned owner,Observation&o){need(m.r32(h+4u)==0x7931dcu&&m.r32(0x7931ecu)==0x612fc0u,"1045 original header Find vptr/slot");const unsigned n=m.r32(h+0x14u),a=m.r32(h+8u);need(n>=3u&&n<=6u,"1045 initialized nonempty header");++o.find_calls;for(unsigned k=0;k<n;++k)if(m.r32(a+4u*k)==owner)return k;throw std::domain_error("1045 positive owner Find");}
+unsigned color(Memory&m,unsigned entity,Observation&o){const unsigned faction=m.r32(entity+0x1b4u);unsigned index=m.r32(faction+0x30u);const unsigned mode=m.r32(0xa255c8u);bool selected;if(mode==0u)selected=m.r8(faction+0x134u)!=0u||m.r8(faction+0x135u)!=0u;else selected=faction==m.r32(0xa1e0e4u);if(selected&&m.r32(0xa1e0e4u)!=0u)index=m.r32(m.r32(0xa1e0e4u)+0x30u);need(index==0u,"1045 prepared valid palette index");const unsigned source=m.r32(m.r32(0xa1a5ccu)+index*4u)+0x55e9u;
+ // The accepted original leaf is composed on an explicit six-byte scratch
+ // record. Its changed bytes remain private, as does the original stack copy.
+ std::array<unsigned char,6>v{};for(unsigned k=0;k<3u;++k){v[k]=m.r8(source+k);v[k+3u]=m.r8(0xa9e361u+k);}leaf::Memory s(v.data(),0x7c245000u,6u);leaf::Inputs i{};i.cx=0x7c245000u;i.arg[0]=0x50u;i.arg[1]=i.cx+3u;(void)leaf::fun_00634310(s,i);++o.colors;return ((unsigned(v[0])>>(m.r32(0x83b2ecu)&31u))<<(m.r32(0x83b2e8u)&31u))|((unsigned(v[1])>>(m.r32(0x83b2fcu)&31u))<<(m.r32(0x83b2f8u)&31u))|((unsigned(v[2])>>(m.r32(0x83b2f4u)&31u))<<(m.r32(0x83b2f0u)&31u));}
+}
+unsigned run(Memory&m,const Inputs&i,unsigned root,Observation&o){if(root==0x20e0c0u){const unsigned entity=i.cx,owner=i.dx,h=m.r32(entity+0x408u),where=find(m,h,owner,o);m.w32(h+0x94u,where);m.w32(h+0x90u,m.r32(h+0x14u)-where);m.w8(h+0x98u,1u);need(m.r8(0xa5e2e0u)!=0u,"1045 already enabled positive header activation route");Inputs t=i;t.cx=owner;return b1041::run(m,t,0x209350u,o.relation);}
+ const unsigned owner=i.cx;need(root==0x20a1b0u||root==0x20a3c0u,"1045 exact color roots");const unsigned n=m.r32(owner+0x10u),a=m.r32(owner+4u);need(n>=1u&&n<=4u,"1045 populated relation vector");if(root==0x20a1b0u){need(m.r32(owner+0xb4u)==0xffffffffu,"1045 uncached owner color");const unsigned value=color(m,m.r32(m.r32(a)),o);m.w32(owner+0xb4u,value);const unsigned cn=m.r32(owner+0x30u),ca=m.r32(owner+0x24u);need(cn>=2u&&cn<=7u,"1045 populated candidates");for(unsigned k=0;k<cn;++k)if(m.r32(m.r32(ca+k*4u)+0x74u)==value){o.matched=k;return value;}throw std::domain_error("1045 useful existing candidate color match");}
+ const unsigned index=i.arg[0],cn=m.r32(owner+0x30u);need(index<cn&&cn>=2u&&cn<=7u,"1045 valid candidate index");const unsigned candidate=m.r32(m.r32(owner+0x24u)+4u*index);need(m.r32(candidate+0x74u)==0xffffffffu,"1045 uncached candidate color");for(unsigned k=0;k<n;++k){const unsigned rel=m.r32(a+4u*k);if(m.r32(rel+8u)!=index)continue;const unsigned entity=m.r32(rel),h=m.r32(entity+0x408u),where=find(m,h,owner,o),cut=m.r32(h+0x8cu);need(cut==0xffffffffu||where<cut,"1045 first matching relation qualifies");const unsigned value=color(m,entity,o);m.w32(candidate+0x74u,value);o.matched=index;return value;}throw std::domain_error("1045 positive matching candidate relation");
+}
+}

@@ -1,0 +1,14 @@
+#include "recovered/recovery_b1007.hpp"
+#include <stdexcept>
+#include <string>
+namespace ra2::recovered::b1007 {
+namespace {void need(bool b,const char*s){if(!b)throw std::domain_error(s);}unsigned ptr(const void*p){return unsigned(reinterpret_cast<std::uintptr_t>(p));}}
+std::uint32_t fun_00779188(Memory&m,Inputs&i,Api&a,Observation&o){
+ const auto flags=i.arg[1];need((flags&0x8000u)!=0u&&(flags&3u)!=3u&&i.arg[2]==0x40u&&i.arg[3]==0x1a4u,"1007 bounded binary shared diskopen");need(m.r32(0xb107e4u)==0u&&m.r32(0xb10454u)==0u,"1007 original textdefault/umask");need((flags&~0x93bbu)==0u,"1007 supported binary flags");
+ unsigned access=(flags&3u)==0u?GENERIC_READ:(flags&3u)==1u?GENERIC_WRITE:GENERIC_READ|GENERIC_WRITE;unsigned disposition=0;switch(flags&0x700u){case 0u:disposition=OPEN_EXISTING;break;case 0x100u:disposition=OPEN_ALWAYS;break;case 0x300u:disposition=CREATE_ALWAYS;break;default:throw std::domain_error("1007 supported disposition");}unsigned attrs=FILE_ATTRIBUTE_NORMAL;if(flags&0x1000u)attrs|=FILE_ATTRIBUTE_TEMPORARY;if(flags&0x20u)attrs|=FILE_FLAG_SEQUENTIAL_SCAN;else if(flags&0x10u)attrs|=FILE_FLAG_RANDOM_ACCESS;
+ o.security.nLength=12u;o.security.lpSecurityDescriptor=nullptr;o.security.bInheritHandle=(flags&0x80u)?FALSE:TRUE;const auto fd=b1000::fun_0077d227(m,i,a);need(fd>=3u&&fd<32u,"1007 existing nonstandard fd");o.handle=a.create_file_a(reinterpret_cast<const char*>(std::uintptr_t(i.arg[0])),access,FILE_SHARE_READ|FILE_SHARE_WRITE,&o.security,disposition,attrs,nullptr);need(o.handle!=INVALID_HANDLE_VALUE&&a.file_type(o.handle)==FILE_TYPE_DISK,"1007 genuine successful diskopen");const auto p=m.r32(0xb10d00u)+fd*36u;need(m.r32(p)==0xffffffffu&&m.r32(0x817274u)==2u,"1007 exact sethandle path");m.w32(p,ptr(o.handle));unsigned f=1u|((flags&0x80u)?0x10u:0u);m.w8(p+4u,f);i.arg[0]&=0x00ffffffu;if(flags&8u)m.w8(p+4u,f|0x20u);a.leave(reinterpret_cast<LPCRITICAL_SECTION>(std::uintptr_t(p+12u)));return fd;
+}
+std::uint32_t fun_007767f6(Memory&m,Inputs&i,Api&a,Observation&o){
+ need(m.r32(0xb10580u)==0u,"1007 original stdio default");unsigned at=i.arg[1],flags=0,stdio=0;const auto first=m.r8(at++);if(first=='r'){stdio=1u;flags=0u;}else if(first=='w'){stdio=2u;flags=0x301u;}else if(first=='a'){stdio=2u;flags=0x109u;}else throw std::domain_error("1007 known positive mode");bool binary=false,plus=false;for(unsigned j=0;j<3u;++j){const auto ch=m.r8(at++);if(ch==0u)break;if(ch=='b'&&!binary){binary=true;flags|=0x8000u;}else if(ch=='+'&&!plus){plus=true;flags=(flags&~1u)|2u;stdio=(stdio&~3u)|0x80u;}else throw std::domain_error("1007 bounded binary mode suffix");}need(binary,"1007 binary route only");Inputs local=i;local.arg[1]=flags;local.arg[2]=i.arg[2];local.arg[3]=0x1a4u;const auto fd=fun_00779188(m,local,a,o),file=i.arg[3];m.w32(0xb10450u,m.r32(0xb10450u)+1u);m.w32(file+12u,stdio);for(unsigned off:{0u,4u,8u,28u})m.w32(file+off,0u);m.w32(file+16u,fd);return file;
+}
+}

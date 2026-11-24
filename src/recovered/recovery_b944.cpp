@@ -1,0 +1,6 @@
+#include "recovered/recovery_b944.hpp"
+#include <stdexcept>
+namespace ra2::recovered::recovery_b944 {
+U compare(Memory&m,const Inputs&i,Compare&api){if(m.r32(0xb107e0)!=2)throw std::domain_error("944 initialized ANSI mode");std::string s[2];for(U k=0;k<2;++k){U p=i.arg[2+2*k],n=i.arg[3+2*k];if(!n||n>64)throw std::domain_error("944 positive bounded count");for(U j=0;j<n&&m.r8(p+j);++j){U c=m.r8(p+j);if(c>=128)throw std::domain_error("944 ASCII");s[k]+=char(c);}i.arg[3+2*k]=U(s[k].size());}U r=api.ansi(i.arg[0],i.arg[1],s[0],s[1]);if(r<1||r>3)throw std::domain_error("944 successful compare");return r;}
+U environment(Memory&m,const Inputs&i,Compare&api){if(i.arg[1]||m.r32(0xb10adc))throw std::domain_error("944 no OS propagation,singlebyte");U src=i.arg[0],len=0;while(len<64&&m.r8(src+len)&&m.r8(src+len)!='=')++len;if(!len||len==64||m.r8(src+len)!='='||!m.r8(src+len+1))throw std::domain_error("944 positive key=value");U table=m.r32(0xb10474);if(!table||table==m.r32(0xb10478))throw std::domain_error("944 distinct initialized table");for(U k=0;k<8;++k){U p=m.r32(table+4*k);if(!p)break;Inputs a;a.arg={m.r32(0xb10ce4),1,src,len,p,len,m.r32(0xb10ac8)};if(compare(m,a,api)==2&&(m.r8(p+len)=='='||!m.r8(p+len))){m.w32(table+4*k,src);return 0;}}throw std::domain_error("944 existing match required");}
+}

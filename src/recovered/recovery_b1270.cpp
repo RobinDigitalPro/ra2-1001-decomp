@@ -1,0 +1,3 @@
+#include "recovered/recovery_b1270.hpp"
+#include <stdexcept>
+namespace ra2::recovered::b1270{unsigned run(unsigned root,Memory&m,const Inputs&i){if(root!=0xebd50u||m.r32(0xa283c4u)!=1u||m.r32(0xa288b0u)!=0u||m.r32(i.cx+0x52d0u)!=0u||m.r32(i.cx+0x52d4u)!=0u||i.arg[0]==0u||i.arg[0]>4096u)throw std::domain_error("1270 genuine loading positive Power consumption delta");const auto total=m.r32(i.cx+0x52d4u)+i.arg[0];m.w32(i.cx+0x52d4u,total);/* Actual4EBEB0 with original fresh selectioncount0 preserves full incoming EAX=total. SETL changes onlyAL. */const auto predicate=static_cast<unsigned>(static_cast<int>(m.r32(i.cx+0x52d0u))<static_cast<int>(total));i.arg[0]=(i.arg[0]&0xffffff00u)|predicate;return(total&0xffffff00u)|predicate;}}

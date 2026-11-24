@@ -1,0 +1,3 @@
+#include "recovered/recovery_b922.hpp"
+#include "platform/observed_list922.hpp"
+namespace ra2::recovered::recovery_b922{unsigned fun_005c11f0(Memory&,const Inputs&i){using platform::list922::List;if(!i.dx)throw std::domain_error("922 nonzero data");auto hwnd=reinterpret_cast<HWND>(std::uintptr_t(i.cx));int count=int(List::send(hwnd,0x553,LB_GETCOUNT,0,0));if(count<1||count>8)throw std::domain_error("922 populatedboundedlist");unsigned chosen=0;for(int k=0;k<count;++k)if(unsigned(List::send(hwnd,0x553,LB_GETITEMDATA,k,0))==i.dx)chosen=k;List::send(hwnd,0x553,LB_SETCURSEL,chosen,0);List::send(hwnd,0x553,LB_SETTOPINDEX,chosen,0);return chosen;}}

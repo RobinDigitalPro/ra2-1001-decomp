@@ -4,6 +4,10 @@ This project reconstructs the source code of **Command & Conquer: Red Alert 2, G
 
 **No game data and no executable are included.** You need your own legally owned copy of Red Alert 2 for any comparison or later build.
 
+## Baseline: an old 1.001 repack
+
+Our target binary is the GAME.EXE of an **old repack of Red Alert 2 1.001**, not a clean retail install. That repack contains no-CD patches. We reconstruct the whole executable as it is, so those patches are reconstructed as well, clearly labelled as repack deltas (for example the disk checks `Get_Disk_ID`/`Force_Available` and `VolumeCheck`). The rest of the code is the 1.001 game code. A retail 1.001 GAME.EXE differs from ours only in those patched places.
+
 ## Status (2026-11-24)
 
 | Measure | Value |
@@ -17,11 +21,16 @@ This project reconstructs the source code of **Command & Conquer: Red Alert 2, G
 - A function counts as **matched** only when every byte outside relocations equals the original and every relocation is bound to the right target.
 - **NEAR_EQUAL** functions differ only in register choice, instruction order or encoding. They are listed separately and do not count as matched.
 
+## All source, finished and unfinished
+
+The repository contains all our source, including functions that are **not byte-identical yet**. Only the functions listed in `metadata/level2_functions.json` are verified matches; everything else is work in progress. See `docs/WORK_IN_PROGRESS.md`.
+
 ## Layout
 
 - `src/m85/`: the main C++ tree. It is adapted from mischa85/RedAlert2 (RA2 1.006) and reworked function by function to 1.001; their README and licence are kept there.
 - `src/ra2/`: our own translation units for code not covered by that tree. `src/ra2/unnamed/TU_<address>.cpp` holds units whose original file name is unknown.
 - `src/m85/src/asm/`: the original assembly modules, reassembled byte-identically with UASM.
+- `src/recovered/` and `src/platform/`: an earlier, separate level-1 behavioural recovery (bounded, tested paths) and its test runtime. Not part of the readable byte-matching source.
 - `metadata/level2_functions.json`: every claim (RVA, mangled symbol, translation unit).
 - `metadata/level2_symbols.json`: the bound symbol map (symbol to original address, with evidence).
 - `docs/`:

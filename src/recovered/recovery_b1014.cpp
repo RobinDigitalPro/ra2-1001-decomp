@@ -1,0 +1,5 @@
+#include "recovered/recovery_b1014.hpp"
+#include "platform/observed_combo1014.hpp"
+namespace ra2::recovered::b1014 {
+std::uint32_t fun_005c51d0(Memory&m,const Inputs&i){using ra2::platform::combo1014::Combo;const auto out=i.dx;auto hwnd=reinterpret_cast<HWND>(std::uintptr_t(i.cx));m.w32(out,m.r32(0xa255e0));m.w32(out+4,m.r32(0xa255e4));constexpr unsigned middle[]{0x510,0x513,0x51e,0x514,0x51f,0x520,0x521};auto query=[&](unsigned id){auto selected=Combo::send(hwnd,int(id),CB_GETCURSEL,0,0);return unsigned(Combo::send(hwnd,int(id),CB_GETITEMDATA,WPARAM(selected),0));};for(unsigned row=1;row<8;++row){auto v=query(0x411+row);unsigned code=2;for(unsigned k=0;k<5;++k)if(v==m.r32(0xa5a89c+4*k)){code=k+2;break;}m.w32(out+0x1c+12*row,code);m.w32(out+0x20+12*row,query(middle[row-1]));m.w32(out+0x24+12*row,query(0x521+row));}m.w32(out+8,m.r32(0xa255f8));m.w32(out+12,m.r32(0xa255ec));m.w32(out+16,m.r32(0xa25600));m.w8(out+20,m.r8(0xa255f2));m.w8(out+21,m.r8(0xa255f3));m.w8(out+22,m.r8(0xa255f4));m.w8(out+23,m.r8(0xa25670));m.w8(out+24,m.r8(0xa255f1));return (m.r32(0xa255ec)&0xffffff00u)|m.r8(0xa255f1);}
+}

@@ -1,0 +1,12 @@
+#include "recovery_b1132.hpp"
+#include <array>
+#include <stdexcept>
+namespace ra2::recovered::b1132{
+static void need(bool v){if(!v)throw std::domain_error("1132 complete PCM RIFF/WAVE physicalfile route");}
+unsigned run(Memory&m,const Inputs&i,Heap&h,Api&api){const auto file=i.cx,output=i.dx;const auto handle=reinterpret_cast<HANDLE>(std::uintptr_t(m.r32(file+0x10u)));need(m.r32(file)==0x7856a0u&&m.r32(file+4u)==1u&&m.r32(file+8u)==0u&&m.r32(file+0xcu)==0xffffffffu&&handle!=INVALID_HANDLE_VALUE&&m.r32(file+0x54u)==0u&&m.r8(file+0x1cu)==1u&&i.arg[0]);m.w32(i.arg[0],0u);need(api.seek(handle,0,nullptr,FILE_BEGIN)==0u);
+ const auto read=[&](void*buffer,unsigned n){DWORD got=0;need(api.read_file(handle,buffer,n,&got,nullptr)!=FALSE&&got==n);m.w8(0xa9e184u,0u);};
+ std::array<unsigned,3>riff{};read(riff.data(),12u);need(riff[0]==0x46464952u&&riff[2]==0x45564157u);std::array<unsigned,2>chunk{};read(chunk.data(),8u);need(chunk[0]==0x20746d66u&&chunk[1]==16u);
+ const auto format=h.allocate(18u);need(format);for(unsigned k=0;k<18u;++k)h.w8(format+k,0u);read(reinterpret_cast<void*>(std::uintptr_t(format)),16u);h.w8(format+16u,16u);h.w8(format+17u,0u);read(chunk.data(),8u);need(chunk[0]==0x61746164u&&chunk[1]>0u);m.w32(i.arg[0],chunk[1]);
+ const auto word=[&](unsigned off){return h.r8(format+off)|(h.r8(format+off+1u)<<8u);};const auto dword=[&](unsigned off){return word(off)|(word(off+2u)<<16u);};need(word(0u)==1u);const auto channels=word(2u),rate=dword(4u),width=word(14u)>>3u;need((channels==1u||channels==2u)&&(width==1u||width==2u)&&rate>=8000u&&rate<=48000u);m.w32(output+4u,0u);m.w32(output+16u,width);m.w32(output+12u,channels);m.w32(output+20u,dword(8u));m.w32(output+8u,rate);m.w32(output,4u);m.w32(output+20u,width*channels*rate);need(h.release(format)!=0u);return 1u;}
+unsigned cleanup(Memory&m,unsigned file,Heap&h,Api&api){need(m.r32(file)==0x7856a0u&&m.r32(file+0x54u)==0u&&m.r8(file+0x5cu)==0u);m.w32(file,0x7856a0u);m.w32(file+0x60u,0u);m.w32(file+0x54u,0u);m.w32(file+0x58u,0u);m.w8(file+0x5cu,0u);m.w32(file,0x785658u);m.w32(file,0x78773cu);m.w32(file+0x2cu,0u);m.w32(file+0x30u,0u);for(unsigned k:{0x21u,0x23u,0x24u,0x25u})m.w8(file+k,0u);m.w32(file,0x793c84u);need(api.close_handle(reinterpret_cast<HANDLE>(std::uintptr_t(m.r32(file+0x10u))))!=FALSE);m.w32(file+0x10u,0xffffffffu);need(m.r8(file+0x1cu)==1u&&m.r32(file+0x14u));need(h.release(m.r32(file+0x14u))!=0u);m.w32(file+0x14u,0u);m.w8(file+0x1cu,0u);m.w32(file,0x793c3cu);return file;}
+}

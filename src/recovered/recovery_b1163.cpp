@@ -1,0 +1,10 @@
+#include "recovered/recovery_b1163.hpp"
+#include <stdexcept>
+namespace ra2::recovered::b1163 {namespace {
+unsigned find(Memory&m,unsigned p,unsigned ch){for(unsigned k=0;k<512u;++k,p+=2u){auto c=m.r16(p);if(c==ch)return p;if(!c)return 0u;}throw std::domain_error("1163 terminated borrowed UTF16");}
+bool key(Memory&m,unsigned p,const char*s){while(*s){unsigned c=m.r16(p);if(c>='A'&&c<='Z')c+=32u;unsigned d=unsigned(*s++);if(d>='A'&&d<='Z')d+=32u;if(c!=d)return false;p+=2u;}return m.r16(p)==0u;}
+unsigned ticks(Memory&m,unsigned p){unsigned parts[4]{};for(unsigned j=0;j<4u;++j){for(unsigned k=0;k<2u;++k){auto c=m.r16(p);if(c<'0'||c>'9')throw std::domain_error("1163 decimal pair");parts[j]=parts[j]*10u+c-'0';p+=2u;}if(j!=3u){if(m.r16(p)!=':')throw std::domain_error("1163 colon");p+=2u;}}return ((parts[0]*60u+parts[1])*60u+parts[2])*60u+(parts[3]*60u)/100u;}
+}
+unsigned run(unsigned root,Memory&m,Inputs&i,State&){if(root!=0x291170u||m.r32(0xb10530u)!=0u)throw std::domain_error("1163 original root and C locale");unsigned cursor=i.arg[0],record=i.arg[1];for(unsigned count=0;count<8u;++count){auto eq=find(m,cursor,'=');if(!eq)throw std::domain_error("1163 valid property delimiter");i.arg[0]=cursor;m.w16(eq,0u);unsigned value=eq+2u,next;const bool quoted=m.r16(value)=='"';if(quoted){value+=2u;auto end=find(m,value,'"');if(!end)throw std::domain_error("1163 closing quote");m.w16(end,0u);next=end+2u;if(m.r16(next)==',')next+=2u;}else{auto comma=find(m,value,',');if(comma){m.w16(comma,0u);next=comma+2u;}else next=0x82208cu;}
+ const unsigned v=ticks(m,value);if(key(m,cursor,"Time")){if(m.r32(0x7dfb84u)!=0x6914d0u)throw std::domain_error("1163 true Time callback");m.w32(record,v);}else if(key(m,cursor,"Duration")){if(m.r32(0x7dfb8cu)!=0x6914e0u)throw std::domain_error("1163 true Duration callback");if(v)m.w32(record+4u,v);}else throw std::domain_error("1163 reviewed keys only");if(!m.r16(next))return 1u;cursor=next;}throw std::domain_error("1163 finite property count");}
+}

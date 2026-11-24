@@ -1,0 +1,10 @@
+#include "recovered/recovery_b1121.hpp"
+#include "platform/observed_ui1121.hpp"
+namespace ra2::recovered::b1121{
+unsigned run(Memory&m,const Inputs&i,unsigned root){const auto parent=reinterpret_cast<HWND>(std::uintptr_t(i.cx));
+ if(root==0x1c4650u){ui::need(m.r32(0xa255ccu)==0u&&m.r32(0xa255c8u)<4u&&i.arg[1]==0u,"1121 nonnetwork no provider count change");const auto before=i.dx,after=i.arg[0];ui::need(before>=1u&&before<=3u&&(after==before+1u||after+1u==before),"1121 strictly changed bounded count");const bool show=after>before;const unsigned first=show?before:after,last=show?after:8u;unsigned eax=0u;const std::array<unsigned,5>order=show?std::array<unsigned,5>{0,1,2,4,3}:std::array<unsigned,5>{0,1,2,3,4};for(unsigned row=first;row<last;++row){std::array<HWND,5>handles{};for(unsigned column=0;column<5;++column)handles[column]=ui::get(parent,int(ui::id(row,order[column])));for(auto h:handles)eax=unsigned(ui::show(h,show?SW_SHOW:SW_HIDE));}return eax;}
+ ui::need(root==0x1c4d30u&&i.arg[1]==0u&&m.r32(0xa5a874u)==0u,"1121 actual local AI selection mode");ui::need(i.dx>=0x411u&&i.dx<=0x418u,"1121 actual row control ID");const auto row=i.dx-0x411u,selected=i.arg[0],old=m.r32(0xa27dc4u+4u*row);ui::need(old==m.r32(0xa5a89cu)||old==m.r32(0xa5a8a0u),"1121 old open/closed record");unsigned level=3u;for(unsigned j=0;j<3u;++j)if(selected==m.r32(0xa5a8a4u+4u*j))level=2u-j;ui::need(level<3u&&old!=selected,"1121 positive AI replacement");m.w32(0xa27dc4u+4u*row,selected);i.arg[0]=(i.arg[0]&0xffffff00u)|1u;
+ const auto country=ui::get(parent,int(ui::id(row,3)));ui::enable(country,TRUE);const auto color=ui::get(parent,int(ui::id(row,4)));ui::enable(color,TRUE);m.w32(0xa2560cu+4u*row,level);m.w32(0xa2562cu+4u*row,0xfffffffeu);m.w32(0xa2564cu+4u*row,0xfffffffeu);unsigned count=0u;for(unsigned k=0;k<8u;++k){const auto v=m.r32(0xa27dc4u+4u*k);if(v&&(v==m.r32(0xa5a8a4u)||v==m.r32(0xa5a8a8u)||v==m.r32(0xa5a8acu)))++count;}m.w32(0xa25604u,count);return 0u;
+}
+unsigned fun_005c4650(Memory&m,const Inputs&i){return run(m,i,0x1c4650u);}unsigned fun_005c4d30(Memory&m,const Inputs&i){return run(m,i,0x1c4d30u);}
+}

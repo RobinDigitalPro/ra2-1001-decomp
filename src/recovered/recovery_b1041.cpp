@@ -1,0 +1,20 @@
+#include "recovered/recovery_b1041.hpp"
+#include <stdexcept>
+#include <array>
+namespace ra2::recovered::b1041 {namespace {
+void need(bool x,const char*s){if(!x)throw std::domain_error(s);}
+unsigned find(Memory&m,unsigned header,unsigned owner){need(m.r32(header+4u)==0x7931dcu&&m.r32(0x7931ecu)==0x612fc0u,"1041 authentic actual header constructor Find");const unsigned count=m.r32(header+0x14u),array=m.r32(header+8u);need(count>=3u&&count<=6u,"1041 populated header extent");for(unsigned j=0;j<count;++j)if(m.r32(array+j*4u)==owner)return j;throw std::domain_error("1041 positive receiver in header");}
+unsigned header(Memory&m,unsigned entity){const unsigned p=m.r32(entity+0x408u);need(p!=0u,"1041 genuine entity+408 header getter");return p;}
+unsigned relation(Memory&m,unsigned owner,unsigned entity){const unsigned count=m.r32(owner+0x10u),array=m.r32(owner+4u);need(count>=1u&&count<=4u,"1041 populated relation extent");for(unsigned j=0;j<count;++j){const unsigned p=m.r32(array+j*4u);if(m.r32(p)==entity)return p;}throw std::domain_error("1041 positive entity relation");}
+std::array<unsigned,3> triplet(Memory&m,const Inputs&i,unsigned descriptor,Observation&o){
+ // Reuse accepted B338/B128 sorted registry, original RTTI and authentic
+ // wrapper/getter semantics. Scratch is an explicit disjoint model span.
+ std::array<unsigned char,12>bytes{};Memory copy=m;leaf::Memory span(bytes.data(),0x7c224000u,12u);copy.add(span);Inputs t=i;t.cx=0x7c224000u;t.dx=descriptor;need(recovery_b338::fun_00608560(copy,t)==t.cx,"1041 accepted positive triplet helper");++o.triplet_calls;return {copy.r32(t.cx),copy.r32(t.cx+4u),copy.r32(t.cx+8u)};
+}
+unsigned seek(Memory&m,const Inputs&i,unsigned owner,unsigned entity,Observation&o){const unsigned h=header(m,entity),where=find(m,h,owner),count=m.r32(h+0x14u);need(where>=1u&&where<count-1u,"1041 valid nonwrapped previous header node");o.find_index=where;const unsigned previous=m.r32(m.r32(h+8u)+(where-1u)*4u);need(previous!=m.r32(m.r32(h+8u)+(count-1u)*4u),"1041 previous differs from last");o.previous=previous;const unsigned rel=relation(m,previous,entity),source=m.r32(rel+4u),n=m.r32(owner+0x30u),array=m.r32(owner+0x24u);need(n>=2u&&n<=7u,"1041 useful populated candidate extent");const auto wanted=triplet(m,i,source,o);for(unsigned j=0;j<n;++j){const unsigned p=m.r32(array+j*4u);if(m.r32(p+0x70u)!=0u&&triplet(m,i,p,o)==wanted){o.matched=j;return j;}}throw std::domain_error("1041 positive existing coordinate candidate");}
+}
+unsigned run(Memory&m,const Inputs&i,unsigned root,Observation&o){const unsigned owner=i.cx;need(owner!=0u,"1041 valid receiver");if(root==0x209660u||root==0x2097b0u){const unsigned entity=root==0x209660u?i.arg[0]:m.r32(i.arg[0]),index=seek(m,i,owner,entity,o);if(root==0x2097b0u){const unsigned p=m.r32(m.r32(owner+0x24u)+index*4u);m.w32(p+0x74u,0xffffffffu);m.w32(owner+0xb4u,0xffffffffu);m.w32(p+0x70u,m.r32(p+0x70u)+1u);m.w32(i.arg[0]+8u,index);}return index;}
+ need(root==0x209350u&&m.r32(owner+0xa8u)==0u,"1041 initial qualifying count0");const unsigned n=m.r32(owner+0x10u),array=m.r32(owner+4u);need(n>=1u&&n<=4u,"1041 nonempty receiver relation list");for(unsigned j=0;j<n;++j){const unsigned rel=m.r32(array+j*4u),entity=m.r32(rel),h=header(m,entity),index=find(m,h,owner);++o.relations;if(index!=m.r32(h+0x94u))continue;m.w8(rel+0xcu,1u);++o.marked;const unsigned marked=m.r32(owner+0xa8u)+1u;m.w32(owner+0xa8u,marked);if(marked==1u){const unsigned count=m.r32(h+0x14u),last=m.r32(m.r32(h+8u)+(count-1u)*4u),source=m.r32(relation(m,last,entity)+4u);for(unsigned k=0;k<111u;++k)m.w8(owner+0x38u+k,m.r8(source+k));}}
+ need(o.marked>0u,"1041 positive qualifying relation");m.w32(owner+0xb0u,0xffffffffu);const unsigned count=m.r32(owner+0x30u),candidates=m.r32(owner+0x24u);need(count>=2u&&count<=7u,"1041 positive candidate list");for(unsigned j=0;j<count;++j){const auto wanted=triplet(m,i,owner+0x38u,o),candidate=triplet(m,i,m.r32(candidates+j*4u),o);if(wanted==candidate){m.w32(owner+0xb0u,j);o.matched=j;return candidate[0];}}throw std::domain_error("1041 positive matching candidate");
+}
+}

@@ -1,0 +1,6 @@
+#include "recovered/recovery_b882.hpp"
+#include <string>
+namespace ra2::recovered::recovery_b882 {using U=std::uint32_t;namespace {void need(bool b,const char*s){if(!b)throw std::domain_error(s);}void append(std::u16string&s,U c){need(c>=32&&c<0xd800,"882 validBMPunit");s+=char16_t(c);}}
+U fun_00775d7e(Memory&m,const Inputs&i){U stream=i.arg[0],fmt=i.arg[1],ap=i.arg[2],start=fmt,used=0;need(stream&&fmt&&ap&&m.r32(stream+12)==0x42&&m.r32(stream+4)>=512,"882 positivewidebuffer");std::u16string output;for(;;){need(fmt-start<256,"882 boundedwideformat");U c=m.r16(fmt);fmt+=2;if(!c)break;if(c!='%'){append(output,c);continue;}U kind=m.r16(fmt);fmt+=2;if(kind=='%'){output+=u'%';continue;}need(++used<=8&&(kind=='s'||kind=='c'),"882 explicitwideconversions");U v=m.r32(ap);ap+=4;if(kind=='c')append(output,v&65535);else{need(v,"882 nonnullstring");U k=0;for(;k<7&&m.r16(v+2*k);++k)append(output,m.r16(v+2*k));need(k>=1&&k<=6,"882 boundednonemptywstring");}}
+ need(used&&output.size()<256,"882 usefulboundedresult");U dest=m.r32(stream);for(U k=0;k<output.size();++k)m.w16(dest+2*k,output[k]);m.w32(stream,dest+2*U(output.size()));m.w32(stream+4,m.r32(stream+4)-2*U(output.size()));i.arg[1]=fmt;i.arg[2]=ap;return U(output.size());}
+}

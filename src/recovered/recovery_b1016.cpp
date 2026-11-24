@@ -1,0 +1,11 @@
+#include "recovered/recovery_b1016.hpp"
+#include "recovered/recovery_b1016_lookup.hpp"
+#include "platform/observed_combo1016.hpp"
+namespace ra2::recovered::b1016 {
+namespace api=ra2::recovered::b1016::ui;
+unsigned run(Memory&m,const Inputs&i,Heap&heap,unsigned root){ui::need(root==0xd1310u||root==0xd10b0u||root==0xd0c50u,"1016 selectedroot");ui::need(m.r32(0x817554u)==0u&&m.r32(0xb10e14u)==0u,"1016 exactordinarymalloc9/free route");unsigned ordinal=i.dx;if(root==0xd1310u){ordinal=8u;for(unsigned k=0;k<8u;++k)if(ui::combo_id(k)==i.dx)ordinal=k;}ui::need(ordinal<8u,"1016 boundedstandardcontrol mapping");auto parent=reinterpret_cast<HWND>(std::uintptr_t(i.cx));const int id=ui::combo_id(ordinal);
+ if(root!=0xd0c50u){const unsigned wanted=root==0xd1310u?i.arg[0]:m.r32(0xa25700u)==0xfffffffeu?0xfffffffeu:m.r32(0xa256fcu);const auto combo=api::get(parent,id);const BOOL previous=api::show(combo,SW_HIDE);const auto count=api::send(parent,id,CB_GETCOUNT,0u,0);ui::need(count==4,"1016 actualfouritemComboBox");for(unsigned j=0;j<unsigned(count);++j)if(unsigned(api::send(parent,id,CB_GETITEMDATA,j,0))==wanted){api::send(parent,id,CB_SETCURSEL,j,0);break;}if(previous!=FALSE)api::show(combo,SW_SHOW);}
+ const auto preview=api::get(parent,int(0x6dau+ordinal));const auto selected=api::send(parent,id,CB_GETCURSEL,0u,0);ui::need(selected>=0&&selected<4,"1016 actualselecteditem");Inputs lookup{};lookup.cx=unsigned(api::send(parent,id,CB_GETITEMDATA,WPARAM(selected),0));const auto resource=lookup199::fun_004d0b50(m,lookup,heap);const unsigned key=ui::pointer(preview);ui::need(m.r32(0xa5b1b8u)==0x5d6fc0u&&m.r32(0xa5b1acu)==7u&&m.r32(0xa5b1a4u)>0u,"1016 authenticpreparedHWNDhash");unsigned node=m.r32(m.r32(0xa5b1a0u)+4u*(key&127u)),seen=0u;while(node&&m.r32(node)!=key){ui::need(++seen<4u,"1016 boundedpositiveHWNDchain");node=m.r32(node+0x204u);}ui::need(node!=0u,"1016 existingpreviewrecord");m.w32(node+0x74u,2u);m.w32(node+0x18u,resource);return unsigned(api::invalidate(preview,nullptr,TRUE));
+}
+unsigned fun_004d1310(Memory&m,const Inputs&i,Heap&h){return run(m,i,h,0xd1310u);}unsigned fun_004d10b0(Memory&m,const Inputs&i,Heap&h){return run(m,i,h,0xd10b0u);}unsigned fun_004d0c50(Memory&m,const Inputs&i,Heap&h){return run(m,i,h,0xd0c50u);}
+}

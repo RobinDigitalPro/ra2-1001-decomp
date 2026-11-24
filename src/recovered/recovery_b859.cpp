@@ -1,0 +1,3 @@
+#include "recovered/recovery_b859.hpp"
+#include "platform/desktop_metrics859.hpp"
+namespace ra2::recovered::recovery_b859 {std::uint32_t fun_0072b940(Memory&m,const Inputs&i){using U=std::uint32_t;auto get=ra2::platform::desktop_metrics859::get;U p=i.arg[0];bool changed=false;int left=int(m.r32(p)),top=int(m.r32(p+4));if(left<0){m.w32(p,0);m.w32(p+8,m.r32(p+8)-U(left));changed=true;}if(top<0){m.w32(p+4,0);m.w32(p+12,m.r32(p+12)-U(top));changed=true;}int v=get(16);if(int(m.r32(p+8))>v){v=get(16);m.w32(p,m.r32(p)+U(v)-m.r32(p+8));v=get(16);m.w32(p+8,U(v));changed=true;}v=get(17);if(int(m.r32(p+12))>v){v=get(17);m.w32(p+4,m.r32(p+4)+U(v)-m.r32(p+12));v=get(17);m.w32(p+12,U(v));changed=true;}return(U(v)&0xffffff00u)|U(changed);}}

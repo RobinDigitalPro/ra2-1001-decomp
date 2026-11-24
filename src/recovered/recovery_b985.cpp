@@ -1,0 +1,11 @@
+#include "recovered/recovery_b985.hpp"
+#include "platform/observed_window_b985.hpp"
+#include <algorithm>
+#include <cstdint>
+#include <stdexcept>
+namespace ra2::recovered::b985 {
+using U=std::uint32_t; using I=std::int32_t; namespace api=ra2::platform::window_api_b985;
+static I signed32(U x){return static_cast<I>(x);} static I half_positive(I x){I q=x/2;return q>0?q:0;}
+static I nearest_slot(I sample,I step){if(step<=0)throw std::domain_error("B985 flag-zero requires positive IDIV step");I q=sample/step,rem=sample%step;const std::int64_t to_q=rem<0?-std::int64_t(rem):rem;const std::int64_t delta=std::int64_t(step)-rem;const std::int64_t to_next=delta<0?-delta:delta;return to_q>=to_next?q+1:q;}
+std::uint32_t fun_005e0f80(Memory&m,const Inputs&i){HWND child=reinterpret_cast<HWND>(std::uintptr_t(i.cx));HWND parent=api::get_parent(child);const bool alternate=m.r8(0x00a27f64u)!=0;RECT p{},c{};if(!api::get_window_rect(parent,&p)||!api::get_window_rect(child,&c))throw std::runtime_error("B985 positive GetWindowRect route failed");const I pw=p.right-p.left;I x{},y{},width{},height{};if(!alternate){const I ph=p.bottom-p.top;const U size=m.r32(0x00aa8b70u),row=m.r32(0x00aa8c58u);width=static_cast<std::int16_t>(m.r16(size+2u));height=static_cast<std::int16_t>(m.r16(size+4u));const I xpad=half_positive(pw-signed32(m.r32(0x00798c00u)));const I step=signed32(m.r32(row+0xcu)),anchor=signed32(m.r32(row+4u)),vref=signed32(m.r32(0x00798c0cu)),requested=signed32(m.r32(i.dx+4u));const I yadjust=half_positive(ph-vref)-half_positive(requested-vref);const I sample=c.top-anchor-p.top+yadjust;y=anchor+step*nearest_slot(sample,step);x=pw-xpad-156;}else{const U size=m.r32(0x00aa8b00u),row=m.r32(0x00aa8c7cu);width=static_cast<std::int16_t>(m.r16(size+2u));height=static_cast<std::int16_t>(m.r16(size+4u));const I anchor=signed32(m.r32(row+4u));HWND parent_again=api::get_parent(child);RECT p2{},c2{};if(!parent_again||!api::get_window_rect(parent_again,&p2)||!api::get_window_rect(child,&c2))throw std::runtime_error("B985 flag-one positive GetWindowRect route failed");const I child_height=c2.bottom-c2.top;const I numer=c2.top-p2.top+child_height/2-198;const I quotient=numer/44;y=anchor+quotient*height;x=pw-147;}return U(api::move_window(child,x,y,width,height,FALSE));}
+}

@@ -1,0 +1,35 @@
+#include "recovered/recovery_b1129.hpp"
+#include <algorithm>
+#include <stdexcept>
+namespace ra2::recovered::b1129 {
+static void need(bool x){if(!x)throw std::domain_error("1129 original map7x11/playable2,2,3,3 positive graph");}
+static std::uint64_t read64(Memory&m,unsigned a){return m.r32(a)|(std::uint64_t(m.r32(a+4u))<<32u);}
+static unsigned draw(Memory&m){constexpr unsigned r=0xa581d8u;need(m.r8(r)==0u);const auto i=m.r32(r+4u),j=m.r32(r+8u);need(i<250u&&j<250u);const auto v=m.r32(r+12u+4u*i)^m.r32(r+12u+4u*j);m.w32(r+12u+4u*i,v);m.w32(r+4u,i==249u?0u:i+1u);m.w32(r+8u,j==249u?0u:j+1u);return v;}
+static void unsigned_load(State&f,unsigned x){const std::uint64_t v=x;ra2::platform::x87::Image host;asm volatile("fnsave %[host]\n\tfrstor %[guest]\n\tfildq %[v]\n\tfnsave %[guest]\n\tfrstor %[host]":[host]"=m"(host.bytes),[guest]"+m"(f.image.bytes):[v]"m"(v):"memory","st","st(1)","st(2)","st(3)","st(4)","st(5)","st(6)","st(7)");}
+struct Map {
+ Memory&m;unsigned table,aux;
+ unsigned cell(unsigned p)const{return m.r32(table+4u*((p&65535u)+512u*(p>>16u)));}
+ unsigned slot(unsigned p)const{return aux+80u*((p&65535u)+19u*(p>>16u));}
+ void begin(){m.w32(0x81a928u,1u);m.w32(0x81a92cu,7u);m.w32(0x81a930u,6u);m.w32(0x81a934u,table+4u*(1u+512u*7u));}
+ unsigned next(){auto x=m.r32(0x81a928u),y=m.r32(0x81a92cu),left=m.r32(0x81a930u),p=m.r32(0x81a934u);const auto value=m.r32(p);if(left){++x;--y;--left;p-=2044u;}else{std::swap(x,y);unsigned width=7u;if((x-width+y-1u)&1u){++y;--width;}else{++x;width-=2u;}left=width;p=table+4u*(x+512u*y);}m.w32(0x81a928u,x);m.w32(0x81a92cu,y);m.w32(0x81a930u,left);m.w32(0x81a934u,p);return value;}
+ bool playable(unsigned p)const{const int x=std::int16_t(p),y=std::int16_t(p>>16u);return x+y>11&&x+y<=19&&x-y<3&&y-x<3;}
+ unsigned adjacent(unsigned p,unsigned d)const{const auto delta=m.r32(0x839da0u+4u*d);return unsigned(std::uint16_t(std::uint16_t(p)+std::uint16_t(delta)))|(unsigned(std::uint16_t(std::uint16_t(p>>16u)+std::uint16_t(delta>>16u)))<<16u);}
+};
+static void geometry(Memory&m,unsigned self,unsigned requested){need(self==0x81a820u&&m.r32(0x821cacu)==0u&&m.r32(0xa28870u)==0u);int full[4],input[4];for(unsigned k=0;k<4u;++k){full[k]=int(m.r32(self+0xe8u+4u*k));input[k]=int(m.r32(requested+4u*k));}need(full[0]==0&&full[1]==0&&full[2]==7&&full[3]==11&&input[0]==2&&input[1]==2&&input[2]==3&&input[3]==3);
+ // Original41FDF0 intersection, then146F70 clamps.
+ const int x=std::max(full[0],input[0]),y=std::max(full[1],input[1]),w=std::min(full[0]+full[2],input[0]+input[2])-x,h=std::min(full[1]+full[3],input[1]+input[3])-y;need(w>0&&h>0);m.w32(self+0xf8u,unsigned(x));m.w32(self+0xfcu,unsigned(y));m.w32(self+0x100u,unsigned(w));m.w32(self+0x104u,unsigned(h));const auto cx=std::max(x,2),cy=std::max(y,2);m.w32(self+0xf8u,unsigned(cx));m.w32(self+0xfcu,unsigned(cy));m.w32(self+0x100u,unsigned(std::min(w,full[2]-cx-2)));m.w32(self+0x104u,unsigned(std::min(h,full[3]-cy-6)));
+ // ActualE0030→557AB0. Empty original entity registry avoids dispatch;
+ // geometry and redraw epoch still change positively.
+ if(m.r32(self+12u)!=2u)m.w32(self+12u,2u);m.w8(self+0x1154u,m.r8(self+0x1154u)+1u);
+}
+static void caches(Memory&m,Map&map,Inputs const&i){const unsigned s=i.cx;const int x=int(m.r32(s+0xf8u)),y=int(m.r32(s+0xfcu)),width=int(m.r32(s+0x100u));const int originx=x+y+1,originy=7-x+y,a=originy-originx,b=(originx+width-1)-(originy+1-width);m.w32(s+0x148cu,unsigned(a));m.w32(s+0x1490u,unsigned(b));m.w32(s+0x1494u,0xffffffffu);m.w32(s+0x1498u,10000u);m.w32(s+0x149cu,10000u);m.w32(s+0x14a0u,0u);m.w32(s+0x14a4u,0u);map.begin();unsigned seen=0u;for(auto p=map.next();p;p=map.next()){need(++seen<=143u);const auto coord=m.r32(p+0x24u);i.arg[0]=coord;if(!map.playable(coord))continue;const int cx=std::int16_t(coord),cy=std::int16_t(coord>>16u);if(m.r32(s+0x1494u)==0xffffffffu)m.w32(s+0x1494u,unsigned(cx+cy));int u=a-cy+cx,v=cx+cy-int(m.r32(s+0x1494u)),span=2;if(u==-1){u=0;span=1;}else if(u==2*width-1)span=1;auto minimum=int(m.r32(s+0x1498u));if(u<minimum)m.w32(s+0x1498u,unsigned(u));else if(u+span>minimum+int(m.r32(s+0x14a0u)))m.w32(s+0x14a0u,unsigned(u+span-minimum));minimum=int(m.r32(s+0x149cu));if(v<minimum)m.w32(s+0x149cu,unsigned(v));else if(v+1>minimum+int(m.r32(s+0x14a4u)))m.w32(s+0x14a4u,unsigned(v+1-minimum));}need(seen==143u);}
+unsigned run(unsigned root,Memory&m,const Inputs&i,Heap&heap,State&f){need(root==0x146f70u||root==0x180ea0u||root==0x227ec0u);need(f.image.word(0)==0xe7fu&&f.image.word(4)==0u&&f.image.word(8)==0xffffu);Map map{m,m.r32(0x81a958u),m.r32(0xa5863cu)};need(m.r32(0x81a910u)==7u&&m.r32(0x81a914u)==11u&&m.r32(0x836b4cu)==19u&&m.r32(0xa58634u)==7u&&m.r32(0xa58638u)==29u);if(root!=0x180ea0u){geometry(m,i.cx,i.arg[0]);if(root==0x227ec0u)caches(m,map,i);return 0u;}
+ constexpr unsigned seed=0x70007u,south=0x80007u;need(m.r32(i.arg[0])==seed&&i.arg[1]==1u&&i.arg[2]==1u&&i.arg[3]==1u&&m.r32(0x817554u)==0u&&m.r32(0xb10e14u)==0u);need(m.r32(0x81a918u)==2u&&m.r32(0x81a91cu)==2u&&m.r32(0x81a920u)==3u&&m.r32(0x81a924u)==3u);const auto cell=map.cell(seed);need(m.r32(cell+0x44u)==0xffffffffu&&m.r8(map.slot(seed)+0x45u)==0u);
+ const auto nodes=heap.allocate(80u),header=heap.allocate(20u);need(nodes&&header);heap.w32(header,0u);heap.w32(header+4u,10u);heap.w32(header+12u,0u);heap.w32(header+16u,0xffffffffu);const auto array=heap.allocate(44u);need(array);heap.w32(header+8u,array);for(unsigned k=0;k<11u;++k)heap.w32(array+4u*k,0u);map.begin();unsigned cells=0u;for(auto p=map.next();p;p=map.next()){need(++cells<=143u);m.w32(map.slot(m.r32(p+0x24u))+0x3cu,0u);}need(cells==143u);
+ heap.w32(nodes,seed);heap.w32(nodes+4u,0u);m.w32(map.slot(seed)+0x3cu,1u);heap.w32(array+4u,nodes);heap.w32(header,1u);heap.w32(header+12u,nodes);heap.w32(header+16u,nodes);heap.w32(array+4u,0u);heap.w32(header,0u);
+ // Original58115E/581160 clears queue and resets node cursor0 before overlay.
+ unsigned choice;do{unsigned_load(f,draw(m));f.multiply64(read64(m,0x790fb8u));choice=unsigned(f.pop_integer64());}while(choice>11u);m.w32(cell+0x44u,27u+choice);unsigned enqueued=0u;
+ for(unsigned d=0;d<8u;++d){const auto q=map.adjacent(heap.r32(nodes),d);if(!map.playable(q)){need(d==5u&&q==0x90006u);continue;}const auto target=map.cell(q);need(target&&m.r32(target+0x24u)==q&&m.r8(target+0x11cu)==0u);const auto type=m.r32(target+0x38u);if(type!=0xffffu&&type!=0u)continue;need(q==south&&enqueued++==0u&&m.r32(target+0x44u)==0xffffffffu&&m.r32(map.slot(q)+0x3cu)!=1u);heap.w32(nodes,q);f.load_integer32(1u);const auto arg=f.pop64();f.load64(arg);f.compare32(m.r32(0x785738u));f.compare32(m.r32(0x785738u));need(f.pop32()==0x3f800000u&&m.r32(0x80013cu)==0u);f.load32(m.r32(0x80013cu)+0x3f800000u);const auto distance=f.pop64();unsigned_load(f,draw(m));f.multiply64(read64(m,0x790cd8u));f.multiply64(read64(m,0x790db0u));f.add64(distance);heap.w32(nodes+4u,f.pop32());m.w32(map.slot(q)+0x3cu,1u);heap.w32(array+4u,nodes);heap.w32(header,1u);}
+ need(enqueued==1u);heap.w32(array+4u,0u);heap.w32(header,0u);heap.release(nodes);heap.release(array);return heap.release(header);
+}
+}

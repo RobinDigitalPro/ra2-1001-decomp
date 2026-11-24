@@ -1,0 +1,5 @@
+#include "recovered/recovery_b1583.hpp"
+#include <stdexcept>
+namespace ra2::recovered::b1583 {
+unsigned run(Memory&m,const Inputs&i,Heap&heap,Observation&o){auto need=[](bool v){if(!v)throw std::domain_error("B1583 finite genuine header suffix");};const unsigned n=i.cx,ref=i.dx;need(n!=0&&ref!=0);const unsigned first=m.r32(m.r32(ref+4)),old=heap.r32(first),h=m.r32(old+0x408),nh=m.r32(n+0x408);need(h!=0&&nh!=0&&m.r32(h+4)==0x7931dc&&m.r32(nh+4)==0x7931dc);const unsigned total=m.r32(h+0x14),array=m.r32(h+8);need(total>=3&&total<=6&&m.r32(h+0xc)==16&&m.r8(h+0x10)==1&&m.r8(h+0x11)==0&&array!=0);need(m.r32(nh+0xc)==16&&m.r8(nh+0x10)==1&&m.r8(nh+0x11)==0&&m.r32(nh+0x14)==1);unsigned start=0;while(start<total&&m.r32(array+4*start)!=ref)++start;need(start<total&&start>=1);const unsigned count=total-start;need(count>=1&&count<=3&&m.r32(h+0x94)==0xffffffffu&&m.r8(0xa5e2e8)==1);Inputs child=i;child.cx=h;child.arg[0]=n;child.arg[1]=start;child.arg[2]=count;b1043::run(m,child,heap,0x20b130u,o);i.fp=child.fp;m.w32(nh+0x90,0xffffffffu);m.w32(nh+0x94,0xffffffffu);m.w8(nh+0x98,1);return 0xffffff01u;}
+}

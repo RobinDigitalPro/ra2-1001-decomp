@@ -1,0 +1,5 @@
+#include "recovered/recovery_b877.hpp"
+#include <string>
+namespace ra2::recovered::recovery_b877 {using U=std::uint32_t;
+U fun_006aa040(global_b26::Memory&m,const global_b26::Inputs&i,const Eb750Case&c,platform::ordinary_heap::Heap&h){if(i.cx!=c.ini_root||m.r32(0xaa79b8)!=1||m.r32(m.r32(0xaa79ac))!=c.object)throw std::domain_error("877 one positive registryobject");U section=m.r32(0x797618);if(section!=0x7e04b8||probe_section(m,h,i.cx,section)||probe_section(m,h,i.cx,section))throw std::domain_error("877 count/clear missabsentTags");U o=c.object;if(m.r32(o)!=0x79768c||m.r32(0x7976f4)!=0x6aa1c0||m.r32(o+0xa0))throw std::domain_error("877 actualvirtualnull-linkedroute");std::string name;for(U k=0;k<64;++k){U b=m.r8(o+0x64+k);if(!b)break;name+=char(b);}if(name.empty()||name.size()>=64)throw std::domain_error("877 boundedname");auto value=name+",<none>";for(U k=0;k<value.size();++k)m.w8(c.value_scratch+k,std::uint8_t(value[k]));m.w8(c.value_scratch+U(value.size()),0);if(write_absent(m,h,i.cx,section,o+0x24,c.value_scratch)!=1)throw std::domain_error("877 successfulINIwrite");return m.r32(0xaa79b8);}
+}

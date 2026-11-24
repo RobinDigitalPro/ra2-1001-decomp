@@ -1,0 +1,22 @@
+#include "recovered/recovery_b1035.hpp"
+#include <stdexcept>
+#include <initializer_list>
+namespace ra2::recovered::b1035 {
+namespace {void need(bool ok,const char*s){if(!ok)throw std::domain_error(s);}}
+unsigned run(Memory&m,const Inputs&i,Heap&h,unsigned root){const unsigned p=i.cx;const bool self=root==0x1ca6e0u;
+ const auto r=[&](unsigned a){return self?h.r32(a):m.r32(a);};const auto w=[&](unsigned a,unsigned x){if(self)h.w32(a,x);else m.w32(a,x);};
+ unsigned last=0u;const auto release=[&](unsigned a){need(a!=0u,"1035 genuine positive owned allocation");last=h.release(a);need(last!=0u,"1035 genuine successful HeapFree");};
+ if(root==0x37aae0u){need(m.r32(0xb10530u)==0u,"1035 C-locale table reset route");m.w32(0x817560u,0x81756au);m.w32(0x817564u,0x81756au);release(m.r32(0xb106c4u));release(m.r32(0xb106c8u));m.w32(0xb106c4u,0u);m.w32(0xb106c8u,0u);return 0u;}
+ if(root==0x1c86e0u||self){w(p,0x7923d4u);const unsigned child=r(p+0x34u);for(unsigned off=0u;off<28u;off+=4u){release(h.r32(child+off));h.w32(child+off,0u);}release(child);need(r(p+0x38u)==0u&&r(p+0x40u)==0xffffffffu&&m.r32(0xb0d628u)==0u,"1035 unsupported provider/cache route absent");for(unsigned off:{0x50u,4u,0xcu}){release(r(p+off));w(p+off,0u);}w(p+0x3cu,0u);w(p,0x78f730u);if(self){need((i.arg[0]&1u)!=0u,"1035 genuine deleting destructor flag");release(p);return p;}return 0xffffffffu;}
+ if(root==0x1ce1f0u){for(unsigned j=0;j<4u;++j)m.w32(p+j*4u,j==0u?0x7926b8u:j==1u?0x79269cu:j==2u?0x792694u:0x79268cu);
+  const auto remove=[&](unsigned reg,unsigned vt){need(m.r32(reg)==vt,"1035 authentic original registry vtable producer");const unsigned count=m.r32(reg+16u),table=m.r32(reg+4u);need(count>=3u&&count<=6u,"1035 genuinely populated registry");unsigned index=0;while(index<count&&m.r32(table+index*4u)!=p)++index;need(index<count,"1035 receiver present in original registry");const unsigned remain=count-1u;m.w32(reg+16u,remain);for(unsigned k=index;k<remain;++k)m.w32(table+k*4u,m.r32(table+(k+1u)*4u));return remain;};
+  remove(0xa5aaf8u,0x79264cu);need(m.r8(p+0xa8u)==1u,"1035 genuine owned text descriptor");release(m.r32(p+0xa4u));m.w32(p+0xa4u,0u);m.w8(p+0xa8u,0u);for(unsigned off:{0x250u,0x23cu,0x228u,0x214u}){release(m.r32(p+off));for(unsigned delta:{0u,4u,8u,16u})m.w32(p+off+delta,0u);m.w8(p+off+12u,0u);}for(unsigned off=0xb0u;off<0x1b8u;off+=4u)need(m.r32(p+off)==0u,"1035 auxiliary paired object holders empty");for(unsigned j=0;j<4u;++j)m.w32(p+j*4u,j==0u?0x785e88u:j==1u?0x785e6cu:j==2u?0x785e64u:0x785e5cu);const unsigned result=remove(0xa28578u,0x78da64u);for(unsigned j=0;j<4u;++j)m.w32(p+j*4u,j==0u?0x785dd8u:j==1u?0x785dbcu:j==2u?0x785db4u:0x785dacu);return result;
+ }
+ need(root==0x90a80u,"1035 exact root");const unsigned array=m.r32(p+0x50u),n=m.r32(p+0x54u);need(n>=1u&&n<=4u&&h.r32(array-4u)==n,"1035 positive genuine original cookie row representation");
+ for(unsigned j=0;j<n;++j){const unsigned row=array+j*0x44u;for(unsigned off:{4u,0x40u,0xcu})release(h.r32(row+off));for(unsigned off:{0x28u,0x10u}){const unsigned q=row+off,count=h.r32(q+16u),table=h.r32(q+4u);need(h.r32(q)==0x78955cu&&h.r8(q+13u)==1u&&count>=1u&&count<=4u,"1035 authentic populated owned row vector");for(unsigned k=0;k<count;++k)release(h.r32(table+k*4u));h.w32(q+16u,0u);release(table);h.w32(q+4u,0u);h.w8(q+13u,0u);h.w32(q+8u,0u);}}
+ for(unsigned j=n;j>0u;--j){const unsigned row=array+(j-1u)*0x44u;for(unsigned off:{0x28u,0x10u}){const unsigned q=row+off;need(h.r32(q+4u)==0u,"1035 original array base cleanup sees already-cleared backing");h.w32(q,0x78957cu);h.w8(q+13u,0u);h.w32(q+8u,0u);}}release(array-4u);m.w32(p+0x50u,0u);m.w8(p+0x58u,0u);
+ // Exact bounded 50AD20 -> 50ADF0(null,null): no polymorphic list children,
+ // positive raw content backing plus owned linked allocations at+34.
+ m.w32(p,0x78db34u);need(m.r32(p+0xcu)==p+0x14u&&m.r32(p+0x10u)==0u&&m.r32(p+0x18u)==0u&&m.r32(p+0x1cu)==p+8u,"1035 actual490C60 empty INI sentinel link representation");release(m.r32(p+0x20u));for(unsigned off:{0x20u,0x24u,0x28u,0x30u})m.w32(p+off,0u);m.w8(p+0x2cu,0u);unsigned node=m.r32(p+0x34u),steps=0u;while(node){need(++steps<=4u,"1035 bounded positive owned INI node chain");release(h.r32(node));const unsigned next=h.r32(node+4u);release(node);m.w32(p+0x34u,next);node=next;}need(steps>=1u,"1035 positive owned INI linked payloads");m.w32(p+4u,0x785af4u);m.w32(p+0x14u,0x785afcu);m.w32(p+8u,0x785afcu);return p+8u;
+}
+}

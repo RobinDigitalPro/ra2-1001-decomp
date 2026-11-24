@@ -1,0 +1,54 @@
+#pragma once
+#include "leaf_memory.hpp"
+namespace ra2::recovered::leaf {
+std::uint32_t fun_006a7940(Memory& m,const Inputs& i);
+std::uint32_t fun_006a93d0(Memory& m,const Inputs& i);
+std::uint32_t fun_006a9420(Memory& m,const Inputs& i);
+std::uint32_t fun_006a9840(Memory& m,const Inputs& i);
+std::uint32_t fun_006ac180(Memory& m,const Inputs& i);
+std::uint32_t fun_006b0050(Memory& m,const Inputs& i);
+std::uint32_t fun_006b2fe0(Memory& m,const Inputs& i);
+std::uint32_t fun_006b50b0(Memory& m,const Inputs& i);
+std::uint32_t fun_006cc350(Memory& m,const Inputs& i);
+std::uint32_t fun_006cd9d0(Memory& m,const Inputs& i);
+std::uint32_t fun_006cdbb0(Memory& m,const Inputs& i);
+std::uint32_t fun_006ce3f0(Memory& m,const Inputs& i);
+std::uint32_t fun_006d0230(Memory& m,const Inputs& i);
+std::uint32_t fun_006d0490(Memory& m,const Inputs& i);
+std::uint32_t fun_006d4b30(Memory& m,const Inputs& i);
+std::uint32_t fun_006d4bf0(Memory& m,const Inputs& i);
+std::uint32_t fun_006dcf00(Memory& m,const Inputs& i);
+std::uint32_t fun_006dcf20(Memory& m,const Inputs& i);
+std::uint32_t fun_006dcf70(Memory& m,const Inputs& i);
+std::uint32_t fun_006dd830(Memory& m,const Inputs& i);
+std::uint32_t fun_006e1050(Memory& m,const Inputs& i);
+std::uint32_t fun_006e1540(Memory& m,const Inputs& i);
+std::uint32_t fun_006e3440(Memory& m,const Inputs& i);
+std::uint32_t fun_006e3470(Memory& m,const Inputs& i);
+std::uint32_t fun_006e34a0(Memory& m,const Inputs& i);
+std::uint32_t fun_006e34d0(Memory& m,const Inputs& i);
+std::uint32_t fun_006e3500(Memory& m,const Inputs& i);
+std::uint32_t fun_006e3540(Memory& m,const Inputs& i);
+std::uint32_t fun_006ee9f0(Memory& m,const Inputs& i);
+std::uint32_t fun_00701090(Memory& m,const Inputs& i);
+std::uint32_t fun_007010d0(Memory& m,const Inputs& i);
+std::uint32_t fun_00701100(Memory& m,const Inputs& i);
+std::uint32_t fun_007075d0(Memory& m,const Inputs& i);
+std::uint32_t fun_007076e0(Memory& m,const Inputs& i);
+std::uint32_t fun_00707d30(Memory& m,const Inputs& i);
+std::uint32_t fun_007080e0(Memory& m,const Inputs& i);
+std::uint32_t fun_00708110(Memory& m,const Inputs& i);
+std::uint32_t fun_0070e420(Memory& m,const Inputs& i);
+std::uint32_t fun_00711780(Memory& m,const Inputs& i);
+std::uint32_t fun_0071b670(Memory& m,const Inputs& i);
+std::uint32_t fun_0071bfb0(Memory& m,const Inputs& i);
+std::uint32_t fun_0071f330(Memory& m,const Inputs& i);
+std::uint32_t fun_00721e50(Memory& m,const Inputs& i);
+std::uint32_t fun_00721e70(Memory& m,const Inputs& i);
+std::uint32_t fun_00721e90(Memory& m,const Inputs& i);
+std::uint32_t fun_00724f00(Memory& m,const Inputs& i);
+std::uint32_t fun_00724f20(Memory& m,const Inputs& i);
+std::uint32_t fun_00728620(Memory& m,const Inputs& i);
+std::uint32_t fun_00728650(Memory& m,const Inputs& i);
+std::uint32_t fun_0072e570(Memory& m,const Inputs& i);
+}

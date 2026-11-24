@@ -1,0 +1,2 @@
+#include "desktop_metrics859.hpp"
+namespace ra2::platform::desktop_metrics859 {namespace{Trace events;int WINAPI forward(int index){int value=::GetSystemMetrics(index);events.emplace_back(index,value);return value;}}int raw(int index){return ::GetSystemMetrics(index);}int get(int index){return forward(index);}void reset(){events.clear();}const Trace&trace(){return events;}std::uint32_t forwarder_address(){return std::uint32_t(reinterpret_cast<std::uintptr_t>(&forward));}}

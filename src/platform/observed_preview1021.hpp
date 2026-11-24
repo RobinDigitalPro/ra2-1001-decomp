@@ -1,0 +1,35 @@
+#pragma once
+#define NOMINMAX
+#include <windows.h>
+#include <array>
+#include <cstdint>
+#include <cstdio>
+#include <cstring>
+#include <stdexcept>
+#include <string>
+#include <vector>
+#include "recovery_b199_expected.hpp"
+namespace ra2::recovered::b1021::ui {
+inline void need(bool b,const char*s){if(!b)throw std::domain_error(s);}inline unsigned ptr(const void*p){static_assert(sizeof(void*)==4u);return unsigned(reinterpret_cast<std::uintptr_t>(p));}inline unsigned mix(unsigned x){x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
+struct Case{unsigned n,seed;};inline Case native_case(unsigned n){return{n,0x10210000u^mix(n)};}inline Case assurance_case(unsigned n){auto c=native_case(700+n);c.seed^=0xa55a1021u;return c;}
+inline unsigned resource_index(const Case&c,unsigned k){return(c.n+k)&1u;} //0host,1caption
+inline unsigned result(const Case&c,unsigned k){const auto&v=b199_test::expected_copies[resource_index(c,k)];return unsigned(v[0])|(unsigned(v[1])<<8u)|(unsigned(v[2])<<16u)|(unsigned(v[3])<<24u);}
+inline unsigned target_node(unsigned base,unsigned k){return base+0x6000u+0x600u*k+0x300u;}
+using Rect=std::array<LONG,4>;inline Rect rect(const RECT&r){return{r.left,r.top,r.right,r.bottom};}
+enum class Kind:unsigned{get=1,invalidate};struct Event{Kind kind{};unsigned hwnd=0,id=0,result=0,erase=0,after=0;bool nullrect=false;Rect dirty{};bool operator==(const Event&o)const{return kind==o.kind&&hwnd==o.hwnd&&id==o.id&&result==o.result&&erase==o.erase&&after==o.after&&nullrect==o.nullrect&&dirty==o.dirty;}};
+class Windows;inline Windows*active=nullptr;inline std::vector<Event>events;inline HWND WINAPI get(HWND,int);inline BOOL WINAPI invalidate(HWND,const RECT*,BOOL);
+class Windows{Case c_;HWND parent_{};std::array<HWND,8>children_{};std::array<LONG_PTR,8>procs_{};std::array<LONG,8>styles_{};std::array<Rect,8>rects_{},dirty_{};std::array<unsigned,8>invalid_result_{},dirty_result_{};unsigned base_=0,next_=0;
+ public:
+ explicit Windows(const Case&c):c_(c){parent_=::CreateWindowExA(0,"STATIC","1021 hidden parent",WS_POPUP,-800,-500,700,400,nullptr,nullptr,GetModuleHandleW(nullptr),nullptr);need(parent_&&!IsWindowVisible(parent_),"1021 actualhiddenparent");for(unsigned k=0;k<8u;++k){children_[k]=::CreateWindowExA(0,"STATIC","1021 preview",WS_CHILD|(((c.n+k)&1u)?WS_VISIBLE:0u),int(10+45*k),int(10+5*k),30+int((c.n+k)%15u),20+int((c.n+3*k)%13u),parent_,reinterpret_cast<HMENU>(std::uintptr_t(0x6d2u+k)),GetModuleHandleW(nullptr),nullptr);need(children_[k]!=nullptr,"1021 actualeightSTATICpreviews");procs_[k]=GetWindowLongPtrA(children_[k],GWLP_WNDPROC);styles_[k]=GetWindowLongA(children_[k],GWL_STYLE);RECT r{};need(::GetWindowRect(children_[k],&r)!=FALSE,"1021 initialpreviewRECT");rects_[k]=rect(r);::ValidateRect(children_[k],nullptr);invalid_result_[k]=unsigned(::InvalidateRect(children_[k],nullptr,TRUE));need(invalid_result_[k]!=0,"1021 independentgenuineInvalidateBOOLprobe");dirty_result_[k]=unsigned(::GetUpdateRect(children_[k],&r,FALSE));if(dirty_result_[k])dirty_[k]=rect(r);}reset();verify(false);}
+ ~Windows(){if(active==this)active=nullptr;if(parent_)DestroyWindow(parent_);}Windows(const Windows&)=delete;HWND parent()const{return parent_;}HWND child(unsigned k)const{return children_.at(k);}unsigned final_eax()const{return invalid_result_[7];}void observe_arena(unsigned base){base_=base;}
+ void reset(){need(!active,"1021 resetoutsidecandidate");for(auto h:children_)need(::ValidateRect(h,nullptr)!=FALSE,"1021 realpreviewupdatereset");need(::ValidateRect(parent_,nullptr)!=FALSE,"1021 realparentupdatereset");}
+ void verify(bool changed)const{need(IsWindow(parent_)&&!IsWindowVisible(parent_),"1021 genuinehiddenparentlifetime");for(unsigned k=0;k<8u;++k){char name[32]{},text[32]{};need(IsWindow(children_[k])&&!IsWindowVisible(children_[k])&&GetParent(children_[k])==parent_&&GetDlgItem(parent_,0x6d2u+k)==children_[k]&&GetClassNameA(children_[k],name,32)>0&&lstrcmpiA(name,"STATIC")==0&&GetWindowLongPtrA(children_[k],GWLP_WNDPROC)==procs_[k]&&GetWindowLongA(children_[k],GWL_STYLE)==styles_[k],"1021 allgenuinehandles/classes/WndProcs/styles");need(GetWindowTextA(children_[k],text,32)==12&&std::string(text)=="1021 preview","1021 allunchangedpreviewtexts");RECT r{};need(::GetWindowRect(children_[k],&r)!=FALSE&&rect(r)==rects_[k],"1021 completeunchangedpreviewgeometry");const auto dirty=unsigned(::GetUpdateRect(children_[k],&r,FALSE));need(dirty==(changed?dirty_result_[k]:0u),"1021 exacteachpreviewupdatestate");if(dirty)need(rect(r)==dirty_[k],"1021 completeeachpreviewupdaterect");}}
+ std::vector<Event>expected_trace()const{std::vector<Event>v;for(unsigned k=0;k<8u;++k){Event e{};e.kind=Kind::get;e.hwnd=ptr(parent_);e.id=0x6d2u+k;e.result=ptr(children_[k]);v.push_back(e);e=Event{};e.kind=Kind::invalidate;e.hwnd=ptr(children_[k]);e.result=invalid_result_[k];e.erase=TRUE;e.nullrect=true;e.after=dirty_result_[k];e.dirty=dirty_[k];v.push_back(e);}return v;}
+ void before(HWND h,const RECT*r,BOOL erase){need(base_&&next_<8&&h==children_[next_]&&!r&&erase==TRUE,"1021 eachorderedrealpreview/nullrect/eraseTRUE");const auto word=[](unsigned a){unsigned value;std::memcpy(&value,reinterpret_cast<const void*>(std::uintptr_t(a)),4);return value;};for(unsigned k=0;k<8u;++k){const auto node=target_node(base_,k);need(word(node)==ptr(children_[k]),"1021 originalmatchingHWNDkey");need(word(node+0x74u)==(k<=next_?2u:0xab000000u+c_.n+17u*k)&&word(node+0x18u)==(k<=next_?result(c_,k):0xef000000u+c_.n+19u*k),"1021 allprior/current/futurestoresobservedbeforeeachInvalidate");}const auto&payload=b199_test::expected_copies[resource_index(c_,next_)];need(std::memcmp(reinterpret_cast<const void*>(0xaa4bf0u),payload.data(),772u)==0,"1021 complete772bytecopybeforeeachactualInvalidate");++next_;}
+ void begin(){need(!active,"1021 exclusiveobserver");events.clear();events.reserve(16);next_=0;active=this;}void finish(){need(active==this,"1021 activeobserver");active=nullptr;need(next_==8u&&events==expected_trace(),"1021 complete16eventorder/parameters/fullBOOLs");verify(true);}
+};
+inline void active_need(){if(!active){std::fprintf(stderr,"1021 API outsidecandidate\n");ExitProcess(10);}}
+inline HWND WINAPI get(HWND h,int id){active_need();const auto result=::GetDlgItem(h,id);const auto error=GetLastError();Event e{};e.kind=Kind::get;e.hwnd=ptr(h);e.id=unsigned(id);e.result=ptr(result);events.push_back(e);SetLastError(error);return result;}
+inline BOOL WINAPI invalidate(HWND h,const RECT*r,BOOL erase){active_need();active->before(h,r,erase);const auto result=::InvalidateRect(h,r,erase);const auto error=GetLastError();Event e{};e.kind=Kind::invalidate;e.hwnd=ptr(h);e.result=unsigned(result);e.erase=unsigned(erase);e.nullrect=r==nullptr;RECT dirty{};e.after=unsigned(::GetUpdateRect(h,&dirty,FALSE));if(e.after)e.dirty=rect(dirty);events.push_back(e);SetLastError(error);return result;}
+template<class F>inline unsigned address(F f){return unsigned(reinterpret_cast<std::uintptr_t>(f));}
+}

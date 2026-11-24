@@ -1,0 +1,16 @@
+#include "recovered/recovery_b1238.hpp"
+#include <stdexcept>
+namespace ra2::recovered::b1238{namespace{
+void need(bool x){if(!x)throw std::domain_error("1238 bounded authentic selection route");}
+unsigned type(Memory&m,unsigned a){need(m.r32(a)==0x78e540u&&m.r32(0x78e5c4u)==0x505da0u&&m.r32(0x78e5c0u)==0x6b6910u);const auto t=m.r32(a+0x5a8u);need(m.r32(t)==0x78ea78u);return t;}
+void selectable(Memory&m,unsigned a){need(m.r8(a+0x76u)==0u&&m.r8(a+0x77u)==0u&&m.r8(0xa28953u)==0u&&m.r8(a+0x170u)==0u&&m.r8(type(m,a)+0x200u)==1u);}
+void player(Memory&m,unsigned a){auto h=m.r32(a+0x1b4u);need(h&&m.r32(h)==0x78dde0u&&m.r32(0xa255c8u)==0u&&m.r8(h+0x134u)==0u&&m.r8(h+0x135u)==1u);}
+// Actual5CB500: same player, no veto, positive spare-capacity tail insertion.
+void append(Memory&m,unsigned a,Heap&h){selectable(m,a);player(m,a);need(m.r32(a+0x3fcu)==0u&&m.r8(type(m,a)+0xb04u)==0u&&m.r32(a+0x58cu)==0xffffffffu&&m.r32(a+0x594u)==0u&&m.r32(a+0x208u)==0u&&m.r32(0x81b9c4u)==0u);const auto n=m.r32(0xa288b0u);need(n<10u&&m.r32(0xa288a0u)==0x788b7cu&&m.r32(0xa288a8u)==10u&&m.r8(0xa288adu)==1u&&m.r32(0xa288b4u)==10u&&m.r8(type(m,a)+0xaa8u)==0u&&(m.r8(a+0x14u)&1u));const auto pool=m.r32(0xa288a4u);if(n){const auto prior=h.r32(pool);player(m,prior);need(m.r32(prior+0x1b4u)==m.r32(a+0x1b4u));}m.w32(0xa288b0u,n+1u);h.w32(pool+4u*n,a);m.w32(0xaa8db4u,0u);m.w8(0xaa8db8u,0u);m.w8(a+0x77u,1u);}
+unsigned select(Memory&m,unsigned a,Heap&h){need(m.r8(a+0x373u)==0u);player(m,a);append(m,a,h);need(m.r32(a+0x34u)==0u&&m.r8(0xa5e2fcu)==0u&&m.r8(0xa5e2feu)==0u);unsigned e=1u;if(m.r8(0x7c3976u)){const auto t=type(m,a);need(m.r32(t+0x3e0u)==0u);e=t+0x3d0u;}m.w8(0xa5e2feu,1u);m.w8(0xa5e2feu,0u);return(e&0xffffff00u)|1u;}
+bool named(Memory&m,unsigned a,unsigned text){need(m.r8(a+0x7du)==1u);player(m,a);const auto t=type(m,a);need(m.r32(0xb10530u)==0u);for(unsigned k=0;k<25u;++k){auto x=m.r8(text+k),y=m.r8(t+0x24u+k);if(x>='A'&&x<='Z')x+=32u;if(y>='A'&&y<='Z')y+=32u;if(x!=y)return false;if(!x)return true;}throw std::domain_error("1238 actual bounded terminated Typeidentifier");}
+}
+unsigned run(unsigned root,Memory&m,const Inputs&i,Heap&h){if(root==0x9c1a0u){player(m,i.cx);need(m.r32(0x78e56cu)==0x508c50u);selectable(m,i.cx);const auto e=select(m,i.cx,h);m.w8(0x7c3976u,0u);return e;}need(root==0x2ec030u&&m.r8(0xaa8db9u)==1u);const auto flag=m.r8(0x7c3976u);m.w8(0x7c3976u,0u);const unsigned header=h.allocate(24u);need(header);h.w32(header,0x78579cu);h.w32(header+4u,0u);h.w32(header+8u,0u);h.w8(header+12u,1u);h.w8(header+13u,0u);h.w32(header+16u,0u);h.w32(header+20u,10u);const auto n=m.r32(0xa28870u),registry=m.r32(0xa28864u);need(n>=1u&&n<=4u);for(unsigned k=0;k<n;++k){const auto a=m.r32(registry+4u*k);need(named(m,a,i.cx));auto count=h.r32(header+16u);if(count==h.r32(header+8u)){need(count==0u);const auto data=h.allocate(40u);h.w32(header+4u,data);h.w32(header+8u,10u);h.w8(header+13u,1u);}h.w32(h.r32(header+4u)+4u*count,a);h.w32(header+16u,count+1u);}for(unsigned k=0;k<h.r32(header+16u);++k)select(m,h.r32(h.r32(header+4u)+4u*k),h);
+ // Actual40BBC0 scalar deleting destructor. Full EAX is freed this, not HeapFree BOOL.
+ h.w32(header,0x7857fcu);const auto data=h.r32(header+4u);h.release(data);h.w32(header+4u,0u);h.w8(header+13u,0u);h.w32(header+8u,0u);h.release(header);m.w8(0x7c3976u,flag);return header;}
+}

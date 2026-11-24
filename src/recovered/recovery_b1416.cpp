@@ -1,0 +1,83 @@
+#include "recovered/recovery_b1416.hpp"
+#include "platform/custom_combo1416.hpp"
+#include "platform/x87_state.hpp"
+#include "recovered/text_b104.hpp"
+namespace ra2::recovered::global_b26 {std::uint32_t fun_006eedc0(Memory&,const Inputs&);}
+namespace ra2::recovered::b1416 {
+namespace {using U=std::uint32_t;namespace fp=ra2::platform::x87;
+void need(bool b,const char*s){ui::need(b,s);}
+U lookup(Memory&m,U owner,U hwnd,U next){need(m.r32(owner+4)==1&&m.r32(owner+8)==128&&m.r32(owner+12)==7&&m.r32(owner+24)==0x5d6fc0,"1416 true scalar HWND registry");const U node=m.r32(m.r32(owner)+(hwnd&127)*4);need(node&&m.r32(node)==hwnd&&m.r32(node+next)==0,"1416 exact one real HWND record");return node;}
+U control(Memory&m,HWND h){return lookup(m,0xa5b1a0,ui::ptr(h),0x204)+4;}
+WNDPROC oldproc(Memory&m,HWND h){const U p=m.r32(lookup(m,0xa5b1e8,ui::ptr(h),8)+4);need(p==ui::addr(ui::context().os()),"1416 authentic captured oldOS procedure");return reinterpret_cast<WNDPROC>(std::uintptr_t(p));}
+void relative(HWND h,RECT&r){need(ui::rect(h,&r)!=0,"1416 actual72A250 screen success");RECT client{};POINT p{};auto parent=ui::context().parent();need(ui::client(parent,&client)!=0,"1416 parentclient");p.x=client.left;p.y=client.top;need(ui::screen(parent,&p)!=0,"1416 real screen conversion");r.left-=p.x;r.right-=p.x;r.top-=p.y;r.bottom-=p.y;}
+void load_unsigned(fp::State&f,U x){const std::uint64_t v=x;fp::Image host;asm volatile("fnsave %[h]\n\tfrstor %[g]\n\tfildq %[n]\n\tfnsave %[g]\n\tfrstor %[h]":[h]"=m"(host.bytes),[g]"+m"(f.image.bytes):[n]"m"(v):"memory","st","st(1)","st(2)","st(3)","st(4)","st(5)","st(6)","st(7)");}
+U ratio(U count){fp::State f;f.image=fp::capture_host();load_unsigned(f,count);f.divide_integer32(128);const U v=f.pop32();fp::restore_host(f.image);return v;}
+void lower(U value){fp::State f;f.image=fp::capture_host();f.load32(value);f.compare_pop64(0x3fc999999999999aull);need(f.status()&0x100,"1416 exact ratio below .2");fp::restore_host(f.image);}
+void insert_fp(U count){fp::State f;f.image=fp::capture_host();load_unsigned(f,count);f.divide_integer32(128);f.compare_pop64(0x3fe999999999999aull);need(f.status()&0x100,"1416 exact ratio below .8");fp::restore_host(f.image);}
+U readword(Heap&h,U p){return h.r8(p)|(h.r8(p+1)<<8);}
+U length_memory(Memory&m,U p){U n=0;while(m.r16(p+2*n)){need(n<6,"1416 exact bounded UTF16 source");++n;}return n;}
+U length_heap(Heap&h,U p){U n=0;while(readword(h,p+2*n)){need(n<6,"1416 exact owned UTF16 source");++n;}return n;}
+void copy_memory(Memory&m,Heap&h,U out,U in,U n){for(U k=0;k<=n;++k){const U w=m.r16(in+2*k);h.w8(out+2*k,w);h.w8(out+2*k+1,w>>8);}}
+void copy_heap(Heap&h,U out,U in,U n){for(U k=0;k<=n;++k){const U w=readword(h,in+2*k);h.w8(out+2*k,w);h.w8(out+2*k+1,w>>8);}}
+// Exact5F9CF0 on the warm min-capacity message map. Unlike acceptedB1199,
+// this fixture has a borrowed table and needs count0/1 and a missing key.
+bool remove_message(Memory&m,Heap&h,U message,U hwnd){constexpr U owner=0xa5aef8;const U count=m.r32(owner+4);if(!count)return false;need(count<=2,"1416 finite nested message count");const U q=ratio(count-1),at=m.r32(owner)+4*((message*hwnd)&127);U previous=0,node=m.r32(at);if(!node)return false;
+ while(node&&(h.r32(node)!=message||h.r32(node+4)!=hwnd)){previous=node;node=h.r32(node+12);}if(!node){lower(q);return false;}need(h.r8(node+8)==1,"1416 original published node byte");const U next=h.r32(node+12);if(previous){h.w32(previous+12,next);m.w32(owner+4,count-1);need(h.release(node)==1,"1416 real nonhead free");}else{need(h.release(node)==1,"1416 real head free");m.w32(at,next);m.w32(owner+4,count-1);}lower(q);return true;}
+}
+unsigned configure_crt(Memory&m,const Inputs&i){if(i.arg[0]>1016)return 0;m.w32(0x817554,i.arg[0]);return 1;}
+LRESULT CALLBACK combo_window_proc(HWND h,UINT msg,WPARAM w,LPARAM l){auto&c=ui::context();Memory&m=c.memory();Heap&heap=c.heap();need(h==c.combo()&&ui::candidate_message(msg),"1416 bounded original selected handler");const auto old=oldproc(m,h);RECT a{},b{},r{};relative(h,a);need(ui::client(h,&b)&&ui::rect(h,&r),"1416 actual handler geometry");const U p=control(m,h);need(m.r32(p+0x68)==3,"1416 actual ComboBox type3");
+ if(msg==0x4c2){need(w==0,"1416 append palette text");global_b26::Inputs convert{};convert.cx=U(l);const U narrow=global_b26::fun_006eedc0(m,convert);const U index=U(ui::call(old,h,0x143,0,LPARAM(narrow)));need(index<9,"1416 real successful OS addstring");const U n=length_memory(m,U(l)),node=heap.allocate(2*n+18);need(node,"1416 real original item allocation");heap.w32(node+8,node+16);heap.w32(node,m.r32(p+0x34));heap.w32(node+4,0);m.w32(p+0x34,node);heap.w32(node+12,1);copy_memory(m,heap,node+16,U(l),n);const U result=U(ui::call(old,h,0x151,index,LPARAM(node)));need(result!=0xffffffffu&&result!=0xfffffffeu,"1416 actual OS itemdata publication");return LRESULT(index);}
+ if(msg==0x150||msg==0x151){const U node=U(ui::call(old,h,0x150,w,0));if(node==0xffffffffu||node==0)return LRESULT(0xffffffffu);need(w<9,"1416 real valid owned row");if(msg==0x150)return LRESULT(heap.r32(node+4));heap.w32(node+4,U(l));return LRESULT(node);}
+ if(msg==0x4dd){need(w==0&&l==1,"1416 original palette-enable byte");m.w8(p+0xcc,U(l));return ui::call(oldproc(m,h),h,msg,w,l);}
+ if(msg==0x498){need(w<9,"1416 original bounded per-item color");m.w32(p+0x110+4*U(w),U(l));return ui::call(oldproc(m,h),h,msg,w,l);}
+ if(msg==0x4de){need(w==0&&l==9,"1416 actual format field");m.w32(p+0xd0,U(l));return ui::call(oldproc(m,h),h,msg,w,l);}
+ if(msg==0x14e){need(w<9&&l==0,"1416 actual finite selection");m.w32(p+0xf8,U(w));const U node=U(ui::call(old,h,0x150,w,0));need(node&&node!=0xffffffffu&&heap.r32(node+12)==1,"1416 selected genuine UTF16 item");(void)ui::send(h,0x4b2,0,LPARAM(heap.r32(node+8)));const U style=U(ui::window_long(h,GWL_STYLE));need((style&3)==3,"1416 actual dropdownlist style");(void)ui::invalidate(h,nullptr,FALSE);return ui::call(oldproc(m,h),h,msg,w,l);}
+ // 4B2 checks the real dropdown style before forwarding;14B starts empty.
+ if(msg==0x4b2){const U style=U(ui::window_long(h,GWL_STYLE));need((style&3)==3,"1416 actual4B2 dropdownlist style path5EE19C");}if(msg==0x14b)need(m.r32(p+0x34)==0&&m.r32(p+0x28)==0,"1416 original empty reset ownership");need(msg==0x14b||msg==0x146||msg==0x4b2,"1416 reviewed default message");return ui::call(oldproc(m,h),h,msg,w,l);
+}
+LRESULT CALLBACK common_window_proc(HWND h,UINT msg,WPARAM w,LPARAM l){auto&c=ui::context();Memory&m=c.memory();Heap&heap=c.heap();const U hwnd=ui::ptr(h),owner=0xa5aef8;need(h==c.combo()&&ui::candidate_message(msg),"1416 reviewed common message");need(m.r32(lookup(m,0xa5af60,hwnd,8)+4)==0x5ecc60,"1416 actual selected procedure");(void)oldproc(m,h);need(m.r8(0xa5dc94)==3&&m.r32(0xa5dc70)==0&&m.r32(0xa5dc74)==0&&m.r32(0xa5dc78)==0&&m.r8(0xa28968)==0,"1416 original warm nonmodal/nonpaint state");need(m.r32(owner+4)<=1&&m.r32(owner+8)==128&&m.r32(owner+12)==7&&m.r32(owner+24)==0x5d6fd0&&m.r32(owner+48)==128,"1416 actual bounded pairhash");need(m.r32(owner+32)==0x9999999a&&m.r32(owner+36)==0x3fc99999&&m.r32(owner+40)==0x9999999a&&m.r32(owner+44)==0x3fe99999,"1416 original .2/.8 factors");RECT a{},r{};relative(h,a);need(ui::rect(h,&r),"1416 actual common rectangle");
+ const U at=m.r32(owner)+4*((msg*hwnd)&127);for(U q=m.r32(at);q;q=heap.r32(q+12))need(heap.r32(q)!=msg||heap.r32(q+4)!=hwnd,"1416 no same-message recursion shortcut");need(!remove_message(m,heap,msg,hwnd),"1416 original initial lookup is missing key");const U node=heap.allocate(16);need(node,"1416 real temporary message owner");heap.w32(node,msg);heap.w32(node+4,hwnd);heap.w8(node+8,1);heap.w32(node+12,m.r32(at));m.w32(at,node);m.w32(owner+4,m.r32(owner+4)+1);insert_fp(m.r32(owner+4));RECT b{},r2{};need(ui::client(h,&b),"1416 real common client");relative(h,r2);m.w8(0x7d2ea8,m.r8(0xa28968));const U p=control(m,h);need(m.r32(p+0x24)==0&&m.r32(0xa5b46c)!=hwnd,"1416 ordinary nonpaint route");
+ if(msg==0x4b2){need(w==0&&m.r32(p+0x28)==0&&m.r32(p+0x70)==0,"1416 actual initial selectedlabel state");const U n=length_heap(heap,U(l));need(n>0,"1416 positive UTF16 selected label");const U text=heap.allocate(2*n+2);need(text,"1416 genuine selectedlabel owner");m.w32(p+0x28,text);copy_heap(heap,text,U(l),n);m.w32(p+0x2c,0);}
+ const LRESULT result=ui::call(&combo_window_proc,h,msg,w,l);need(remove_message(m,heap,msg,hwnd),"1416 genuine current-message unlink");return result;
+}
+// Parent-reviewed scalar root; provider assembly awaits frozen B1414.
+// This fragment is not compiled or claimed ready on its own.
+// Finite D18C0 route over the original hidden ComboBox and the actual
+// D1700-produced palette table. Provider/oracle assembly is owned separately.
+unsigned fun_004d18c0(Memory&m,const Inputs&i,Heap&heap){
+ auto&c=ui::context();
+ need(&c.memory()==&m&&&c.heap()==&heap&&i.cx==ui::ptr(c.parent())&&i.dx==0x6a2,"1416 actual parent and selected control ID");
+ const auto host=fp::capture_host();fp::restore_host(i.fp.image);
+ try{
+  const HWND child=ui::get(c.parent(),int(i.dx));
+  need(child==c.combo(),"1416 actual selected ComboBox child");
+  const U old_visible=U(ui::show(child,0));
+  need(old_visible==0,"1416 finite initially hidden child");
+  (void)ui::send(child,0x14b,0,0);
+  (void)ui::send(child,0x4dd,0,1);
+  (void)ui::send(child,0x4de,0,9);
+  global_b26::Inputs lookup{};lookup.cx=0x7c387c;lookup.dx=0;
+  lookup.arg[0]=0x7c3704;lookup.arg[1]=0x197;
+  const U random=ra2::recovered::text_b104::fun_006eeb60(m,lookup);
+  U index=U(ui::send(child,0x4c2,0,LPARAM(random)));
+  need(index==0,"1416 Random row has original zero index");
+  (void)ui::send(child,0x151,index,LPARAM(0xfffffffeu));
+  (void)ui::send(child,0x498,index,LPARAM(0xffffffffu));
+  U selected=0xffffffffu,zero_assignments=0;
+  for(U k=0;k<8;++k){
+   const U row=0x84e408+12*k,text=m.r32(row),color=m.r32(row+4),assignment=m.r32(row+8);
+   need(text&& (assignment==0||assignment==0xffffffffu),"1416 bounded D1700 palette row");
+   const U added=U(ui::send(child,0x4c2,0,LPARAM(text)));
+   need(added==k+1,"1416 original append index order");
+   (void)ui::send(child,0x498,added,LPARAM(color));
+   (void)ui::send(child,0x151,added,LPARAM(k));
+   if(assignment==0){selected=added;++zero_assignments;}
+  }
+  need(zero_assignments==1&&selected>=1&&selected<=8,"1416 exactly one original selected palette assignment");
+  const U result=U(ui::send(child,0x14e,selected,0));
+  const U returned=(result&0xffffff00u)|1u;
+  i.fp.image=fp::capture_host();fp::restore_host(host);return returned;
+ }catch(...){fp::restore_host(host);throw;}
+}
+
+}

@@ -1,0 +1,4 @@
+#include "recovered/recovery_b883.hpp"
+namespace ra2::recovered::recovery_b883 {using U=std::uint32_t;
+U fun_0041d6f0(global_b26::Memory&m,const global_b26::Inputs&i,const Eb750Case&c,platform::ordinary_heap::Heap&h){if(i.cx!=c.ini_root||i.dx||m.r32(0xa255a0)!=1||m.r32(m.r32(0xa25594))!=c.object||!m.r32(c.object+0x9c))throw std::domain_error("883 one enabledflag object, skippeddefinitionmatch");U definitions=m.r32(0x786748),enabled=m.r32(0x78674c);if(definitions!=0x7b9a40||enabled!=0x7b9a28||probe_section(m,h,i.cx,definitions)||probe_section(m,h,i.cx,definitions)||probe_section(m,h,i.cx,enabled))throw std::domain_error("883 absenttargetsections");U value=m.r8(c.object+0xa4)?0x7c6560:0x7c655c;if(write_absent(m,h,i.cx,enabled,c.object+0x24,value)!=1)throw std::domain_error("883 successfulflagwrite");return m.r32(0xa255a0);}
+}

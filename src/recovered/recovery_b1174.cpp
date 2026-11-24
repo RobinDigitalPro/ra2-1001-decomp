@@ -1,0 +1,12 @@
+#include "recovered/recovery_b1174.hpp"
+#include "recovered/name_hash.hpp"
+#include <stdexcept>
+#include <string>
+namespace ra2::recovered::b1174 {namespace {
+void need(bool b,const char*s){if(!b)throw std::domain_error(s);}
+std::string source_text(Heap&h,unsigned p){std::string s;for(unsigned j=0;j<32u;++j){const auto b=h.r8(p+j);if(!b)return s;s+=char(b);}throw std::domain_error("1174 finite owned INI text");}
+std::string input_text(Memory&m,unsigned p){std::string s;for(unsigned j=0;j<32u;++j){const auto b=m.r8(p+j);if(!b)return s;s+=char(b);}throw std::domain_error("1174 finite supplied section");}
+unsigned hash(const std::string&s){return ini_name_hash(reinterpret_cast<const unsigned char*>(s.data()),s.size(),nullptr);}
+}
+unsigned run(Memory&m,Inputs&i,Heap&h,unsigned root,unsigned base,Observation&z){need(root==0x2c460u&&i.arg[0]==base+0x3000u&&m.r32(i.cx)==0x787590u&&m.r32(i.cx+28u)==0u,"1174 true42BF70 initialized PercentBuilt receiver");const unsigned ini=i.arg[0],section_row=m.r32(ini+48u);need(m.r32(ini)==0x78db34u&&m.r32(ini+36u)==1u&&m.r8(ini+44u)==1u&&section_row==m.r32(ini+32u),"1174 authentic warmed one-section INI index");const auto section_name=input_text(m,i.arg[1]);need(h.r32(section_row)==hash(section_name),"1174 supplied section actualCRC hit");const unsigned section=h.r32(section_row+4u),key_row=h.r32(section+60u);need(h.r32(section)==0x78eba4u&&source_text(h,h.r32(section+12u))==section_name&&h.r32(section+48u)==1u&&h.r8(section+56u)==1u&&key_row==h.r32(section+44u),"1174 genuine one-key parsed section");const auto key=input_text(m,0x7ba2e0u),absent=input_text(m,0x7ba2d4u);need(h.r32(key_row)==hash(key)&&h.r32(key_row)!=hash(absent),"1174 positive PercentBuilt and genuine NodeCount binary-search miss");const unsigned node=h.r32(key_row+4u);need(h.r32(node)==0x78eb9cu&&source_text(h,h.r32(node+12u))==key,"1174 original parsed key identity");const auto text=source_text(h,h.r32(node+16u));need(!text.empty()&&text.size()<=3u,"1174 bounded positive decimal PercentBuilt");unsigned percent=0u;for(unsigned char c:text){need(c>='0'&&c<='9',"1174 actual decimal atoi route");percent=percent*10u+(c-'0');}need(percent>=1u&&percent<=100u&&m.r32(0x81776cu)==1u&&m.r32(0xb10530u)==0u,"1174 positive progress setting and accepted C locale");m.w32(i.cx+28u,percent);z.positive_percent_reads=1u;z.missing_node_reads=1u;z.configuration_publications=1u;return 0u;}
+}

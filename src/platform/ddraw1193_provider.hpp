@@ -1,0 +1,38 @@
+#pragma once
+#define NOMINMAX
+#include <windows.h>
+#include <array>
+#include <vector>
+#include <cstring>
+#include <stdexcept>
+#include "recovered/recovery_b1193.hpp"
+namespace ra2::platform::ddraw1193{
+inline void need(bool x,const char*s){if(!x)throw std::runtime_error(s);}inline unsigned pointer(const void*p){return unsigned(reinterpret_cast<std::uintptr_t>(p));}
+using Desc=std::array<BYTE,108>;
+struct Identity{unsigned object,vptr,addref,release,method0,method1;bool operator==(const Identity&x)const{return object==x.object&&vptr==x.vptr&&addref==x.addref&&release==x.release&&method0==x.method0&&method1==x.method1;}bool operator!=(const Identity&x)const{return!(*this==x);}};
+struct Call{unsigned kind,receiver,slot,arg0,arg1,arg2,result,output;Desc before{},after{};};
+class Provider:public recovered::b1193::Api{
+ HMODULE module_=nullptr;unsigned create_=0,draw_=0,surface_=0,draw_vptr_=0,surface_vptr_=0;std::vector<Call>calls_;
+ using Ref=ULONG(WINAPI*)(void*);using Create=HRESULT(WINAPI*)(GUID*,void**,void*);using Normal=HRESULT(WINAPI*)(void*,HWND,DWORD);using Surface=HRESULT(WINAPI*)(void*,void*,void**,void*);using Describe=HRESULT(WINAPI*)(void*,void*);
+ Identity identity(unsigned o,bool s)const{need(o!=0u,"1193 LIVE actualobject");const auto*v=*reinterpret_cast<const unsigned*const*>(std::uintptr_t(o));return{o,pointer(v),v[1],v[2],v[s?22:20],v[s?0:6]};}
+ static Desc copy(unsigned p){Desc x{};std::memcpy(x.data(),reinterpret_cast<const void*>(std::uintptr_t(p)),108u);return x;}
+ public:
+ unsigned model_create_hresult=~0u,model_normal_hresult=~0u,model_surface_hresult=~0u,model_desc_hresult=~0u,draw_releases=0,surface_releases=0,module_release_result=0;
+ Provider(){char name[MAX_PATH]{};const unsigned n=GetSystemDirectoryA(name,MAX_PATH);need(n&&n+11u<MAX_PATH,"1193 actualSystem32 directory");std::strcat(name,"\\ddraw.dll");module_=LoadLibraryA(name);need(module_!=nullptr,"1193 realSystem32ddraw");create_=unsigned(reinterpret_cast<std::uintptr_t>(GetProcAddress(module_,"DirectDrawCreate")));need(create_!=0u,"1193 genuinefactoryexport");}
+ ~Provider(){if(surface_)reinterpret_cast<Ref>(std::uintptr_t(surface_identity().release))(reinterpret_cast<void*>(std::uintptr_t(surface_)));if(draw_)reinterpret_cast<Ref>(std::uintptr_t(draw_identity().release))(reinterpret_cast<void*>(std::uintptr_t(draw_)));if(module_)FreeLibrary(module_);}
+ unsigned module()const{return pointer(module_);}unsigned create_slot()const{return create_;}unsigned draw()const{return draw_;}unsigned surface()const{return surface_;}const std::vector<Call>&calls()const{return calls_;}
+ Identity draw_identity()const{const auto id=identity(draw_,false);need(!draw_vptr_||id.vptr==draw_vptr_,"1193 realfactorydrawvt unchanged");return id;}
+ Identity surface_identity()const{const auto id=identity(surface_,true);need(!surface_vptr_||id.vptr==surface_vptr_,"1193 realfactorysurfacevt unchanged");return id;}
+ void adopt_draw(unsigned p){need(draw_==0u&&surface_==0u&&p!=0u,"1193 adopt actualoriginalfactory ownedoutput");draw_=p;const auto id=draw_identity();draw_vptr_=id.vptr;}
+ void adopt_surface(unsigned p){need(draw_!=0u&&surface_==0u&&p!=0u,"1193 adopt actualoriginalsurface ownedoutput");surface_=p;const auto id=surface_identity();surface_vptr_=id.vptr;}
+ unsigned create_draw(unsigned guid,unsigned out,unsigned outer)override{need(!draw_&&!surface_&&guid==0u&&outer==0u&&out!=0u&&*reinterpret_cast<unsigned*>(std::uintptr_t(out))==0u,"1193 fullgenuineCreate NULL/output/NULL");const unsigned hr=unsigned(reinterpret_cast<Create>(std::uintptr_t(create_))(nullptr,reinterpret_cast<void**>(std::uintptr_t(out)),nullptr));const unsigned p=*reinterpret_cast<unsigned*>(std::uintptr_t(out));calls_.push_back({0u,0u,create_,guid,out,outer,hr,p,{},{}});model_create_hresult=hr;need(hr==unsigned(S_OK)&&p,"1193 realfactorypositive");adopt_draw(p);return hr;}
+ unsigned normal(unsigned draw,unsigned hwnd,unsigned flags)override{const auto id=draw_identity();need(draw==id.object&&hwnd==0u&&flags==8u,"1193 exclusivelynormal8 NULLHWNDinput");const unsigned hr=unsigned(reinterpret_cast<Normal>(std::uintptr_t(id.method0))(reinterpret_cast<void*>(std::uintptr_t(draw)),nullptr,flags));calls_.push_back({1u,draw,id.method0,hwnd,flags,0u,hr,0u,{},{}});model_normal_hresult=hr;need(draw_identity()==id,"1193 rawdrawidentity afteractualnormalcall");return hr;}
+ unsigned create_surface(unsigned draw,unsigned desc,unsigned out,unsigned outer)override{const auto id=draw_identity();Desc expected{};const auto put=[&](unsigned p,unsigned v){for(unsigned k=0;k<4u;++k)expected[p+k]=BYTE(v>>(8u*k));};put(0,108u);put(4,7u);put(8,12u);put(12,16u);put(104,0x800u);const auto before=copy(desc);need(draw==id.object&&!surface_&&outer==0u&&before==expected&&*reinterpret_cast<unsigned*>(std::uintptr_t(out))==0u,"1193 completeauthentic108Bcaps800/flags7/16x12/input/outNULL/aggregateNULL");const unsigned hr=unsigned(reinterpret_cast<Surface>(std::uintptr_t(id.method1))(reinterpret_cast<void*>(std::uintptr_t(draw)),reinterpret_cast<void*>(std::uintptr_t(desc)),reinterpret_cast<void**>(std::uintptr_t(out)),nullptr));const unsigned p=*reinterpret_cast<unsigned*>(std::uintptr_t(out));calls_.push_back({2u,draw,id.method1,desc,out,outer,hr,p,before,copy(desc)});model_surface_hresult=hr;need(hr==unsigned(S_OK)&&p,"1193 realpositiveCreateSurface");adopt_surface(p);return hr;}
+ unsigned describe(unsigned surface,unsigned desc)override{const auto id=surface_identity();Desc expected{};expected[0]=108u;const auto before=copy(desc);need(surface==id.object&&before==expected,"1193 completeGetSurfaceDesc108 header/input");const unsigned hr=unsigned(reinterpret_cast<Describe>(std::uintptr_t(id.method0))(reinterpret_cast<void*>(std::uintptr_t(surface)),reinterpret_cast<void*>(std::uintptr_t(desc))));calls_.push_back({3u,surface,id.method0,desc,0u,0u,hr,0u,before,copy(desc)});model_desc_hresult=hr;need(surface_identity()==id,"1193 realsurfaceidentity preserved");return hr;}
+ Desc independent_descriptor(){alignas(4) Desc d{};d[0]=108u;const unsigned hr=describe(surface_,pointer(d.data()));need(hr==unsigned(S_OK),"1193 independentactualGetSurfaceDescS_OK");return d;}
+ void balanced(bool s){const auto id=s?surface_identity():draw_identity();const unsigned raised=reinterpret_cast<Ref>(std::uintptr_t(id.addref))(reinterpret_cast<void*>(std::uintptr_t(id.object)));calls_.push_back({6u,id.object,id.addref,0u,0u,0u,raised,0u,{},{}});const unsigned restored=reinterpret_cast<Ref>(std::uintptr_t(id.release))(reinterpret_cast<void*>(std::uintptr_t(id.object)));calls_.push_back({7u,id.object,id.release,0u,0u,0u,restored,0u,{},{}});need(raised==2u&&restored==1u,"1193 exactlyownedreference balancedactualAddRef2/Release1");}
+ void release_surface(){const auto id=surface_identity();const unsigned result=reinterpret_cast<Ref>(std::uintptr_t(id.release))(reinterpret_cast<void*>(std::uintptr_t(id.object)));calls_.push_back({4u,id.object,id.release,0u,0u,0u,result,0u,{},{}});surface_=0u;need(result==0u,"1193 observedactualsurfaceRelease0");++surface_releases;}
+ void release_draw(){need(!surface_,"1193 noLIVEchild atdrawcleanup");const auto id=draw_identity();const unsigned result=reinterpret_cast<Ref>(std::uintptr_t(id.release))(reinterpret_cast<void*>(std::uintptr_t(id.object)));calls_.push_back({5u,id.object,id.release,0u,0u,0u,result,0u,{},{}});draw_=0u;need(result==0u,"1193 observedactualdrawRelease0");++draw_releases;}
+ void close(){need(!draw_&&!surface_,"1193 allAPIownersreleased");module_release_result=unsigned(FreeLibrary(module_));module_=nullptr;need(module_release_result==unsigned(TRUE),"1193 actualFreeLibraryBOOL1");}
+};
+}

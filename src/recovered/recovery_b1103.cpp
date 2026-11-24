@@ -1,0 +1,25 @@
+#include "recovered/recovery_b1103.hpp"
+#include "recovered/name_hash.hpp"
+#include <string>
+#include <stdexcept>
+#include <cstdint>
+namespace ra2::recovered::b1103{
+static void need(bool x){if(!x)throw std::domain_error("1103 positive4INIvalues/ownedtuples/physicalPAL");}
+static std::string mz(Memory&m,unsigned p){need(p);std::string s;for(unsigned j=0;j<128u;++j){const auto c=m.r8(p+j);if(!c)return s;need(c<128u);s+=char(c);}throw std::domain_error("1103 boundedmemorystring");}
+static std::string hz(Heap&h,unsigned p){need(p);std::string s;for(unsigned j=0;j<128u;++j){const auto c=h.r8(p+j);if(!c)return s;need(c<128u);s+=char(c);}throw std::domain_error("1103 boundedheapstring");}
+struct Strings{Heap&h;unsigned copy(const std::string&s){auto p=h.allocate(unsigned(s.size())+1u);need(p);h.w8(p,0u);for(unsigned j=0;j<=s.size();++j)h.w8(p+j,j<s.size()?unsigned(s[j]):0u);return p;}void release(unsigned&p){if(p)need(h.release(p)!=0u);p=0u;}unsigned replace(unsigned old,const std::string&s){release(old);return copy(s);}unsigned concat(const std::string&prefix,const std::string&suffix){auto first=copy(prefix);auto assembled=copy(prefix+suffix);release(first);auto out=copy(prefix+suffix);release(assembled);return out;}};
+static unsigned hash(const std::string&s){NameHashState state{};return fun_00493da0(state,reinterpret_cast<const unsigned char*>(s.data()),int(s.size()));}
+// Typed existing-row extension of773: four sorted keys and nonempty destination.
+static unsigned row(Memory&m,unsigned index,unsigned key,unsigned expected_count){need(m.r32(index+4u)==expected_count&&m.r8(index+12u)==1u);auto cached=m.r32(index+16u);if(cached&&m.r32(cached)==key)return cached;auto first=m.r32(index),count=expected_count;while(count){auto n=count/2u,p=first+8u*n,k=m.r32(p);if(global_b26::s32(key)<global_b26::s32(k))count=n;else if(key==k){m.w32(index+16u,p);return p;}else{first=p+8u;count-=n+1u;}}throw std::domain_error("1103 allfourINIkeys mustexist");}
+static std::string value(Memory&m,unsigned ini,const std::string&section,const std::string&key){const auto sr=row(m,ini+32u,hash(section),1u),sec=m.r32(sr+4u),kr=row(m,sec+44u,hash(key),4u),node=m.r32(kr+4u);return mz(m,m.r32(node+16u));}
+static std::string trim(std::string s){auto first=s.find_first_not_of(" \t\r\n");need(first!=std::string::npos);auto last=s.find_last_not_of(" \t\r\n");return s.substr(first,last-first+1u);}
+// Exact accepted223 productive recipe; ordinary realheap replaces only its adapter type.
+static unsigned tuple(Strings&s,const std::string&v){need(v.size()==8u&&v[1]==','&&v[3]==','&&v[5]==','&&v[7]==','&&v[0]>='A'&&v[0]<='Z');for(unsigned j:{2u,4u,6u})need(v[j]>='0'&&v[j]<='9');auto object=s.h.allocate(16u);need(object);auto owned=s.copy("");s.h.w32(object,owned);for(unsigned off:{4u,8u,12u})s.h.w32(object+off,0u);unsigned token=0u;for(unsigned j=0;j<4u;++j){s.release(token);auto suffix=s.copy(v.substr(2u*j));auto scratch=s.copy(v.substr(2u*j,1u));s.release(suffix);token=s.copy(hz(s.h,scratch));s.release(scratch);if(j==0u){s.release(owned);owned=s.copy(hz(s.h,token));s.h.w32(object,owned);}else s.h.w32(object+4u*j,unsigned(v[2u*j]-'0'));}s.release(token);return object;}
+unsigned run(Memory&m,const Inputs&i,Heap&h,Api&a,State&fp,Observation&o){const auto self=i.cx,ini=i.arg[0];const auto section=mz(m,m.r32(i.arg[1]));need(m.r32(self+0x46cu)==0u&&m.r32(self+0x470u)==0u&&m.r32(self+0x474u)==0u&&(m.r8(0xb10168u)&15u)==15u);const auto type=m.r32(m.r32(self+76u)+68u);need(type>=1u&&type<=3u);const unsigned cell=type==1u?0xb101d0u:type==2u?0xb101b8u:0xb101e0u;Strings s{h};auto prefix=s.copy(hz(h,m.r32(cell)));const auto prefix_text=hz(h,prefix);unsigned work=0u;
+ auto string_key=[&](const std::string&suffix,unsigned phase){unsigned empty=s.copy("");if(phase)i.arg[1]=empty;auto key=s.concat(prefix_text,suffix);if(phase)i.arg[0]=key;const auto text=trim(value(m,ini,section,hz(h,key)));work=s.replace(work,text);s.release(key);if(phase)i.arg[0]=0u;s.release(empty);if(phase)i.arg[1]=0u;};
+ string_key("ZoomingTarget",0u);need(hz(h,work).size()==8u);o.zoom=tuple(s,hz(h,work));m.w32(self+0x470u,o.zoom);
+ string_key("TargetPalette",1u);need(hz(h,work).size()==9u);unsigned holder=work;const auto slot=unsigned(reinterpret_cast<std::uintptr_t>(&holder));leaf::Memory hs(reinterpret_cast<unsigned char*>(&holder),slot,4u),text(reinterpret_cast<unsigned char*>(std::uintptr_t(work)),work,10u);auto view=m;view.add(hs);view.add(text);Inputs p{};p.cx=slot;const auto palette=b1090::run(view,p,h,a,fp,o.palette);m.w32(self+0x46cu,palette);
+ string_key("Target",1u);o.target=tuple(s,hz(h,work));m.w32(self+0x474u,o.target);
+ auto key=s.concat(prefix_text,"TargetDividingFrame");i.arg[1]=key;const auto number=value(m,ini,section,hz(h,key));need(!number.empty()&&number.size()<=2u);unsigned n=0u;for(char ch:number){need(ch>='0'&&ch<='9');n=10u*n+unsigned(ch-'0');}need(n>=1u&&n<=99u);m.w32(self+0x478u,n);s.release(key);i.arg[1]=0u;s.release(prefix);o.final_free=h.release(work);need(o.final_free!=0u);return o.final_free;
+}
+}

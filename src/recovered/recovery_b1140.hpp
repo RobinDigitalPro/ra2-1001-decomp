@@ -1,0 +1,4 @@
+#pragma once
+#include "global_b26_memory.hpp"
+#include "platform/x87_state.hpp"
+namespace ra2::recovered::b1140{using global_b26::Memory;using global_b26::Inputs;using State=ra2::platform::x87::State;unsigned run(unsigned,Memory&,const Inputs&,State&);}
