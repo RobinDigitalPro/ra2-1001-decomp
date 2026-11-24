@@ -13,4 +13,4 @@ This repository holds ALL our source, finished and unfinished. How to tell them 
 - Known open items:
   - near misses waiting for the complete-file link stage: `docs/DEFERRED_TO_END.md`;
   - quality items in matched code (kind-1 "steering" forms): `docs/REMATCH.md`.
-- An exact per-function inventory of all unmatched code (name, size, translation unit, status) is in preparation and will be added as `docs/INVENTORY.md`.
+- The exact per-function inventory of all unmatched code is in `docs/INVENTORY.md` and `docs/inventory.csv`: 65 near misses (162 KB), 10 near-equal (23 KB), 7 tiny entries without source (13 bytes) and 1,048 library or thunk entries (90 KB).
