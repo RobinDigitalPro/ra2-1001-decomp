@@ -1,0 +1,105 @@
+yr_va,name,kind,role,note_file,confidence
+0x0041E350,AITriggerTypeClass::AITriggerTypeClass,function,Initializes an AI trigger type and its weights,re/ai-trigger.md,high
+0x0041E720,AITriggerTypeClass::ConditionMet,function,Checks trigger eligibility and evaluates its condition,re/ai-trigger.md,high
+0x0041EAF0,EnemyHouseOwns,function,Checks the enemy house's object count against the trigger threshold,re/ai-trigger.md,high
+0x0041EC90,CivilianHouseOwns,function,Checks the civilian house's ownership condition,re/ai-trigger.md,high
+0x0041EE90,AITriggerTypeClass::OwnerHouseOwns,function,Counts objects of a type owned by the calling house,re/ai-trigger.md,high
+0x0041F0D0,AITriggerTypeClass::IronCurtainCharged,function,Checks the charge of the house's Iron Curtain,re/ai-trigger.md,high
+0x0041F180,AITriggerTypeClass::ChronoSphereCharged,function,Tests whether a house has a charged Chronosphere,re/ai-trigger.md,high
+0x0041F230,AITriggerTypeClass::HouseCredits,function,Compares house credits with an AI trigger threshold,re/ai-trigger.md,high
+0x0041F2E0,AITriggerTypeClass::LoadFromINIList,function,Loads and enables AI trigger definitions,re/ai-trigger.md,high
+0x0041F490,AITriggerTypeClass::SaveToINIList,function,Writes the AI trigger type list to INI,re/ai-trigger.md,high
+0x0041FD60,AITriggerTypeClass::RegisterSuccess,function,Raises trigger weight and records a team success,re/ai-trigger.md,high
+0x0041FE20,AITriggerTypeClass::RegisterFailure,function,Adjusts trigger weight after an unsuccessful team execution,re/ai-trigger.md,high
+0x00424CB0,AnimClass::AI,function,Updates animation during simulation,re/simdiff-harness.md,high
+0x00443860,BuildingClass::SetRallypoint,function,Queues a rally point for the factory,re/production.md,high
+0x004664C0,BulletClass::Construct,function,Initializes a projectile with its target and damage parameters,re/projectile.md,high
+0x00468430,BulletClass::LoseTarget,function,Retargets the projectile to a map cell,re/projectile.md,high
+0x00468D80,BulletClass::Explode(bool),function,Processes a bullet explosion and clustered impacts,re/projectile.md,high
+0x004690B0,BulletClass::Detonate(coord),function,Applies area damage on detonation,re/projectile.md,high
+0x004733A0,PassengersClass::AddPassenger,function,Adds a passenger to the transport list,re/transport-cargo.md,medium
+0x00473430,PassengersClass::RemoveFirstPassenger,function,Removes the head of the passenger list,re/transport-cargo.md,medium
+0x00473460,PassengersClass::GetTotalSize,function,Sums the sizes of transported passengers,re/transport-cargo.md,medium
+0x004734B0,PassengersClass::RemovePassenger,function,Unlinks a passenger from the transport list,re/transport-cargo.md,medium
+0x00473500,PassengersClass::IndexOf,function,Finds a passenger's position in the transport list,re/transport-cargo.md,medium
+0x0049F5C0,CopyProtect::IsLauncherRunning,function,Checks whether the launcher is running,re/simdiff-harness.md,high
+0x0049F620,CopyProtect::NotifyLauncher,function,Sends the launcher a notification,re/simdiff-harness.md,high
+0x0049F7A0,CopyProtect::Validate,function,Performs the game's validation check,re/simdiff-harness.md,high
+0x004C93D0,FacingClass::Current,function,Returns the current facing,re/simdiff-harness.md,high
+0x004C9E10,FactoryClass::SetObject,function,Assigns an object for factory production,re/production.md,high
+0x004CA5A0,StartProduction,function,Starts factory production,re/production.md,high
+0x004DE630,EnterAsPassenger,function,Handles a unit entering a transport,re/transport-cargo.md,high
+0x004DE670,RemovePassenger,function,Removes a passenger from a transport,re/transport-cargo.md,high
+0x00500510,GetPrimaryFactory,function,Retrieves the primary factory for a production category,re/production.md,high
+0x00500850,SetPrimaryFactory,function,Sets the house's primary factory,re/production.md,high
+0x0052FC20,Init_Random,function,Initializes the simulation random generator,re/simdiff-harness.md,high
+0x0055D360,Main loop,function,Runs the game's frame loop,re/simdiff-harness.md,high
+0x005B4430,MixFileClass::Offset,function,Looks up a file offset in a MIX archive,re/workflow.md,high
+0x005FDD20,TiberiumClass::FindIndex,function,Maps an overlay index to a Tiberium type,re/economy.md,high
+0x005FE250,OverlayTypeClass::OverlayTypeClass,function,Constructs an overlay type,re/economy.md,high
+0x006292B0,ParasiteClass::ParasiteClass,function,Constructs a parasite controller,re/abilities.md,high
+0x0064DAB0,ComputeFrameCRC,function,Computes the simulation frame checksum,re/simdiff-harness.md,high
+0x0064DEA0,Print_CRCs,function,Prints synchronization checksum diagnostics,re/simdiff-harness.md,high
+0x0065C6D0,Randomizer constructor,function,Initializes the random generator from a seed,re/combat.md,high
+0x0065C780,Randomizer::Random,function,Advances the random generator,re/combat.md,high
+0x0065C7E0,Randomizer::RandomRanged,function,Returns a random integer within a range,re/combat.md,high
+0x006913C0,ScriptClass::ScriptClass,function,Constructs a script instance,re/ai-team.md,high
+0x006916B0,ScriptTypeClass::ScriptTypeClass,function,Constructs a team script type,re/ai-team.md,high
+0x006DD000,TActionClass::TActionClass,function,Constructs a map trigger action,re/map-triggers.md,high
+0x006DD5B0,TActionClass::LoadFromINI,function,Reads a trigger action from map INI data,re/map-triggers.md,high
+0x006DD8B0,TActionClass::Execute,function,Executes a map trigger action,re/map-triggers.md,high
+0x006E3B60,GetMode,function,Returns a trigger action's mode,re/map-triggers.md,high
+0x006E53A0,TagClass::RaiseEvent,function,Raises an event on a scenario tag,re/map-triggers.md,high
+0x006E7E80,TaskForceClass::TaskForceClass,function,Constructs an AI task force definition,re/ai-team.md,high
+0x006E8A90,TeamClass::TeamClass,function,Constructs a team instance,re/ai-team.md,high
+0x006E9050,TeamClass::AssignMissionTarget,function,Assigns a team's mission target,re/ai-team.md,high
+0x006EA500,TeamClass::AddMember,function,Adds a recruited unit to its team,re/ai-team.md,medium
+0x006EA870,TeamClass::LiberateMember,function,Releases a team member to its owning house,re/ai-team.md,medium
+0x006EC3A0,TeamClass::ScanLimit,function,Recounts team strength against its required complement,re/ai-team.md,high
+0x006EF4D0,TeamClass::GetTaskForceMissingMemberTypes,function,Lists types missing from the task force,re/ai-team.md,high
+0x006F06E0,TeamTypeClass::TeamTypeClass,function,Initializes a team type,re/ai-team.md,high
+0x006F09C0,TeamTypeClass::CreateTeam,function,Creates a team of this type,re/ai-team.md,high
+0x006F1320,TeamTypeClass::CanRecruitUnit,function,Checks whether a unit can join the team,re/ai-team.md,high
+0x006F19B0,TeamTypeClass::LoadFromINIList,function,Loads team type definitions,re/ai-team.md,high
+0x006F3330,TechnoClass::SelectWeapon,function,Chooses a weapon for a target,re/weapons.md,high
+0x006F3970,CombatDamage,function,Calculates combat damage,re/veterancy.md,high
+0x0070D0D0,HasAbility,function,Checks whether the unit's rank grants an ability,re/veterancy.md,high
+0x0070E1A0,GetPrimaryWeapon,function,Retrieves the primary weapon,re/veterancy.md,high
+0x007104A0,ExitedOpenTopped,function,Handles a passenger leaving an open-topped transport,re/transport-cargo.md,high
+0x007104C0,TechnoClass::MarkPassengersAsExited,function,Marks transported passengers as having exited,re/transport-cargo.md,high
+0x00710550,SetTargetForPassengers,function,Assigns a target to transported passengers,re/transport-cargo.md,high
+0x0071AF20,TemporalClass::Fire,function,Starts a temporal attack,re/abilities.md,high
+0x0071E940,TEventClass::HasOccured,function,Tests whether a trigger event occurred,re/map-triggers.md,high
+0x0071F4E0,TEventClass::LoadFromINI,function,Reads a trigger event from the map INI,re/map-triggers.md,high
+0x007216C0,TiberiumClass::TiberiumClass,function,Initializes a resource type,re/economy.md,high
+0x007235A0,RegisterForGrowth,function,Registers ore for growth,re/economy.md,high
+0x007264C0,TriggerClass::RegisterEvent,function,Updates event latches and checks trigger conditions,re/map-triggers.md,high
+0x007265C0,TriggerClass::FireActions,function,Executes trigger actions in order,re/map-triggers.md,high
+0x007275D0,TriggerTypeClass::LoadFromINIList,function,Loads map trigger type definitions,re/map-triggers.md,high
+0x007346A0,StringTable::LoadFile,function,Loads and indexes a localized string file,re/csf.md,high
+0x00734990,StringTable::ReadFile,function,Reads CSF labels and localized values,re/csf.md,high
+0x00734E60,StringTable::LoadString,function,Looks up a localized string by label,re/csf.md,high
+0x007393C0,UnitClass::TryToDeploy,function,Attempts to deploy a unit,re/mcv-deploy.md,high
+0x00739AC0,UnitClass::Deploy,function,Runs unit deployment,re/combat.md,high
+0x0073D450,Harvesting,function,Handles unit harvesting,re/economy.md,high
+0x0081F7B4,CRC table,table,Supplies lookup values for CRC calculation,re/workflow.md,high
+0x0082D028,MouseCursor table,table,Stores standard and minimap cursor frame ranges and hotspots,re/presentation.md,high
+0x0087F778,LogicClass::Instance,data,Holds the global game logic instance,re/simdiff-harness.md,high
+0x00886B88,Randomizer::Global,data,Holds a global random generator,re/simdiff-harness.md,high
+0x0089F688,AdjacentCell,table,Maps eight facing directions to neighboring cell offsets,re/roster2.md,high
+0x008A0360,ObjectsInLayers[5],table,Holds the five map-layer object collections,re/simdiff-harness.md,high
+0x008B4108,UnitClass::Array,data,Tracks unit instances,re/simdiff-harness.md,high
+0x008B41C8,ScriptTypeClass::Array,data,Stores registered script types,re/ai-team.md,high
+0x00A80228,HouseClass::Array,data,Tracks houses,re/simdiff-harness.md,high
+0x00A802C8,EventClass::OutList,data,Holds outgoing game events,re/simdiff-harness.md,high
+0x00A83DE8,InfantryClass::Array,data,Tracks infantry instances,re/simdiff-harness.md,high
+0x00A8B200,AITriggerTypeClass::Array,data,Stores AI trigger types,re/ai-trigger.md,high
+0x00A8B230,ScenarioClass*,data,Points to the active scenario,re/simdiff-harness.md,high
+0x00A8B238,SessionClass,data,Stores session settings and the current game mode,re/simdiff-harness.md,high
+0x00A8B8E0,ScenarioName[0x200],data,Stores the current scenario name,re/simdiff-harness.md,high
+0x00A8E390,AircraftClass::Array,data,Tracks aircraft instances,re/simdiff-harness.md,high
+0x00A8EB40,BuildingClass::Array,data,Tracks building instances,re/simdiff-harness.md,high
+0x00A8ED84,Frame (CurrentFrame),data,Counts simulation frames,re/simdiff-harness.md,high
+0x00A8ED94,Seed,data,Stores the simulation random seed,re/simdiff-harness.md,high
+0x00A8ED98,Preset random seed,data,Supplies the preset seed for random initialization,re/simdiff-harness.md,medium
+0x00B077B0,Loaded SHP list head,data,Anchors the list of loaded SHP resources,re/shp.md,medium

@@ -1,0 +1,1308 @@
+/*******************************************************************************
+ *                                O P E N  T S
+ *******************************************************************************
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2025 Electronic Arts Inc.
+ * Copyright 2026 OpenTS contributors
+ *
+ * Contains material derived from Electronic Arts source code.
+ * Modified by OpenTS contributors, 2026.
+ * EA's GPLv3 Section 7 additional terms and supplemental warranty
+ * disclaimers apply; see LICENSE.md.
+ ******************************************************************************/
+
+/* $Header: /CounterStrike/EVENT.CPP 1     3/03/97 10:24a Joe_bostic $ */
+/***********************************************************************************************
+ ***              C O N F I D E N T I A L  ---  W E S T W O O D  S T U D I O S               ***
+ ***********************************************************************************************
+ *                                                                                             *
+ *                 Project Name : Command & Conquer                                            *
+ *                                                                                             *
+ *                    File Name : EVENT.CPP                                                    *
+ *                                                                                             *
+ *                   Programmer : Joe L. Bostic                                                *
+ *                                                                                             *
+ *                   Start Date : 12/09/94                                                     *
+ *                                                                                             *
+ *                  Last Update : November 10, 1995 [BRR]                                      *
+ *                                                                                             *
+ *---------------------------------------------------------------------------------------------*
+ * Functions:                                                                                  *
+ *   EventClass::EventClass -- Construct an id and cell based event.                           *
+ *   EventClass::EventClass -- Construct simple target type event.                             *
+ *   EventClass::EventClass -- Constructor for mission change events.                          *
+ *   EventClass::EventClass -- Constructor for navigation computer events.                     *
+ *   EventClass::EventClass -- Constructor for object types affecting cells event.             *
+ *   EventClass::EventClass -- Constructor for sidebar build events.                           *
+ *   EventClass::EventClass -- Constructs event to transfer special flags.                     *
+ *   EventClass::EventClass -- Default constructor for event objects.                          *
+ *   EventClass::EventClass -- Event for sequencing animations.                                *
+ *   EventClass::EventClass -- Megamission assigned to unit.                                   *
+ *   EventClass::Execute -- Execute a queued command.                                          *
+ *   EventClass::EventClass -- construct a variable-sized event                                *
+ * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#include "always.h"
+#include "geoconst1.h" // level-2 1.001: per-module geometry constants
+
+#include "event.h"
+#include "ipxaddr.h" // RA2
+
+#include "_map.h"
+#include "_rules.h"
+#include "anim.h"
+#include "bomb.h" // RA2
+#include "building.h"
+#include "cell.h"
+#include "conquer.h"
+#include "coord.h"
+#include "data.h"
+#include "dbgprint.h"
+#include "foot.h"
+#include "ftimer.h"
+#include "goptions.h"
+#include "ipxmgr.h" // RA2
+#include "house.h"
+#include "language\language.h"
+#include "mouse.h"
+#include "msgbox.h"
+#include "queue.h" // RA2
+#include "planning.h" // RA2
+#include "ownertalk.h" // RA2
+#include "rules.h"
+#include "saveload.h"
+#include "scenario.h"
+#include "spawnmgr.h" // RA2
+#include "session.h"
+#include "stringtable.h" // RA2
+#include "surface.h"
+#include "techno.h"
+#include "unit.h"
+#include "unittype.h"
+#include "wonline.h"
+#include "geoconst2.h" // level-2 1.001: this module holds its own copy (per-TU constant addresses)
+
+extern void __fastcall Planning_Clear_Techno(TechnoClass * techno, EventClass * event); // RA2: 0x00615480 (planmgr.cpp), lets go of the planning token of a techno that was given an order
+
+// level-2 1.001: IPXAddressClass::As_String(void) (0x00522CA0) is declared in ipxaddr.h (the file-local EventIPXAddress shim is gone)
+
+#include "color.hh"
+#include "house.hh"
+#include "ramp.hh"
+#include "special.hh"
+
+
+
+
+
+/***************************************************************************
+**	Table of what data is really used in the EventClass struct for different
+**	events.  This table must be kept current with the EventType enum.
+*/
+unsigned char EventClass::EventLength[EventClass::LAST_EVENT] = {
+	0,												// EMPTY
+	size_of(EventClass, Data.Target ),				/// POWERON
+	size_of(EventClass, Data.Target ),				/// POWEROFF
+	size_of(EventClass, Data.General ),				// ALLY
+	size_of(EventClass, Data.MegaMission ),			// MEGAMISSION
+	size_of(EventClass, Data.MegaMission_F ),		// MEGAMISSION_F
+	size_of(EventClass, Data.Target ),				// IDLE
+	size_of(EventClass, Data.Target ),				// SCATTER
+	0,												// DESTRUCT
+	size_of(EventClass, Data.Target ),				// DEPLOY
+	size_of(EventClass, Data.Place ),				// PLACE
+	0,												// OPTIONS
+	size_of(EventClass, Data.General ),				// GAMESPEED
+	size_of(EventClass, Data.Specific ),			// PRODUCE
+	size_of(EventClass, Data.Specific ),			// SUSPEND
+	size_of(EventClass, Data.Specific ),			// ABANDON
+	size_of(EventClass, Data.Target ),				// PRIMARY
+	size_of(EventClass, Data.Special ),				// SPECIAL_PLACE
+	0,												// EXIT
+	size_of(EventClass, Data.Anim ),				// ANIMATION
+	size_of(EventClass, Data.Target ),				// REPAIR
+	size_of(EventClass, Data.Target ),				// SELL
+	size_of(EventClass, Data.SellCell),				// SELLCELL
+	size_of(EventClass, Data.Options ),				// SPECIAL
+	0,												// FRAMESYNC
+	0,												// MESSAGE
+	size_of(EventClass, Data.FrameInfo.Delay ),		// RESPONSE_TIME
+	size_of(EventClass, Data.FrameInfo ),			// FRAMEINFO
+	0,												// SAVEGAME
+	size_of(EventClass, Data.NavCom ),				// ARCHIVE
+	size_of(EventClass, Data.Variable.Size),		// ADDPLAYER
+	size_of(EventClass, Data.Timing ),				// TIMING
+	size_of(EventClass, Data.ProcessTime ),			// PROCESS_TIME
+	0,												/// PAGEUSER
+	size_of(EventClass, Data.General ),				/// REMOVEPLAYER
+	size_of(EventClass, Data.General ),				/// LATENCYFUDGE
+};
+
+char const * EventClass::EventNames[EventClass::LAST_EVENT] = {
+	"EMPTY",
+	"POWERON",
+	"POWEROFF",
+	"ALLY",
+	"MEGAMISSION",
+	"MEGAMISSION_F",
+	"IDLE",
+	"SCATTER",
+	"DESTRUCT",
+	"DEPLOY",
+	"DETONATE", // level-2 1.001: the table at 0x007C16FC has one name per event (46)
+	"PLACE",
+	"OPTIONS",
+	"GAMESPEED",
+	"PRODUCE",
+	"SUSPEND",
+	"ABANDON",
+	"PRIMARY",
+	"SPECIAL_PLACE",
+	"EXIT",
+	"ANIMATION",
+	"REPAIR",
+	"SELL",
+	"SELLCELL",
+	"SPECIAL",
+	"FRAMESYNC",
+	"MESSAGE",
+	"RESPONSE_TIME",
+	"FRAMEINFO",
+	"SAVEGAME",
+	"ARCHIVE",
+	"ADDPLAYER",
+	"TIMING",
+	"PROCESS_TIME",
+	"PAGEUSER",
+	"REMOVEPLAYER",
+	"LATENCYFUDGE",
+	"MEGAFRAMEINFO", // level-2 1.001: the RA2 events, as in the table at 0x007C16FC
+	"PACKETTIMING", // level-2 1.001: as above
+	"ABOUTTOEXIT", // level-2 1.001: as above
+	"FALLBACKHOST", // level-2 1.001: as above
+	"ADDRESSCHANGE", // level-2 1.001: as above
+	"PLANCONNECT", // level-2 1.001: as above
+	"PLANCOMMIT", // level-2 1.001: as above
+	"PLANNODEDELETE", // level-2 1.001: as above
+	"ALLCHEER", // level-2 1.001: as above
+};
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Constructs event to transfer special flags.                       *
+ *                                                                                             *
+ *    This constructs an event that will transfer the special flags.                           *
+ *                                                                                             *
+ * INPUT:   data  -- The special flags to be transported to all linked computers.              *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   06/25/1995 JLB : Created.                                                                 *
+ *=============================================================================================*/
+EventClass::EventClass(int index, SpecialClass data)
+{
+	if (index >= 0) {
+		ID = index;
+		Type = SPECIAL;
+		Data.Options.Data = data;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Construct simple target type event.                               *
+ *                                                                                             *
+ *    This will construct a generic event that needs only a target parameter. The actual       *
+ *    event and target values are specified as parameters.                                     *
+ *                                                                                             *
+ * INPUT:   type  -- The event type to construct.                                              *
+ *                                                                                             *
+ *          target-- The target value that this event is to apply to.                          *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   06/25/1995 JLB : Created.                                                                 *
+ *=============================================================================================*/
+
+
+
+/// <summary>
+/// Constructs a simple cell type event.
+/// This will construct a generic event that needs only a cell parameter. The actual
+/// event and cell values are specified as parameters.
+/// </summary>
+/// <param name="index">The house index of the player originating this event.</param>
+/// <param name="type">The event type to construct.</param>
+/// <param name="cell">The cell that this event is to apply to.</param>
+EventClass::EventClass(int index, unsigned char type, Cell const & cell)
+{
+	DebugString("Adding event %s\n", EventNames[type]);
+
+	if (index >= 0) {
+		ID = index;
+		Type = type;
+		Data.SellCell.Where = cell;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Default constructor for event objects.                            *
+ *                                                                                             *
+ *    This constructs a simple event object that requires no parameters other than the         *
+ *    type of event it is.                                                                     *
+ *                                                                                             *
+ * INPUT:   type  -- The type of event to construct.                                           *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   12/27/1994 JLB : Created.                                                                 *
+ *=============================================================================================*/
+EventClass::EventClass(int index, unsigned char type)
+{
+	DebugString("Adding event %s\n", EventNames[type]);
+
+	if (index >= 0) {
+		ID = index;
+		Type = type;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+	}
+	Frame = ::Frame; // RA2: one store after the branches (expanded in Execute, the stores are not merged otherwise)
+}
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Constructor for general-purpose-data events.                      *
+ *                                                                                             *
+ * INPUT:   type  -- The type of event to construct.                                           *
+ *            val   -- data value                                                              *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   12/27/1994 JLB : Created.                                                                 *
+ *=============================================================================================*/
+
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Constructor for navigation computer events.                       *
+ *                                                                                             *
+ *    Constructor for events that are used to assign the navigation computer.                  *
+ *                                                                                             *
+ * INPUT:   type     -- The type of event (this constructor can be used by other navigation    *
+ *                      type events).                                                          *
+ *                                                                                             *
+ *          src      -- The object that the event should apply to.                             *
+ *                                                                                             *
+ *          dest     -- The destination (or target) that the event needs to complete.          *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   12/27/1994 JLB : Created.                                                                 *
+ *=============================================================================================*/
+
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Event for sequencing animations.                                  *
+ *                                                                                             *
+ *    This constructor is used for animations that must be created through the event system.   *
+ *                                                                                             *
+ * INPUT:   anim  -- The animation that will be created.                                       *
+ *                                                                                             *
+ *          coord -- The location where the animation is to be created.                        *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   05/19/1995 JLB : Created.                                                                 *
+ *=============================================================================================*/
+EventClass::EventClass(int index, AnimType anim, HousesType owner, Coord const & coord)
+{
+	DebugString("Adding event ANIMATION\n");
+
+	if (index >= 0) {
+		ID = index;
+		Type = ANIMATION;
+		Data.Anim.What = anim;
+		Data.Anim.Owner = owner;
+		Data.Anim.Where = coord;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Megamission assigned to unit.                                     *
+ *                                                                                             *
+ *    This is the event that is used to assign most missions to units. It combines both the    *
+ *    mission and the target (navcom and tarcom).                                              *
+ *                                                                                             *
+ * INPUT:   src      -- The object that this mission is to apply to.                           *
+ *                                                                                             *
+ *          mission  -- The mission to assign to this object.                                  *
+ *                                                                                             *
+ *          target   -- The target to assign to this object's TarCom.                          *
+ *                                                                                             *
+ *          destination -- The destination to assign to this object's NavCom.                  *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   05/18/1995 JLB : Created.                                                                 *
+ *=============================================================================================*/
+
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Megamission assigned to unit.                                     *
+ *                                                                                             *
+ *    This is the event that is used to assign most missions to units. It combines both the    *
+ *    mission and the target (navcom and tarcom).  This variation is used for formation moves. *
+ *                                                                                             *
+ * INPUT:   src      -- The object that this mission is to apply to.                           *
+ *                                                                                             *
+ *          mission  -- The mission to assign to this object.                                  *
+ *                                                                                             *
+ *          target   -- The target to assign to this object's TarCom.                          *
+ *                                                                                             *
+ *          destination -- The destination to assign to this object's NavCom.                  *
+ *                                                                                             *
+ *          speed    -- The formation override speed for this move.                            *
+ *                                                                                             *
+ *          maxspeed -- The formation override maximum speed for this move.                    *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   05/18/1995 JLB : Created.                                                                 *
+ *=============================================================================================*/
+EventClass::EventClass(int index, TargetClass src, MissionType mission, TargetClass target, TargetClass destination, SpeedType speed, MPHType maxspeed)
+{
+	DebugString("Adding event MEGAMISSION_F\n");
+
+	if (index >= 0) {
+		ID = index;
+		Type = MEGAMISSION_F;
+		Data.MegaMission_F.Whom = src;
+		Data.MegaMission_F.Mission = mission;
+		Data.MegaMission_F.Target = TargetClass(target);
+		Data.MegaMission_F.Destination = TargetClass(destination);
+		Data.MegaMission_F.Speed = speed;
+		Data.MegaMission_F.MaxSpeed = maxspeed;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+EventClass::EventClass(int index, unsigned char type, RTTIType object, int id, BOOL naval) // RA2: YR's, at 0x4B6280
+{
+	DebugString("Adding event %s\n", EventNames[type]);
+	if (index >= 0) {
+		ID = index;
+		Type = type;
+		Data.Specific.Type = object;
+		Data.Specific.ID = id;
+		Data.Specific.IsNaval = naval;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Constructor for sidebar build events.                             *
+ *                                                                                             *
+ *    This constructor is used for events that deal with an object type and an object ID.      *
+ *    Typically, this is used exclusively by the sidebar.                                      *
+ *                                                                                             *
+ * INPUT:   type     -- The event type of this object.                                         *
+ *                                                                                             *
+ *          object   -- The object type number.                                                *
+ *                                                                                             *
+ *          id       -- The object sub-type number.                                            *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   05/18/1995 JLB : Created.                                                                 *
+ *=============================================================================================*/
+
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Constructor for object types affecting cells event.               *
+ *                                                                                             *
+ *    This constructor is used for those events that have an object type and associated cell.  *
+ *    Typically, this is for building placement after construction has completed.              *
+ *                                                                                             *
+ * INPUT:   type     -- The event type for this object.                                        *
+ *                                                                                             *
+ *          object   -- The object type number (actual object is probably inferred from the    *
+ *                      sidebar data).                                                         *
+ *                                                                                             *
+ *          cell     -- The cell location where this event is to occur.                        *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   05/18/1995 JLB : Created.                                                                 *
+ *=============================================================================================*/
+EventClass::EventClass(int index, unsigned char type, RTTIType object, Cell const & cell)
+{
+	DebugString("Adding event %s\n", EventNames[type]);
+
+	if (index >= 0) {
+		ID = index;
+		Type = type;
+		Data.Place.Type = object;
+		Data.Place.ID = -1; // RA2: as in YR; 0x4B62F0 matches only so
+		Data.Place.IsNaval = 0; // RA2: as above
+		Data.Place.Where = cell;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+EventClass::EventClass(int index, unsigned char type, RTTIType object, int id, Cell const & cell) // RA2: YR's, at 0x4B6370
+{
+	DebugString("Adding event %s\n", EventNames[type]);
+	if (index >= 0) {
+		ID = index;
+		Type = type;
+		Data.Place.Type = object;
+		Data.Place.ID = id;
+		Data.Place.IsNaval = 0;
+		Data.Place.Where = cell;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+EventClass::EventClass(int index, unsigned char type, RTTIType object, int id, BOOL naval, Cell const & cell) // RA2: YR's, at 0x4B63F0
+{
+	DebugString("Adding event %s\n", EventNames[type]);
+	if (index >= 0) {
+		ID = index;
+		Type = type;
+		Data.Place.Type = object;
+		Data.Place.ID = id;
+		Data.Place.IsNaval = naval;
+		Data.Place.Where = cell;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+/***********************************************************************************************
+ * EventClass::EventClass -- Construct an id and cell based event.                             *
+ *                                                                                             *
+ *    This constructor is used for those events that require an ID number and a cell location. *
+ *                                                                                             *
+ * INPUT:   type  -- The event type this will be.                                              *
+ *                                                                                             *
+ *          id    -- The arbitrary id number to assign.                                        *
+ *                                                                                             *
+ *          cell  -- The location for this event.                                              *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   05/18/1995 JLB : Created.                                                                 *
+ *=============================================================================================*/
+
+
+
+/// <summary>
+/// RA2
+/// </summary>
+EventClass::EventClass(int index, unsigned char type, int id, Cell const & cell)
+{
+	DebugString("Adding event %s\n", EventNames[type]);
+
+	if (index >= 0) {
+		ID = index;
+		Type = type;
+		Data.Special.ID 	= id;
+		Data.Special.Where = cell;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+/// <summary>
+/// RA2
+/// </summary>
+EventClass::EventClass(int index, unsigned char type, RTTIType object, int id)
+{
+	DebugString("Adding event %s\n", EventNames[type]);
+
+	if (index >= 0) {
+		ID = index;
+		Type = type;
+		Data.Specific.Type = object;
+		Data.Specific.ID = id;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+EventClass::EventClass(int index, IPXAddressClass & addr, signed char value) // RA2: YR's, at 0x4B6560
+{
+	NetNumType net;
+	NetNodeType node;
+
+	if (index >= 0) {
+		ID = index;
+		Type = ADDRESS_CHANGE;
+		addr.Get_Address(net, node);
+		Data.Address.Node = *(unsigned int *)node;
+		Data.Address.Value = value;
+		Frame = ::Frame;
+	} else {
+		ID = -1;
+		Type = EMPTY;
+		Frame = ::Frame;
+	}
+}
+
+
+/***********************************************************************************************
+ * EventClass::Execute -- Execute a queued command.                                            *
+ *                                                                                             *
+ *    This routine executes an event. The even must already have been confirmed by any         *
+ *    remote machine before calling this routine.                                              *
+ *                                                                                             *
+ * INPUT:   none                                                                               *
+ *                                                                                             *
+ * OUTPUT:  none                                                                               *
+ *                                                                                             *
+ * WARNINGS:   none                                                                            *
+ *                                                                                             *
+ * HISTORY:                                                                                    *
+ *   12/27/1994 JLB : Created.                                                                 *
+ *=============================================================================================*/
+void EventClass::Execute(void)
+{
+	TechnoClass * techno = NULL;
+	BuildingClass * building = NULL;
+	AnimClass * anim = NULL;
+	HouseClass * house = Houses[ID];
+	HouseClass * hptr = NULL;
+	wchar_t const * str = NULL; // RA2: wide strings
+//	Cell cell;
+//	Coord coord;
+	wchar_t txt[80]; // RA2: wide
+//	bool formation = false;
+	int i;
+	int index;
+//	RTTIType rt;
+
+	//if (Debug_Print_Events) {
+	//	printf("(%d) Executing %s ID:%d Frame:%d ",
+	//		::Frame, EventNames[Type], ID, Frame);
+	//}
+
+	switch (Type) {
+
+		case PLAN_CONNECT: // RA2: the planning events go to the planning manager
+		case PLAN_COMMIT: // RA2: as above
+		case PLAN_NODE_DELETE: // RA2: as above
+			Planning_Execute(this); // RA2: as above
+			return; // RA2: as above
+
+		case POWERON:
+			building = Data.Target.Whom.As_Building();
+			Planning_Clear_Techno(building, NULL); // RA2: lets go of the planning token first
+			if (building && building->IsActive && !building->IsInLimbo && !building->Class->IsFirestormWall) {
+				building->Turn_On();
+			}
+			break;
+
+		case POWEROFF:
+			building = Data.Target.Whom.As_Building();
+			Planning_Clear_Techno(building, NULL); // RA2: as above
+			if (building && building->IsActive && !building->IsInLimbo && !building->Class->IsFirestormWall) {
+				building->Turn_Off();
+			}
+			break;
+
+		/*
+		**	Update the archive target for this building.
+		*/
+		case ARCHIVE:
+			techno = Data.NavCom.Whom.As_Techno();
+			Planning_Clear_Techno(techno, NULL); // RA2: as above
+			if (techno && techno->IsActive) {
+				techno->Assign_Archive_Target(Data.NavCom.Where.As_Abstract()); // RA2: a call
+			}
+			break;
+
+		/*
+		**	Make or break alliance.
+		*/
+		case ALLY:
+			hptr = Houses[Data.General.Value];
+			if (house->Is_Ally(hptr)) {
+				house->Make_Enemy((HousesType)Data.General.Value, true); // RA2: the flag
+			} else {
+				house->Make_Ally((HousesType)Data.General.Value, true); // RA2: as above
+			}
+			break;
+
+		/*
+		**	The player's infantry cheer.
+		*/
+		case ALL_CHEER: // RA2
+			if (house != NULL) { // RA2: as above
+				house->Cheer(); // RA2: the house cheers (ALL_CHEER, a new event)
+			}
+			break;
+
+		/*
+		**	Update the special control flags. This is necessary so that in a multiplay
+		**	game, all machines will agree on the rules. If these options change during
+		**	game play, then all players are informed that options have changed.
+		*/
+		case SPECIAL:
+			if (house != NULL) {
+				Special = Data.Options.Data;
+				Scen->Special = Data.Options.Data;
+
+				swprintf(txt, StringTable::LoadString("TXT_SPECIAL_WARNING", NULL, "C:\\RA2\\Event.CPP", 949), house->UIName); // RA2: the warning goes into the message list; level-2 1.001: line 949
+				Session.Messages.Add_Message(NULL, 0, txt, house->Scheme, TextPrintType(0x4046), 1200, false); // RA2: as above
+				Map.Flag_To_Redraw(GScreenRedrawFlags(0)); // RA2: no redraw flags
+			}
+			break;
+
+		/*
+		**	Starts or stops repair on the specified object. This event is triggered by the
+		**	player clicking the repair wrench on a building.
+		*/
+		case REPAIR:
+			techno = Data.Target.Whom.As_Techno();
+			Planning_Clear_Techno(techno, NULL); // RA2: as above
+			if (techno && techno->IsActive) {
+				techno->Repair(-1);
+			}
+			break;
+
+		/*
+		**	Tells a building/unit to sell. This event is triggered by the player clicking the
+		**	sell animating cursor over the building or unit.
+		*/
+		case SELL:
+			techno = Data.Target.Whom.As_Techno();
+			Planning_Clear_Techno(techno, NULL); // RA2: as above
+			if (techno && techno->IsActive && techno->House->HeapID == ID) {
+				if (techno->RTTI == RTTI_BUILDING || ((techno->RTTI == RTTI_UNIT || techno->RTTI == RTTI_AIRCRAFT) && Map[techno->Center_Coord()].Cell_Building() != NULL)) {
+					techno->Sell_Back(-1);
+				}
+			}
+			break;
+
+		/*
+		**	Tells the wall at the specified location to sell off.
+		*/
+		case SELLCELL:
+//			cell = Data.SellCell.Cell;
+			house->Sell_Wall(Cell(Data.SellCell.Where.X, Data.SellCell.Where.Y), false);
+			break;
+
+		/*
+		**	This even is used to trigger an animation that is generated as a direct
+		**	result of player intervention.
+		*/
+		case ANIMATION:
+		{
+			Coord coord(Data.Anim.Where.X, Data.Anim.Where.Y);
+			coord.Z = Map.Get_Height_GL(coord);
+			if (Map[coord].IsUnderBridge) {
+				coord.Z += BRIDGE_LEPTON_HEIGHT;
+			}
+			if (Data.Anim.What == ANIM_NONE) {
+				anim = new AnimClass(Rule->MoveFlash, coord, 0, 1, ShapeFlags_Type(0x600), 0); // RA2: the arguments are written out
+			} else {
+				anim = new AnimClass(AnimTypes[Data.Anim.What], coord, 0, 1, ShapeFlags_Type(0x600), 0); // RA2: as above
+			}
+			if (anim) {
+				if (Data.Anim.Owner != HOUSE_NONE && !Houses[Data.Anim.Owner]->Is_Player_Control()) {
+					anim->Make_Invisible();
+				}
+			}
+			break;
+		}
+
+		/*
+		**	This event will place the specified object at the specified location.
+		**	The event is used to place newly constructed buildings down on the map. The
+		**	object type is specified. From this object type, the house can determine the
+		**	exact factory and real object pointer to use.
+		*/
+		case PLACE:
+			house->Place_Object(Data.Place.Type, Data.Place.ID, Data.Place.IsNaval != 0, Cell(Data.Place.Where.X, Data.Place.Where.Y)); // RA2: the object id and the ship flag; level-2 1.001: house.h declares this form (0x4E5FF0)
+			break;
+
+		/*
+		**	This event starts production of the specified object type. The house can
+		**	determine from the type and ID value, what object to begin production on and
+		**	what factory to use.
+		*/
+		case PRODUCE:
+			house->Begin_Production(Data.Specific.Type, Data.Specific.ID, Data.Specific.IsNaval != 0, false); // RA2: the object id and the ship flag
+			break; // RA2: as above
+
+		/*
+		**	This event is generated when the player puts production on hold. From the
+		**	object type, the factory can be inferred.
+		*/
+		case SUSPEND:
+			house->Suspend_Production(Data.Specific.Type, Data.Specific.ID, Data.Specific.IsNaval != 0); // RA2: the object id and the ship flag; level-2 1.001: house.h now declares this overload (0x4E5A90)
+			break;
+
+		/*
+		**	This event is generated when the player cancels production of the specified
+		**	object type. From the object type, the exact factory can be inferred.
+		*/
+		case ABANDON:
+			house->Abandon_Production(Data.Specific.Type, Data.Specific.ID, Data.Specific.IsNaval != 0); // RA2: the ship flag
+			break;
+
+		/*
+		**	Toggles the primary factory state of the specified building.
+		*/
+		case PRIMARY:
+			{
+				BuildingClass * building = Data.Target.Whom.As_Building();
+				Planning_Clear_Techno(building, NULL); // RA2: as above
+				if (building && building->IsActive) {
+					building->Toggle_Primary();
+				}
+			}
+			break;
+
+		/*
+		**	This is the general purpose mission control event. Most player
+		**	action routes through this event. It sets a unit's mission, TarCom,
+		**	and NavCom to the values specified.
+		*/
+		case MEGAMISSION_F:
+			// Fall thru to next case...
+
+		case MEGAMISSION:
+			techno = Data.MegaMission.Whom.As_Techno();
+			if (Data.MegaMission.IsPlanningEvent == 1) { // RA2: a planning event goes to the planning manager
+				Planning_Execute(this); // RA2: as above
+				break; // RA2: as above
+			}
+			Planning_Clear_Techno(techno, this); // RA2: lets go of the planning token first
+			if (techno != NULL && techno->IsActive && techno->Strength > 0 && !techno->IsInLimbo) {
+
+				/*
+				**	Fetch a pointer to the object of the mission. If there is an error with
+				**	this object, such as it is dead, then bail.
+				*/
+				ObjectClass * object = NULL;
+				if (Data.MegaMission.Target.Is_Valid()) {
+					object = Data.MegaMission.Target.As_Object();
+					if (object != NULL && (!object->IsActive || object->Strength == 0 || object->IsInLimbo)) {
+						break;
+					}
+				}
+
+				/*
+				**	If the destination target is invalid because the object is dead, then
+				**	bail from processing this mega mission.
+				*/
+				if (Data.MegaMission.Destination.Is_Valid()) {
+					object = Data.MegaMission.Destination.As_Object();
+					if (object != NULL && (!object->IsActive || object->Strength == 0 || object->IsInLimbo)) {
+						break;
+					}
+				}
+
+				if (Data.MegaMission.Mission == MISSION_ENTER && techno->CurrentMission == MISSION_ENTER && techno->Is_Foot()) {
+					AbstractClass * target = Data.MegaMission.Destination.As_Abstract();
+					if (target != NULL && target->RTTI == RTTI_BUILDING && techno->Radio_Link(0) == target) { // RA2: Radio_Link, not Contact_With_Whom
+						break;
+					}
+				}
+
+				/*
+				**	Break any existing tether or team contact, since it is now invalid.
+				*/
+				if (!techno->IsTethered) {
+					techno->Transmit_Message(RADIO_OVER_OUT);
+				} else {
+					TechnoClass * radio = techno->Radio_Link(0); // RA2: as above
+					if (radio != NULL && radio->IsActive && radio->RTTI == RTTI_BUILDING && ((BuildingClass *)radio)->Class->IsDockUnload) { // RA2: a building that takes docked units
+						techno->Transmit_Message(RADIO_OVER_OUT); // RA2: as above
+						techno->IsTethered = false; // RA2: as above
+					}
+				}
+				if (techno->QueueUpToEnter != NULL) { // RA2: QueueUpToEnter
+					techno->QueueUpToEnter = NULL; // RA2: QueueUpToEnter
+				}
+				if (techno->Is_Foot()) {
+					if (((FootClass *)techno)->Team && Data.MegaMission.Mission != MISSION_UNLOAD) {
+						((FootClass *)techno)->Team->Remove((FootClass *)techno, -1, true); // RA2: the third argument
+					}
+				}
+
+				if (object != NULL) {
+					if (PlayerPtr->Is_Ally(techno)) {
+						object->Clicked_As_Target(7); // RA2: Clicked_As_Target takes the click kind, 7
+					}
+				}
+
+				/*
+				**	Test to see if the navigation target should really be queued rather
+				**	than assigned to the object.
+				*/
+				int mission = techno->RespondMegaEventMission(this); // RA2: the mission comes from the event
+				techno->QueueMission((MissionType)mission, false); // RA2: as above
+
+				FootClass * foot; // RA2: the flag test, not a dynamic cast
+				if (techno->AbstractFlags & 4) { // RA2: as above
+					foot = (FootClass *)techno; // RA2: as above
+				} else {
+					foot = NULL; // RA2: as above
+				}
+				if (foot != NULL) {
+					foot->SuspendedNavCom = NULL;
+				}
+				techno->SuspendedTarCom = NULL;
+
+				/*
+				**	Guard area mode is handled with care. The specified target is actually
+				**	assigned as the location that should be guarded. In addition, the
+				**	movement destination is immediately set to this new location.
+				*/
+				if (Data.MegaMission.Mission == MISSION_GUARD_AREA && techno->Is_Foot()) {
+					techno->Assign_Target(NULL);
+					techno->Assign_Destination(Data.MegaMission.Target.As_Abstract(), true); // RA2: the flag
+					techno->Assign_Archive_Target(Data.MegaMission.Target.As_Abstract()); // RA2: a call
+				} else {
+					if (foot != NULL) {
+						foot->Assign_Archive_Target(NULL); // RA2: a call
+						foot->Clear_Navigation_List(); // RA2: as above
+					}
+					techno->Assign_Target(Data.MegaMission.Target.As_Abstract()); // RA2: as above
+					techno->Assign_Destination(Data.MegaMission.Destination.As_Abstract(), true); // RA2: the flag
+					if (Data.MegaMission.Follow.Is_Valid()) { // RA2: the follow target
+						techno->Set_Follow_Target(Data.MegaMission.Follow.As_Abstract()); // RA2: as above
+					}
+				}
+			}
+			break;
+
+		/*
+		**	Request that the unit/infantry/aircraft go into idle mode.
+		*/
+		case IDLE:
+			techno = Data.Target.Whom.As_Techno();
+			Planning_Clear_Techno(techno, NULL); // RA2: as above
+			if (techno != NULL && techno->IsActive && !techno->IsInLimbo && !techno->IsTethered && techno->CurrentMission != MISSION_CONSTRUCTION && techno->CurrentMission != MISSION_DECONSTRUCTION) { // RA2: no construction/deconstruction break inside, they are tested here
+
+				if (!techno->IsOnBridge && Map[Coord(techno->Position)].Ramp == RAMP_NONE && techno->Is_On_Elevation()) { // RA2: the ramp test builds a Coord copy
+					break;
+				}
+
+				if (techno->Is_Foot()) {
+					((FootClass *)techno)->NavQueue.Clear();
+					((FootClass *)techno)->Clear_Navigation_List();
+					((FootClass *)techno)->CurrentPath = PATH_NONE;
+					((FootClass *)techno)->NextWaypoint = 0;
+					((FootClass *)techno)->WaypointOffsetCell = Cell(0, 0);
+					((FootClass *)techno)->WaypointTargetCell = Cell(0, 0);
+				}
+				techno->SendToEachLink(RADIO_OVER_OUT); // RA2: to every link
+				techno->Assign_Destination(NULL, true); // RA2: the flag
+				techno->Assign_Target(NULL);
+				if (techno->SpawnManager) { // RA2: spawned objects let go of their target
+					techno->SpawnManager->ResetTarget(); // RA2: as above
+				}
+				if (techno->RTTI == RTTI_UNIT && ((UnitClass *)techno)->Class->IsToHarvest && (techno->CurrentMission == MISSION_HARVEST || techno->CurrentMission == MISSION_RETURN)) { // RA2: also while returning
+					techno->QueueMission(MISSION_GUARD, false); // RA2: MISSION_GUARD is queued, not assigned
+					techno->Commence();
+				}
+			}
+			break;
+
+		case DEPLOY:
+			techno = Data.Target.Whom.As_Techno();
+			Planning_Clear_Techno(techno, NULL); // RA2: as above
+			if (techno != NULL && techno->IsActive && !techno->IsInLimbo && !techno->IsTethered && techno->StunDuration == 0) {
+
+				if (!techno->IsOnBridge) {
+					if (!Map[Coord(techno->Position)].Ramp != 0 && techno->Is_On_Elevation()) { // RA2: the exe reads the object position
+						break;
+					}
+				}
+
+				if (techno->CurrentMission != MISSION_CONSTRUCTION && techno->CurrentMission != MISSION_DECONSTRUCTION && techno->RTTI != RTTI_AIRCRAFT) { // RA2: the three tests are one condition
+					Cell cell = techno->Get_Cell(); // RA2: the cell of the object
+					if (cell != CELL_NONE) { // RA2: as above
+						building = Map[cell].Cell_Building(); // RA2: as above
+						if (building && building->Class->IsWeaponsFactory) { // RA2: as above
+							break; // RA2: as above
+						}
+					}
+					techno->Transmit_Message(RADIO_OVER_OUT);
+					techno->Assign_Destination(NULL, true); // RA2: the flag
+					techno->Assign_Target(NULL);
+					techno->QueueMission(MISSION_UNLOAD, false); // RA2: MISSION_UNLOAD is queued
+				}
+			}
+			break;
+
+		/*
+		**	Detonate the bomb attached to the object. RA2
+		*/
+		case DETONATE: // RA2: DETONATE is a new event: the bomb attached to the object goes off
+			techno = Data.Target.Whom.As_Techno(); // RA2: as above
+			Planning_Clear_Techno(techno, NULL); // RA2: as above
+			if (techno && techno->AttachedBomb) { // RA2: as above
+				techno->AttachedBomb->Detonate(); // RA2: as above
+			}
+			break; // RA2: as above
+
+		/*
+		**	Request that the unit/infantry/aircraft scatter from its current location.
+		*/
+		case SCATTER:
+			techno = Data.Target.Whom.As_Techno();
+			Planning_Clear_Techno(techno, NULL); // RA2: as above
+			if (techno != NULL && techno->Is_Foot() && techno->IsActive && !techno->IsInLimbo && !techno->IsTethered) {
+				((FootClass *)techno)->IsScattering = true;
+				techno->Scatter(COORD_NONE, true, false);
+			}
+			break;
+
+		/*
+		**	If we are placing down the ion cannon blast then lets take
+		**	care of it.
+		*/
+		case SPECIAL_PLACE:
+			house->Place_Special_Blast((SuperWeaponType)Data.Special.ID, Cell(Data.Special.Where.X, Data.Special.Where.Y));
+			break;
+
+		/*
+		**	Exit the game.
+		**	Give parting message while palette is fading to black.
+		*/
+		case EXIT:
+			DebugString("Processing EXIT event on frame %d\n", ::Frame); // RA2: logs the frame
+			PlayerAborts = true;
+			break;
+
+		/*
+		**	Process the options menu, unless we're playing back a recording.
+		*/
+		case OPTIONS:
+			if (!Session.Play) {
+				SpecialDialog = SDLG_OPTIONS;
+			}
+			break;
+
+		/*
+		**	Process the options Game Speed
+		*/
+		case GAMESPEED:
+			Options.GameSpeed = Data.General.Value;
+
+			house = Houses[ID];
+			if (house != PlayerPtr && house != NULL) {
+				str = StringTable::LoadString("TXT_PLAYER_CHANGED_SPEED", NULL, "C:\\RA2\\Event.CPP", 1400); // RA2: wide; level-2 1.001: line 1400
+				if (str != NULL && wcslen(str) != 0) { // RA2: the executable measures the text with wcslen
+					wchar_t buffer[256]; // RA2: the buffer is a local wide string
+					swprintf(buffer, str, house->Name()); // RA2: as above; level-2 1.001: IHouse::Name
+					Session.Messages.Add_Message(NULL, 0, buffer, house->Scheme, TextPrintType(0x4046), int(Rule->MessageDelay * TICKS_PER_MINUTE), false); // RA2: the message is shown
+				}
+			}
+			break;
+
+		/*
+		**	Adjust connection timing for multiplayer games
+		*/
+		case RESPONSE_TIME:
+			Session.MaxAhead = Data.FrameInfo.Delay;
+			break;
+
+		/*
+		**	Save a multiplayer game (this event is only generated in multiplayer mode)
+		*/
+		case SAVEGAME:
+			/*
+			**	Show the user what's going on with a message box (but only if
+			**	we're not already inside a dialog box routine!)
+			*/
+			if (SpecialDialog == SDLG_NONE) {
+				CDTimerClass<SystemTimerClass> timer;
+				timer = TICKS_PER_SECOND * 4;
+
+				WWMessageBox().Process(StringTable::LoadString("TXT_SAVING_GAME", NULL, "C:\\RA2\\Event.CPP", 1433), StringTable::LoadString("TXT_NONE", NULL, "C:\\RA2\\Event.CPP", 1433), NULL, NULL, false); // RA2: wide text; level-2 1.001: line 1433
+				Save_Game("SAVEGAME.NET", StringTable::LoadString("TXT_MULTIPLAYER_GAME", NULL, "C:\\RA2\\Event.CPP", 1435), false); // RA2: the game is saved; level-2 1.001: line 1435
+
+				while (timer > 0) { // RA2: as above
+					Call_Back();
+				}
+
+				HiddenSurface->Fill(0);
+				Map.Flag_To_Redraw(GS_REDRAW_ALL);
+				Map.Render();
+			}
+			else {
+				Save_Game("SAVEGAME.NET", StringTable::LoadString("TXT_MULTIPLAYER_GAME", NULL, "C:\\RA2\\Event.CPP", 1446), false); // RA2: as above; level-2 1.001: line 1446
+			}
+			break;
+
+		/*
+		**	Add a new player to the game:
+		**	- Form a network connection to him
+		**	- Add his name, ID, House etc to our list of players
+		**	- Re-sort the ID array
+		**	- Place his units on the map
+		*/
+		case ADDPLAYER:
+			if (ID != PlayerPtr->HeapID) {
+				delete [] Data.Variable.Pointer;
+			}
+			break;
+
+		case REMOVEPLAYER:
+			DebugString("Executing REMOVEPLAYER event. Frame is %d\n", ::Frame);
+			index = Data.General.Value;
+
+			house = Houses[index];
+			if (Session.Type == GAME_INTERNET && Session.ViaPacketRouter) { // RA2: a game through the packet router
+				if (house->Is_Human_Player()) {
+					OwnerTalk.Send_Remove_Player(index); // RA2: tells the packet router
+				}
+			}
+			if ((Session.Type == GAME_INTERNET && WestwoodOnline_Tournament) || house->Is_Human_Player()) { // RA2: as above
+				house->Flag_To_Die(); // RA2: as above
+			}
+			break; // RA2: as above
+
+		/*
+		**	Special self destruct action requested. This is active in the multiplayer mode.
+		*/
+		case DESTRUCT: // RA2: as above
+			house->Flag_To_Die(); // RA2: as above
+			break; // RA2: as above
+
+		case FALLBACK_HOST: // RA2
+			DebugString("Received FALLBACKHOST event\n"); // RA2: FALLBACK_HOST is a new event: the host that answers the timing
+			Session.LastTimingID = Data.General.Value; // RA2: as above
+			break; // RA2: as above
+
+		case ADDRESS_CHANGE: // RA2
+			{
+				DebugString("Executing ADDRESSCHANGE event for player %d\n", Data.Address.Value); // RA2: ADDRESS_CHANGE is a new event: the address of a player changes
+				unsigned char node[6]; // RA2: as above
+				unsigned char network[4]; // RA2: as above
+				memset(node, 0, sizeof(node)); // RA2: as above
+				memset(network, 0, sizeof(network)); // RA2: as above
+				*(long *)node = Data.Address.Node; // RA2: as above
+				IPXAddressClass address(network, node); // RA2: as above; level-2 1.001: no port
+				DebugString("New address is %s\n", address.As_String()); // RA2: as above; level-2 1.001: no argument
+				Ipx.Set_Connection_Address(Data.Address.Value, &address); // RA2: as above
+				OwnerTalk.Set_Address(Data.Address.Value, &address); // RA2: as above; level-2 1.001: the player list address is not updated
+			}
+			break;
+
+		case ABOUT_TO_EXIT: // RA2
+			{
+				DebugString("Processing ABOUTTOEXIT event on frame %d\n", ::Frame); // RA2: ABOUT_TO_EXIT is a new event: the host leaves, the next one takes over
+				if (Session.Am_I_Master(NULL)) { // RA2: as above
+					OutList.Add(EventClass(PlayerPtr->HeapID, EXIT)); // RA2: as above
+					// level-2 1.001: no router probe flag here (1.006 sets Session +0x3020)
+				}
+				Session.AboutToExitActive = true; // RA2: the byte at Session +0x3040, set while the event is processed
+				int host = OwnerTalk.Update_Master(); // RA2: as above
+				if (host != -1) { // RA2: as above
+					HouseClass * hostp = Houses[host]; // RA2: as above
+					if (hostp) { // RA2: as above
+						if (Session.Players.Count() > 2) { // RA2: as above
+							IPXAddressClass * address = NULL; // RA2: as above
+							for (i = 0; i < Session.Players.Count(); i++) { // RA2: as above
+								if (Session.Players[i]->Player.ID == host) { // RA2: as above
+									address = &Session.Players[i]->Address; // RA2: as above
+									// level-2 1.001: no packet router port here
+									break; // RA2: as above
+								}
+							}
+							unsigned char network[4]; // RA2: as above
+							unsigned char node[6]; // RA2: as above
+							address->Get_Address(network, node); // RA2: as above
+							Session.PacketRouterAddress.Set_Address(network, node); // RA2: as above; level-2 1.001: no port, no debug output of the router address and port
+							if (!Session.Am_I_Master(NULL)) { // RA2: as above
+								Ipx.Set_Lobby_Address(&Session.PacketRouterAddress); // RA2: as above
+							}
+						}
+						wcscpy(Session.MasterPlayerName, hostp->UIName); // RA2: as above
+						DebugString("New game host is %ls\n", Session.MasterPlayerName); // RA2: as above
+						Session.MasterPlayerID = host; // RA2: as above
+						if (Session.Am_I_Master(NULL)) { // RA2: as above
+							OwnerTalk.Send_Player_List(); // RA2: as above
+						}
+					}
+					Session.ExitEventPending = ::Frame; // RA2: as above
+					Session.ExitEventPlayer = host; // RA2: as above
+					Session.ExitEventFrame = ((Session.MaxAhead + ::Frame + 10) / 10) * 10; // RA2: as above
+					Session.LastTimingID = -1; // RA2: as above
+				}
+				Session.AboutToExitActive = false; // RA2: as above
+			}
+			break; // RA2: as above
+
+		case LATENCYFUDGE:
+			DebugString("Executing LATENCYFUDGE event. Frame is %d\n", ::Frame);
+			Session.LatencyFudge = Data.General.Value;
+			DebugString("LatencyFudge is %d\n", Session.LatencyFudge);
+
+			house = Houses[ID];
+			if (house != PlayerPtr && house != NULL) {
+				str = StringTable::LoadString("TXT_PLAYER_CHANGED_LATENCY", NULL, "C:\\RA2\\Event.CPP", 1677); // RA2: wide; level-2 1.001: line 1677
+				if (str != NULL && wcslen(str) != 0) { // RA2: the executable measures the text with wcslen
+					wchar_t buffer[256]; // RA2: as above
+					swprintf(buffer, str, house->Name()); // RA2: as above; level-2 1.001: IHouse::Name
+					Session.Messages.Add_Message(NULL, 0, buffer, house->Scheme, TextPrintType(0x4046), int(Rule->MessageDelay * TICKS_PER_MINUTE), false); // RA2: as above
+				}
+			}
+			break;
+
+		//
+		// This event tells all systems to use new timing values.  It's like
+		// RESPONSE_TIME, only it works.  It's only used with the
+		// COMM_MULTI_E_COMP protocol.
+		//
+		case TIMING:
+			Data.Timing.MaxAhead -= (Scen->Special.IsFogOfWar) ? 10 : 0; // RA2: the fog of war special takes 10 from the delay
+
+			if (Data.Timing.MaxAhead > Session.MaxAhead || Data.Timing.FrameSendRate > Session.FrameSendRate) {
+				NewMaxAheadFrame1 = Frame;
+				NewMaxAheadFrame2 = Data.Timing.FrameSendRate * ((Data.Timing.FrameSendRate + Data.Timing.MaxAhead + Frame - 1) / Data.Timing.FrameSendRate);
+			} else {
+				NewMaxAheadFrame1 = 0;
+				NewMaxAheadFrame2 = 0;
+			}
+
+			Session.DesiredFrameRate = Data.Timing.DesiredFrameRate;
+			Session.MaxAhead = Data.Timing.MaxAhead;
+
+			if ((unsigned int)Session.MaxMaxAhead <= Session.MaxAhead) { // RA2: an unsigned compare
+				Session.MaxMaxAhead = Session.MaxAhead;
+			}
+
+			Session.FrameSendRate = Data.Timing.FrameSendRate;
+
+			break;
+
+		//
+		// This event tells all systems what the other systems' process
+		// timing requirements are; it's used to compute a desired frame rate
+		// for the game.
+		//
+		case PROCESS_TIME:
+			for (i = 0; i < Session.Players.Count(); i++) {
+				if (ID == Session.Players[i]->Player.ID) {
+					Session.Players[i]->Player.ProcessTime = Data.ProcessTime.AverageTicks;
+					break;
+				}
+			}
+			break;
+
+		case PAGEUSER:
+			if (!Session.Play) {
+				SpecialDialog = SDLG_WOL_OPTIONS;
+			}
+			break;
+
+		/*
+		**	Default: do nothing.
+		*/
+		default:
+			break;
+	}
+
+	//if (Debug_Print_Events) {
+	//	printf("\n");
+	//}
+
+}
+

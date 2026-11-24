@@ -1,0 +1,8 @@
+# build products and anything with original bytes stay out
+*.obj
+*.exe
+*.dll
+*.lib
+*.pdb
+build/
+orig/

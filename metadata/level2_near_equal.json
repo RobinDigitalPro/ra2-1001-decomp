@@ -1,0 +1,126 @@
+{
+ "about": "Level-2 NEAR_EQUAL list (AGENTS.md rule 12, user 2026-11-24). These functions are NOT byte-exact claims and do not count as level-2 coverage. They are functionally equivalent (verified by residue classification) and may be used for a runnable hybrid exe and baseline testing. Fix the last bytes in the end phase with the complete file linked.",
+ "utc": "2026-11-24T1842Z",
+ "functions": [
+  {
+   "rva": "0x2770d0",
+   "symbol": "?Reposition_Sidebar@SidebarClass@@UAEXXZ",
+   "tu": "sidebar.cpp",
+   "diff_bytes": 1,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  },
+  {
+   "rva": "0x28e3f0",
+   "symbol": "?Send_Statistics_Packet@@YIX_N@Z",
+   "tu": "stats.cpp",
+   "diff_bytes": 1,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  },
+  {
+   "rva": "0xcb740",
+   "symbol": "?Search_For_Tiberium_Weighted@FootClass@@QAE?AVCell@@H@Z",
+   "tu": "foot.cpp",
+   "diff_bytes": 2,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  },
+  {
+   "rva": "0x274f90",
+   "symbol": "?Draw_It@StripClass@SidebarClass@@QAEX_N@Z",
+   "tu": "sidebar.cpp",
+   "diff_bytes": 2,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  },
+  {
+   "rva": "0x339df0",
+   "symbol": "?Create_Game_Channel@@YI_NXZ",
+   "tu": "wonline.cpp",
+   "diff_bytes": 3,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  },
+  {
+   "rva": "0x1e1760",
+   "symbol": "?Adjust_Control_Position@OwnerDraw@@YIXPAUHWND__@@@Z",
+   "tu": "ownrdraw.cpp",
+   "diff_bytes": 1,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  },
+  {
+   "rva": "0x13fc70",
+   "symbol": "?Main_Options_Dialog_Proc@@YGHPAUHWND__@@IIJ@Z",
+   "tu": "mainopt.cpp",
+   "diff_bytes": 9,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  },
+  {
+   "rva": "0x281d00",
+   "symbol": "?CachePCX@SurfaceCacheClass@@QAE_NPBDHH@Z",
+   "tu": "srfcache.cpp",
+   "diff_bytes": 9,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  },
+  {
+   "rva": "0x31f440",
+   "symbol": "?WDT_Write_Map_Ini@@YIXABVWstring@@0@Z",
+   "tu": "wdtmap.cpp",
+   "diff_bytes": 1,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  },
+  {
+   "rva": "0x30cc20",
+   "symbol": "?Init_Voxel_Matrices@@YIXXZ",
+   "tu": "voxel.cpp",
+   "diff_bytes": 25,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  }
+ ],
+ "not_near_equal": [
+  {
+   "rva": "0x220ac0",
+   "symbol": "?Spread_Units_Around_Cell@@YIXHH@Z",
+   "verdict": "MIXED",
+   "diff_bytes": 4
+  },
+  {
+   "rva": "0x480f0",
+   "symbol": "?Do_MISSION_MISSILE@BuildingClass@@UAEHXZ",
+   "verdict": "MIXED",
+   "diff_bytes": 10
+  },
+  {
+   "rva": "0x917f0",
+   "symbol": "?CheckProtectedData@CopyProtection@@YI_NXZ",
+   "verdict": "MEANING",
+   "diff_bytes": 3
+  }
+ ]
+}

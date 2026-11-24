@@ -1,0 +1,80 @@
+/*******************************************************************************
+ *                                O P E N  T S
+ *******************************************************************************
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright 2025 Electronic Arts Inc.
+ * Copyright 2026 OpenTS contributors
+ *
+ * Contains material derived from Electronic Arts source code.
+ * Modified by OpenTS contributors, 2026.
+ * EA's GPLv3 Section 7 additional terms and supplemental warranty
+ * disclaimers apply; see LICENSE.md.
+ ******************************************************************************/
+
+/***********************************************************************************************
+ ***              C O N F I D E N T I A L  ---  W E S T W O O D  S T U D I O S               ***
+ ***********************************************************************************************
+ *                                                                                             *
+ *                 Project Name : Command & Conquer                                            *
+ *                                                                                             *
+ *                     $Archive:: /Commando/Library/HSV.H                                     $*
+ *                                                                                             *
+ *                      $Author:: Greg_h                                                      $*
+ *                                                                                             *
+ *                     $Modtime:: 7/22/97 11:37a                                              $*
+ *                                                                                             *
+ *                    $Revision:: 1                                                           $*
+ *                                                                                             *
+ *---------------------------------------------------------------------------------------------*
+ * Functions:                                                                                  *
+ * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#pragma once
+
+class RGBClass;
+class HSVClass;
+
+/*
+**	Each color entry is represented by this class. It holds the values for the color
+**	attributes. The values are recorded in a range from 0 to 255 with 255 being the
+**	maximum.
+*/
+class HSVClass
+{
+	private:
+		static HSVClass const BlackColor;
+
+	public:
+		HSVClass(void) : Hue(0), Saturation(0), Value(0) {};
+		HSVClass(unsigned char hue, unsigned char saturation, unsigned char value) :
+				Hue(hue),
+				Saturation(saturation),
+				Value(value)
+			{};
+		operator RGBClass (void) const;
+
+		bool operator==(HSVClass &that); // level-2 1.001: out of line, non-const (0x4FE670, as gibbo101)
+		bool operator!=(const HSVClass &that); // level-2 1.001: out of line (0x4FE6A0, as gibbo101)
+
+		enum {
+			MAX_VALUE=255
+		};
+
+		void Adjust(int ratio, HSVClass const & hsv);
+		int Difference(HSVClass const & hsv) const;
+		int Get_Hue(void) const {return(Hue);};
+		int Get_Saturation(void) const {return(Saturation);};
+		int Get_Value(void) const {return(Value);};
+		void Set_Hue(unsigned char value) {Hue = value;}
+		void Set_Saturation(unsigned char value) {Saturation = value;}
+		void Set_Value(unsigned char value) {Value = value;}
+
+	private:
+		unsigned char Hue;
+		unsigned char Saturation;
+		unsigned char Value;
+};
+
+// level-2 1.001: free comparisons (0x4FE6E0, 0x4FE6F0, as gibbo101); the const operator== resolves to itself
+bool operator==(HSVClass const & a, HSVClass const & b);
+bool operator!=(HSVClass const & a, HSVClass const & b);

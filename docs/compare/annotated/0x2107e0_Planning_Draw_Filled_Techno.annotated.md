@@ -1,0 +1,21 @@
+# 0x2107e0 · Planning_Draw_Filled_Techno
+
+## Diff 1, H1 (old 1–82 → matched 1–74)
+
+**DECISIVE.** The one source hunk changes several independently measurable decisions. VC6 8168 produces 1,565 positional differences for the old body in the matched TU, and zero over 2,080 padded bytes for the matched body. The figures below are single-site reversions from that winner. They need not add up.
+
+| Within H1 | Before → after and the community form | Result in the matched context |
+|---|---|---|
+| Origin and colors | A mutable `start` becomes a fixed center and a separate source initialized with `source = center`. The two expanded house-color adjustments become `Unit_Path_Tint` with normal/bright modes. The helper reads the house remap color and adjusts toward black by 80 or white by 100. `Planning_Techno_Color` becomes `Waypoint_Fill_Color`, which selects normal/highlight based on techno and planning selection. | **DECISIVE** for whole-point copy spelling here. Replacing it with the outline twin's two component assignments costs 1,646 differences and grows the section to 2,112. The tint/fill boundaries belong to the matching hunk, without separate per-color measurements. |
+| Conditions and frame | The explicit null/count conditional becomes `Has_Planned_Nodes(token)`. The port retains Planning_Current_Order where meastes calls Should_Draw_Active_Action. The popped event changes from copy initialization to direct initialization. RA2 calls the frame method through a const PlanningFirstTarget view. The active-order ternary becomes `Active_Waypoint_Frame(techno, mega_mission, attack_move)`. The extra segment uses a frame-or-minus-one value before its draw test. | **DECISIVE** for the planned-node helper. Returning its count expression to the caller costs 1,651 differences (2,112 bytes). Renaming local variables or changing comments has no semantic bearing on this count. |
+| Extra attack-move segment | `Planning_Coord_Pixel(next_coord)` becomes a block-local pixel populated by TacticalMap->Coord_To_Pixel. The code adds TacticalRect.X/Y, then assigns the result to dest. Meastes itself uses Planning_Coord_Pixel here. The old thick dashed wrapper becomes the donor's general `Planning_Draw_Line(action, dest, 0, color, true)` for this segment only. | Both **DECISIVE** in context. Substituting the donor's projection call costs 1,634 differences and shrinks the section to 2,000 bytes. Restoring the dashed wrapper costs 364 differences at the correct 2,080-byte size, first difference +0x3cb. The projection expansion is RA2-specific. |
+| First planned node | `&lead` becomes `&branch->Event`. The reached-node color and order of dots and line are preserved. A caller-local returned event and frame call become `Planned_Waypoint_Frame(node->Get_Event_For(techno))` with an EventClass **by-value** parameter. | **DECISIVE** for the by-value boundary. Reinstating the local event and frame test costs 1,646 differences and produces 2,112 padded bytes. |
+| Presentation | Local names, indentation, comments and braces on simple conditions change. | No evidence of a draw-order change from these edits. |
+
+## Why we did not find it
+
+**Partly.** Batch 19 searched lifetimes and branches. Batch 21 tested colors and a filled-layout grid. In batch 23 shared event storage improved the weighted score from 14 to 12 hunks but increased positional differences from 1,565 to 1,627. Batch 24 could reproduce the 0x168 frame and still had 14 hunks. Batch 26 tested 265 distinct variants with 53 calls already present in both builds. None improved the retained body. The first indexed house fetch at +0x8c, the black-color call and overlapping event slots still differed. Looking at call count and frame size could not choose either the whole-point assignment or which of several projection sites needed the expanded RA2 spelling.
+
+## How they found it
+
+The case's direct reference is meastes1006_planmgr.cpp. Gibbo's attempts for the YR filled twin, 0x0063BE60, record stack-layout experimentation in October and a 39.9% banked version on October 12. The November notes for the outline twin describe borrowing the filled twin's helper layout and point-copy idea. They supply no discovery narrative for expanding the RA2 attack-move projection. The matched source and the reversion above directly distinguish that adaptation from the donor.

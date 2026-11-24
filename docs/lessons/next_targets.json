@@ -1,0 +1,610 @@
+[
+  {
+    "tu": "super.cpp",
+    "symbol": "SuperClass::Place",
+    "rva": "0x292ef0",
+    "approaches": [
+      "Pair the RA2 and YR dispatch arms by callee and branch destination.",
+      "Reconstruct temporary lifetimes in the first divergent arm."
+    ],
+    "reason": "Batch 51 retained 2,441 differing bytes. A complete YR dispatch transplant would mix version-specific superweapon cases."
+  },
+  {
+    "tu": "isotype.cpp",
+    "symbol": "IsometricTileTypeClass::Draw_Tile",
+    "rva": "0x12a490",
+    "approaches": [
+      "Compare the first use of the receiver at each of the seven calls.",
+      "Transfer the receiver lifetime from a sibling drawing routine while checking the 0x1c frame."
+    ],
+    "reason": "Batch 51 found ESI versus EBX for this and different spill offsets before the later raster differences."
+  },
+  {
+    "tu": "house.cpp",
+    "symbol": "HouseClass::Random_Cell_In_Zone",
+    "rva": "0xebf50",
+    "approaches": [
+      "Recover the caller's direction declaration and overload from adjacent orientation calculations.",
+      "Transfer the proven north-arm bit-field treatment only where the other arms show the same load."
+    ],
+    "reason": "About 450 helper spellings missed the stored-and-reloaded fraction. The batch-51 north-arm change restored the east-entry position."
+  },
+  {
+    "tu": "map.cpp",
+    "symbol": "MapClass::Can_Repair_Bridge",
+    "rva": "0x166110",
+    "approaches": [
+      "Resolve the outstanding relocation bindings against the link map, original callees and already verified siblings.",
+      "Submit for coordinator verification when the bindings close."
+    ],
+    "reason": "Batch 54 reached zero masked differences over 2,112 bytes. Its report still lists 61 of 72 bindings open and zero conflicts."
+  },
+  {
+    "tu": "dropship.cpp",
+    "symbol": "Dropship_Screen",
+    "rva": "0xa68a0",
+    "approaches": [
+      "Align surface drawing and hover handling separately to a sibling dialog.",
+      "Recover the first point or surface temporary whose lifetime crosses the divergent call."
+    ],
+    "reason": "The local-count probe changed output size without identifying the source of the UI block differences."
+  },
+  {
+    "tu": "voxel.cpp",
+    "symbol": "Init_Voxel_Matrices",
+    "rva": "0x30cc20",
+    "approaches": [
+      "Compare pointer bases and first uses of the light vector and matrix index together against the all-reference donor.",
+      "Accept changes only when both the register assignment and load displacement match."
+    ],
+    "reason": "The 25 differences track the zero/index and light-vector register swap. The donor assigns the desired registers but shortens one load by three bytes."
+  },
+  {
+    "tu": "building.cpp",
+    "symbol": "BuildingClass::Do_MISSION_MISSILE",
+    "rva": "0x480f0",
+    "approaches": [
+      "Compare a matched warhead-dispatch sibling for the type and evaluation order of the arguments.",
+      "Test the alias boundary at the warhead load and damage shift as one unit."
+    ],
+    "reason": "Batch 50 localized all ten differences to +0x6df through +0x6e8. Sixty-five declaration probes left the ordering unchanged."
+  },
+  {
+    "tu": "foot.cpp",
+    "symbol": "FootClass::Search_For_Tiberium_Weighted",
+    "rva": "0xcb740",
+    "approaches": [
+      "Trace how a sibling coordinate routine returns or materializes its sentinel.",
+      "Test that source type across both sentinel uses."
+    ],
+    "reason": "The two batch-50 residues at +0x581 and +0x589 require EDX in place of ECX. Generic mutation and reference-return trials missed the pair."
+  },
+  {
+    "tu": "techno.cpp",
+    "symbol": "TechnoClass::Fire_At",
+    "rva": "0x2bfe50",
+    "approaches": [
+      "Align the first flak-displacement calculation with a projectile sibling.",
+      "Test split initialization and the lifetime of the displacement across the first differing call."
+    ],
+    "reason": "The first 0x3c9 bytes and the 0xa4 frame agree in batch 51, placing the first useful test inside the body."
+  },
+  {
+    "tu": "walk.cpp",
+    "symbol": "Walk::Movement_AI",
+    "rva": "0x312de0",
+    "approaches": [
+      "Pair the matched Mech movement blocks with YR Walk by callee and exit destination.",
+      "Transfer the corresponding sentinel exit and compare the remaining branches independently."
+    ],
+    "reason": "The nearby Mech implementation matched while the batch-47 Walk candidate retained 959 differences."
+  },
+  {
+    "tu": "tactical.cpp",
+    "symbol": "Tactical::Draw_Radial_Indicators",
+    "rva": "0x2a1a70",
+    "approaches": [
+      "Align the drawing calls and recover the sibling's short-circuit order and predicate result type at the first wrong edge."
+    ],
+    "reason": "The batch-16 predicate and boundary sweeps left 692 differences. A caller or sibling provides an independent constraint on when the test is evaluated."
+  },
+  {
+    "tu": "tactical.cpp",
+    "symbol": "Tactical::Draw_Tiles",
+    "rva": "0x29dba0",
+    "approaches": [
+      "Compare the adjacent tile loops for induction-step placement and for values computed before the loop.",
+      "Measure the first differing edge after aligning the drawing calls."
+    ],
+    "reason": "Member, flag and helper variants left 495 differences in batch 16. Loop-entry and step order can distinguish variants that agree at the call."
+  },
+  {
+    "tu": "dsurface.cpp",
+    "symbol": "DSurface::Draw_Depth_Antialiased_Line",
+    "rva": "0xac360",
+    "approaches": [
+      "Align homologous depth-raster loops by their surface and depth accesses.",
+      "Transfer point and depth-pointer temporary lifetimes in the first divergent loop while retaining the common entry and exit."
+    ],
+    "reason": "The batch-46 implementation still had 4,559 differences. Whole-family register guesses do not identify which loop first changes the addressing."
+  },
+  {
+    "tu": "bullet.cpp",
+    "symbol": "BulletClass::AI",
+    "rva": "0x5f380",
+    "approaches": [
+      "Trace the discriminator leading to the original impact arm.",
+      "Rebuild its branch to shared deletion and the final update using the original call order."
+    ],
+    "reason": "Batch 51 retained 4,781 differences and an anchored epilogue. The predecessor of the shared tail can be checked without disturbing that anchor."
+  },
+  {
+    "tu": "missile.cpp",
+    "symbol": "Projectile_Motion",
+    "rva": "0x190670",
+    "approaches": [
+      "Recover the point or coordinate constructor at the empty-target call and the conversion helper on the occupied-target path.",
+      "Check the x87 order and stack reservation separately on both paths."
+    ],
+    "reason": "Batch 50 still had 51 differences. The empty path reserves eight bytes at a different point and the occupied path converts X before the original Z access."
+  },
+  {
+    "tu": "srfcache.cpp",
+    "symbol": "SurfaceCacheClass::CachePCX",
+    "rva": "0x281d00",
+    "approaches": [
+      "Transfer the matched CacheBMP channel-write idiom.",
+      "Compare the first and last uses of bits-per-pixel across the red-channel block and its reload at +0x1da."
+    ],
+    "reason": "The repeated nine-byte residue is localized to a value that remains live across one color-channel operation."
+  },
+  {
+    "tu": "mapgen.cpp",
+    "symbol": "MapRegionClass::Split_Region",
+    "rva": "0x16bd10",
+    "approaches": [
+      "Identify the original calls to VA 0x56b790 and reconstruct their helper boundary in the late blocks.",
+      "Recompare the call sequence before changing the loop."
+    ],
+    "reason": "The first 24 direct calls align in batch 51, but the original has calls at VA 0x56cad5 and 0x56cb37 missing from the candidate."
+  },
+  {
+    "tu": "src/m85/src/netshare.cpp",
+    "symbol": "Net2DecodeGameopt",
+    "rva": "0x1beaf0",
+    "approaches": [
+      "Map the options fields against the RA2 record layout and YR decoder one assignment at a time.",
+      "Keep the aligned G and C-tail regions as controls."
+    ],
+    "reason": "Batch 53 measured 2,041 emitted-range differences and located 1,268 in the options assignments. Batch 52 exposed a filename collision with src/ra2/netshare.cpp."
+  },
+  {
+    "tu": "LdPrgMgr.cpp",
+    "symbol": "LoadProgressManager::Draw (Draw_It@LoadProgressMgr)",
+    "rva": "0x133e50",
+    "approaches": [
+      "Test point and rectangle lifetimes in the country-box drawing path.",
+      "Compare the text-box helper's actual arguments before transferring another donor use."
+    ],
+    "reason": "The batch-53 country-box change reached 2,017 emitted-range differences. The available donor covers a helper and lacks a complete body."
+  },
+  {
+    "tu": "queue.cpp",
+    "symbol": "Extract_Compressed_Events",
+    "rva": "0x21fa40",
+    "approaches": [
+      "Trace the cursor, cached event length and count before and after each decoded event.",
+      "Transfer the event-advance idiom from a sibling for the FRAMESYNC arm."
+    ],
+    "reason": "Batch 51 retained 582 differences. The timing of the advance also matters to the byte-identical Process_Receive_Packet caller."
+  },
+  {
+    "tu": "stats.cpp",
+    "symbol": "Send_Statistics_Packet",
+    "rva": "0x28e3f0",
+    "approaches": [
+      "Find independent declaration or caller evidence for the field supplying the FLAG byte.",
+      "Test its storage width and unsigned-char overload while checking both the first load and the shift."
+    ],
+    "reason": "Batch 54 still had one RA2 difference over 5,056 bytes. Narrowing the shift at +0x340 disturbed the load at +0x33a, although the YR flag formulation worked on its own target."
+  },
+  {
+    "tu": "sidebar.cpp",
+    "symbol": "SidebarClass::StripClass::Draw_It",
+    "rva": "0x274f90",
+    "approaches": [
+      "Transfer the verified RGB conversion or field-access idiom from the earlier hover drawing path.",
+      "Score the green and red materializations and relocation order together."
+    ],
+    "reason": "Batch 50 retained two differences at +0x679 and +0x694 in the green/AH and red/AL sequence after ordinary packing permutations."
+  },
+  {
+    "tu": "ownrdraw.cpp",
+    "symbol": "OwnerDraw::Combo_Proc",
+    "rva": "0x1ecc60",
+    "approaches": [
+      "Align individual window messages with the matched Combo_Drop_Proc.",
+      "Transfer the first divergent case's helper and shared exit while preserving the dispatcher."
+    ],
+    "reason": "Batch 41 did not establish a safe whole-body improvement. The matched companion supplies individual message-handling sequences to check."
+  },
+  {
+    "tu": "ownrdraw.cpp",
+    "symbol": "OwnerDraw::List_Proc",
+    "rva": "0x1ee640",
+    "approaches": [
+      "Recover the sparse message dispatch boundaries from the original and match each helper call to its sibling.",
+      "Check one case against fixed offsets and its exit before recombination."
+    ],
+    "reason": "The earlier whole-body and case searches retained the prior source. Fixed dispatch and call anchors can distinguish apparently better but misaligned cases."
+  },
+  {
+    "tu": "ownrdraw.cpp",
+    "symbol": "OwnerDraw::Control_Proc",
+    "rva": "0x1e6550",
+    "approaches": [
+      "Follow the first mismatching ordered comparison into its message case.",
+      "Check the call order and active-flag lifetime against a matched control helper while retaining the four exact regions."
+    ],
+    "reason": "Batch 53 improved the visibility query by evaluating it before the saved flag and still measured 3,421 fixed-span differences."
+  },
+  {
+    "tu": "ownrdraw.cpp",
+    "symbol": "OwnerDraw::Static_Proc",
+    "rva": "0x1eac10",
+    "approaches": [
+      "Transfer the centered-shape sibling's point construction into WM_PAINT.",
+      "Check WM_TIMER cleanup separately against the existing dispatch boundaries."
+    ],
+    "reason": "The batch-53 vertical-first coordinate change improved the result by four bytes to 2,595. A complete donor body regressed."
+  },
+  {
+    "tu": "wonline.cpp",
+    "symbol": "WOL_Buddy_List_Dialog_Proc",
+    "rva": "0x346940",
+    "approaches": [
+      "Trace destruction and callback lifetimes over +0x279 through +0x2ea using a sibling dialog.",
+      "Keep the timer and initialization arms as controls."
+    ],
+    "reason": "Batch 53 retained the 95-difference candidate. Previously tried timer guards and the shared initialization setter tied or regressed."
+  },
+  {
+    "tu": "wonline.cpp",
+    "symbol": "Run_Online_Menu",
+    "rva": "0x3474e0",
+    "approaches": [
+      "Reconstruct the join-and-poll callee sequence and its return paths within case 0x62d.",
+      "Freeze the host, abort and dispatch-table intervals."
+    ],
+    "reason": "The polling region accounts for 173 of the 224 differences in batch 53, while the host and abort ranges and jump tables already agree."
+  },
+  {
+    "tu": "building.cpp",
+    "symbol": "BuildingClass::Exit_Object",
+    "rva": "0x402b0",
+    "approaches": [
+      "Recover the ground-placement success and failure exits by following the archive-setter call and its arguments.",
+      "Compare the shared tail to a sibling placement path."
+    ],
+    "reason": "The batch-51 result retained 1,302 differences after the earlier initializer renumbering. The facility arm's shared call supplies a local alignment point."
+  },
+  {
+    "tu": "building.cpp",
+    "symbol": "Psychic_Detector_Covers_Techno",
+    "rva": "0x38570",
+    "approaches": [
+      "Pair the detection predicates with a sibling that checks the same fields.",
+      "Compare the first original out-of-line call to the candidate's inline expansion and test the boundary on the full TU."
+    ],
+    "reason": "The ledger identifies mixed inline cuts. A verified cut at a specific predicate would constrain the remaining detector body."
+  },
+  {
+    "tu": "map.cpp",
+    "symbol": "MapClass::Set_Map_Dimensions",
+    "rva": "0x145970",
+    "approaches": [
+      "Check the type and setter used for the second Cell assignment and separate the cell-count clear from the reset branch.",
+      "Verify both the register at +0x140 and downstream alignment."
+    ],
+    "reason": "Batch 51 traced the 0x10000 assignment to EAX where the original uses EDX. Many downstream offsets already line up after a two-byte shift."
+  },
+  {
+    "tu": "sidebar.cpp",
+    "symbol": "SidebarClass::Reposition_Sidebar",
+    "rva": "0x2770d0",
+    "approaches": [
+      "Recover the rectangle accessor and lifetime shared by the two right-edge calculations.",
+      "Compare both expressions in a single evaluation-order experiment."
+    ],
+    "reason": "One byte remains at +0xe4. Fifteen variants repaired the first address expression while disturbing the next geometry block."
+  },
+  {
+    "tu": "map.cpp",
+    "symbol": "MapClass::Destroy_Bridge2_Near",
+    "rva": "0x1539b0",
+    "approaches": [
+      "Align the bridge search with the matched Destroy_Low_Bridge_Near.",
+      "Transfer the corresponding return or Cell temporary at the first divergent call."
+    ],
+    "reason": "The ledger retained 12 differences. Batch 44's closure is the low-bridge sibling at another RVA, which provides a concrete donor."
+  },
+  {
+    "tu": "netshare.cpp",
+    "symbol": "Host_Func_5C5350",
+    "rva": "0x1c5350",
+    "approaches": [
+      "Verify which netshare TU owns the RVA by matching caller and relocation targets.",
+      "Transfer only the list-handling blocks whose calls line up."
+    ],
+    "reason": "The ledger gives a provisional host symbol and 686 differences. The later basename collision makes TU identity a necessary first check."
+  },
+  {
+    "tu": "queue.cpp",
+    "symbol": "Spread_Units_Around_Cell",
+    "rva": "0x220ac0",
+    "approaches": [
+      "Trace the owners and first uses of the two spill slots in the distance-ranking code.",
+      "Transfer a sibling's lifetime only if it retains the surrounding block and Print_CRCs."
+    ],
+    "reason": "Four differing positions remain in the batch-50 reload pair. The original reloads EBX from ESP+0x40 before EDI from ESP+0x20."
+  },
+  {
+    "tu": "UICmnds.cpp",
+    "symbol": "Combatant_Select_Command",
+    "rva": "0x2ebb60",
+    "approaches": [
+      "Pair the command with a matched selection hotkey by its action call.",
+      "Recover the selected-unit predicate and iteration order before transferring the shared action."
+    ],
+    "reason": "Batch 26 left 521 differences. Sibling hotkeys distinguish the common selection machinery from this command's filter."
+  },
+  {
+    "tu": "UICmnds.cpp",
+    "symbol": "Veterancy_Nav_Command",
+    "rva": "0x2eccf0",
+    "approaches": [
+      "Transfer the enumeration and wraparound branch from a matched navigation command.",
+      "Recover the width and placement of the veterancy test from its original consumer."
+    ],
+    "reason": "Batch 26 left 349 differences. The two comparisons can be checked independently against sibling navigation and the original unit filter."
+  },
+  {
+    "tu": "WDTSel.cpp",
+    "symbol": "WorldDominationTour::Selection::Do_Target_Anim (Show_State)",
+    "rva": "0x323340",
+    "approaches": [
+      "Trace the territory-cursor constructor near 0x323360 and compare its receiver and accessors in the native and RA2 headers.",
+      "Retain both Clear_Pending controls and CDFileClass destructor emission."
+    ],
+    "reason": "Batch 53 reached 941 with siblings intact. A 722-difference candidate dropped CDFileClass::~CDFileClass, and the native donor changed TU membership."
+  },
+  {
+    "tu": "wonline.cpp",
+    "symbol": "Create_Game_Channel",
+    "rva": "0x339df0",
+    "approaches": [
+      "Compare the two upstream strength-reduced loops and the real Add expansion with matched siblings.",
+      "Test genuine induction-variable types or lifetimes against both operand sites."
+    ],
+    "reason": "Three differences survive. The earlier period-32 diagnostic reproduces the operand pair but does not establish an original source declaration."
+  },
+  {
+    "tu": "wonline.cpp",
+    "symbol": "CChatEventSink::OnUserList",
+    "rva": "0x34e040",
+    "approaches": [
+      "Compare the parked and batch-53 sources under identical headers and caller bindings.",
+      "Trace guest-slot allocation and visitor lifetimes through profile and leave paths."
+    ],
+    "reason": "The historical one-byte parked body and the current 1,009-difference candidate describe different builds. A same-context comparison is needed before attributing the gap to operand order."
+  },
+  {
+    "tu": "wonline.cpp",
+    "symbol": "WOL_Game_Setup_Dialog_Proc",
+    "rva": "0x33d030",
+    "approaches": [
+      "Compare original tail ownership with a matched dialog using the same initialization convention.",
+      "Test early-return grouping with the common epilogue anchored."
+    ],
+    "reason": "The deferred record measured 57 differences and identified tail placement after two rounds of variants."
+  },
+  {
+    "tu": "wonline.cpp",
+    "symbol": "Locale_Dialog_Proc",
+    "rva": "0x33f8e0",
+    "approaches": [
+      "Compare constructor and temporary lifetimes around dialog initialization against adjacent matched procedures.",
+      "Rebuild the TU with the faithful dialog setter and check its other dialog users."
+    ],
+    "reason": "The deferred record identifies one displaced slot and four differences. The shared setter also affects OnChannelJoin."
+  },
+  {
+    "tu": "palette.cpp",
+    "symbol": "SchemeNode initializer or cleanup at 0x1fae20 (name disputed)",
+    "rva": "0x1fae20",
+    "approaches": [
+      "Assign the paired names from link order and verified references.",
+      "Compare the inlined Clear's base and index with the other member of the pair."
+    ],
+    "reason": "The deferral records swapped SchemeNode names and two address-operand differences in the faithful form."
+  },
+  {
+    "tu": "palette.cpp",
+    "symbol": "SchemeNode initializer or cleanup at 0x1faf00 (name disputed)",
+    "rva": "0x1faf00",
+    "approaches": [
+      "Resolve the partner's identity against both references and original section order.",
+      "Test the inlined Clear on the paired functions together."
+    ],
+    "reason": "The two names are disputed as a pair. Matching this body under the other name would leave the identity unresolved."
+  },
+  {
+    "tu": "sidebar.cpp / bounce.cpp / findpath.cpp",
+    "symbol": "GAMECONST middle-five initializers (ownership unresolved)",
+    "rva": null,
+    "approaches": [
+      "Bracket the group with verified initializers in the linker order after the three TUs are complete.",
+      "Assign each member only when its neighbors establish the correspondence."
+    ],
+    "reason": "DEFERRED_TO_END identifies five indistinguishable initializers and three candidate TUs but gives no individual RVA-to-TU mapping."
+  },
+  {
+    "tu": "queue.cpp",
+    "symbol": "SyncState::SyncState",
+    "rva": "0x21ad30",
+    "approaches": [
+      "Recover the natural out-of-class constructor and destructor order from neighboring definitions.",
+      "Test the paired placement and check the entire queue TU including Print_CRCs."
+    ],
+    "reason": "Batch 38 reproduced the constructor with a dummy local enum. The gauge indicates a declaration-count dependency without identifying the missing declaration."
+  },
+  {
+    "tu": "queue.cpp",
+    "symbol": "SyncState::~SyncState",
+    "rva": "0x21ad80",
+    "approaches": [
+      "Compare the paired constructor and destructor emission and declaration order with verified neighbors.",
+      "Check both bodies and the existing queue claims on the complete TU."
+    ],
+    "reason": "The destructor shares the batch-38 dummy-enum dependency of the constructor and belongs in the same declaration-order test."
+  },
+  {
+    "tu": "queue.cpp",
+    "symbol": "Process_Receive_Packet",
+    "rva": "0x21df30",
+    "approaches": [
+      "Validate the relocation to Extract_Compressed_Events after its callee identity is established, then rerun the binding check."
+    ],
+    "reason": "Path B already produced byte-identical code. Its recorded blocker is the unverified callee."
+  },
+  {
+    "tu": "mainopt.cpp",
+    "symbol": "Main_Options_Dialog_Proc",
+    "rva": "0x13fc70",
+    "approaches": [
+      "Align the first differing message edge with a sibling options dialog.",
+      "Compare the lifetimes of its saved result and block-local values across the shared exit."
+    ],
+    "reason": "Batch 35 retained nine differences. The small residual allows a case-level check while keeping neighboring arms fixed."
+  },
+  {
+    "tu": "ownrdraw.cpp",
+    "symbol": "Adjust_Control_Position",
+    "rva": "0x1e1760",
+    "approaches": [
+      "Recover the ID predicate and height-reference lifetime from a sibling control-positioning path.",
+      "Test a shared helper boundary against both the ID chain and coordinate tail."
+    ],
+    "reason": "The one-byte batch-40 residue trades between the ID chain and the tail when the x/y evaluation order changes."
+  },
+  {
+    "tu": "mapgen.cpp",
+    "symbol": "MapGeneratorClass::Read_RMG_INI",
+    "rva": "0x176750",
+    "approaches": [
+      "Reconstruct the two adjacent list getter temporaries and their destruction order.",
+      "Compare returned object ownership and copy construction at both getters."
+    ],
+    "reason": "The 97-byte batch-50 residual starts at +0x4f7 around two temporary destructors, pointing to object lifetime rather than scalar arithmetic."
+  },
+  {
+    "tu": "astar.cpp",
+    "symbol": "AStarClass::Find_Path_Regular",
+    "rva": "0x27370",
+    "approaches": [
+      "Recover the destination, passive and height tests feeding the first jge at +0x55a.",
+      "Compare the accepted fallthrough with the matched insertion and visited paths."
+    ],
+    "reason": "Batch 51 retained 426 differences. The first branch permits a local control-flow test without reopening the preceding loop."
+  },
+  {
+    "tu": "partsys.cpp",
+    "symbol": "ParticleSystemClass::Smoke_AI",
+    "rva": "0x203750",
+    "approaches": [
+      "Compare the matched particle sibling's coordinate capture and spawn calls.",
+      "Test emission gating and cycle cutoff against the original call order, frame and three existing anchors."
+    ],
+    "reason": "Batch 51 retained 625 differences. The original 0x44 frame and 17 calls distinguish candidate lifetimes that reproduce only the forward pass."
+  },
+  {
+    "tu": "map.cpp",
+    "symbol": "MapClass::Subzone_Span",
+    "rva": "0x161080",
+    "approaches": [
+      "Transfer the Y-before-X coordinate idiom from Update_Cell_Subzones.",
+      "Inspect construction and materialization between the second aligned call and the third."
+    ],
+    "reason": "Batch 51 retained 1,818 differences and found the third call three bytes late, giving a narrow first interval to investigate."
+  },
+  {
+    "tu": "particle.cpp",
+    "symbol": "ParticleClass::Spark_Behavior_AI",
+    "rva": "0x201120",
+    "approaches": [
+      "Recover the saved ground and bridge heights across the first differing stack slot at +0x102.",
+      "Restore the out-of-line reflected-vector and final-coordinate constructions while preserving the motion interval."
+    ],
+    "reason": "Batch 49 retained 444 kit differences with the 234-byte motion interval intact. A 438-difference wrapper lost that interval."
+  },
+  {
+    "tu": "progress.cpp",
+    "symbol": "Draw_Player",
+    "rva": "0x2177c0",
+    "approaches": [
+      "Trace the point and rectangle values reaching the flag-drawing call from the first differing instruction at +0x1b8.",
+      "Compare their lifetimes while retaining both exact ranges."
+    ],
+    "reason": "Batch 53 retained 341 differences on compared emitted bytes and 381 on the full span. Replaying 457 archived masks failed to improve the accepted baseline."
+  },
+  {
+    "tu": "egos.cpp",
+    "symbol": "Show_Credits",
+    "rva": "0xb34d0",
+    "approaches": [
+      "Reconstruct ownership and deallocation at both deletion sites.",
+      "Transfer the original scroll-expiration branch ordering while checking file cleanup in the full function."
+    ],
+    "reason": "Batch 53 retained 841 differences. Lower-scoring scroll and cleanup combinations lost existing exact behavior elsewhere in the function."
+  },
+  {
+    "tu": "src/ra2/netshare.cpp",
+    "symbol": "Scenario_DlgProc",
+    "rva": "0x1c0a70",
+    "approaches": [
+      "Align the original previous-selection and current-mode calls with the YR dialog.",
+      "Transfer their RA2-specific two-call form while preserving the accept-button handler and switch entries."
+    ],
+    "reason": "Batch 53 retained 793 full-span differences. Reordering initialization reached 588 but broke the clean accept-button arm."
+  },
+  {
+    "tu": "ownrdraw.cpp",
+    "symbol": "OwnerDraw::Default_Dialog_Proc",
+    "rva": "0x1f77c0",
+    "approaches": [
+      "Recover the temporary string's copy and destruction around the tooltip hit test.",
+      "Compare WM_INITDIALOG separately and retain the exact dispatch-table ranges."
+    ],
+    "reason": "Batch 53 reached 707 differences. WM_NCHITTEST and WM_INITDIALOG account for much of the retained error and can be measured at original addresses."
+  },
+  {
+    "tu": "wdtmap.cpp",
+    "symbol": "WDT_Write_Map_Ini",
+    "rva": "0x31f440",
+    "approaches": [
+      "Recover the pointer and index types used for the address at +0x335 from matched Centroid code or another pixel scan.",
+      "Verify the shared address expression and the existing call sequence."
+    ],
+    "reason": "Batch 52 retained one difference in 1,664 bytes. All 41 direct calls align and the remaining instruction computes an equivalent address."
+  },
+  {
+    "tu": "strtable.cpp",
+    "symbol": "Read_Text_File",
+    "rva": "0x2ee430",
+    "approaches": [
+      "Trace the character pointer across each escape arm against the original.",
+      "Test the position of the increment and the case fallthrough against both arm exits."
+    ],
+    "reason": "Batch 52 retained 240 differences after the shared-character and matrix trials. Case-local pointer movement can explain different tail sharing."
+  }
+]
