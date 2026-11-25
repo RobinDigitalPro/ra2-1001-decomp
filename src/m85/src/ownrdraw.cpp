@@ -6139,7 +6139,7 @@ call_custom_proc:
 after_proc:
 	if (message == 0x82) { // RA2: as above
 		WinData * destroydata;
-		if (::Control_Table.getPointer((unsigned int const &)window, &destroydata)) { // RA2: as above
+		if (::Control_Table.getPointer((unsigned int)window, &destroydata)) { // RA2: as above
 			if (destroydata != 0 && destroydata->Back != 0) { // RA2: as above
 				delete destroydata->Back; // RA2: as above
 				destroydata->Back = 0; // RA2: as above
@@ -6161,17 +6161,17 @@ cleanup:
                     *(int *)((char *)data + 0x1FC) = 2;
                     if (GetWindowLongA(window, 4) && !Session.Is_In_Game()) {
                         WinData *record = 0;
-                        Control_Table.getPointer((unsigned int const &)window, &record);
-                        bool active = record->IsHidden && record->ButtonKind == 1;
+                        Control_Table.getPointer((unsigned int)window, &record);
+                        allow_proc = record->IsHidden && record->ButtonKind == 1; // level-2 1.001: STEERING reuse the expired dispatch flag for the animation predicate.
                         // level-2 1.001: STEERING query visibility before testing the saved active flag.
-                        if (IsWindowVisible(window) && active) {
+                        if (IsWindowVisible(window) && allow_proc) {
                             VocClass::PlayGlobal(Rule->GUIMoveInSound, 1.0f, 0x2000, 0);
-                            bool enabled = IsWindowEnabled(window) != 0;
+                            anim_state = IsWindowEnabled(window) != 0; // level-2 1.001: STEERING retain the window state across the slide.
                             EnableWindow(window, FALSE);
                             EnumChildWindows(window, Enable_Animated_Control, 1);
                             Slide_Dialog(window, true);
                             EnumChildWindows(window, Enable_Animated_Control, 0);
-                            EnableWindow(window, enabled);
+                            EnableWindow(window, anim_state);
                             InvalidateRect(window, 0, FALSE);
                             *(int *)((char *)data + 0x1FC) = 3;
                         }
@@ -7923,7 +7923,7 @@ namespace OwnerDraw { // level-2 1.001: as above
 */
 LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam) // level-2 1.001: as above
 {
-	static wchar_t text[256]; // level-2 1.001: the shown item's text (0xA5AF98)
+	static wchar_t text[256 + 2]; // room for the clipped caption and its ellipsis; the shown item's text (0xA5AF98)
 
 	bool pass_on = true; // level-2 1.001: STEERING Order the initialized locals as a group to keep the three switch tables at their native offsets.
 	int wide = 1; // level-2 1.001: the item messages take wide text unless noted
@@ -8012,7 +8012,8 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 			if (!wparam) { // level-2 1.001: as above
 				if (data->IsEditFocus) { // level-2 1.001: the drop list window (+0xF4)
 					ReleaseCapture();
-					SendMessageA(GetParent(window), 0x4a9, data->IsEditFocus, 0); // level-2 1.001: as above
+					const WPARAM notify_drop = data->IsEditFocus;
+					SendMessageA(GetParent(window), 0x4a9, notify_drop, 0); // level-2 1.001: as above
 					HWND drop = (HWND)data->IsEditFocus; // level-2 1.001: as above
 					DestroyWindow(drop);
 					Free_Control_Surface((unsigned int)drop); // level-2 1.001: as above
@@ -8193,7 +8194,7 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 
 		case OD_SETCOLOR:
 			if (wparam <= 50) { // level-2 1.001: as above
-				data->ItemColors[wparam] = lparam; // level-2 1.001: as above
+				memcpy(reinterpret_cast<unsigned char *>(data) + offsetof(WinData, ItemColors) + wparam * sizeof(lparam), &lparam, sizeof(lparam)); // level-2 1.001: as above
 			}
 			break;
 
@@ -8319,10 +8320,10 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 				if (parent_data && parent_data->Back) { // level-2 1.001: as above
 					surface->Blit_From(destination, *parent_data->Back, source, false, true); // level-2 1.001: as above
 				}
-				int total = destination.Size(); // level-2 1.001: as above
+				int total = width * height; // level-2 1.001: as above
 				unsigned short * pixels = (unsigned short *)surface->Lock(); // level-2 1.001: as above
 				unsigned short * cursor = pixels;
-				for (int i = total; i > 0; i--) { // level-2 1.001: as above
+				for (; total > 0; --total) { // level-2 1.001: as above
 					unsigned short pixel = *cursor; // level-2 1.001: as above
 					*cursor++ = Blend_Color(pixel, 0, data->TextStyle); // level-2 1.001: as above
 				}
@@ -8723,8 +8724,8 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 				MoveWindow(record->ScrollBar, list_display.right - parent_display.left, list_display.top - parent_display.top, // level-2 1.001: as above
 					scrollbar_width, list_display.bottom - list_display.top, TRUE); // level-2 1.001: as above
 			}
-			if (record->Back) { // level-2 1.001: as above
-				if ((int)(lparam & 0xffff) != record->Back->Get_Width() || (int)((unsigned int)lparam >> 16) != record->Back->Get_Height()) { // level-2 1.001: as above
+			if (Surface *back = record->Back) { // level-2 1.001: both virtual calls use the same surface.
+				if ((int)(lparam & 0xffff) != back->Get_Width() || (int)((unsigned int)lparam >> 16) != back->Get_Height()) { // level-2 1.001: as above
 					Free_Control_Surface((unsigned int)window); // level-2 1.001: the size changed
 				}
 			}

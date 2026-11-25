@@ -29,6 +29,20 @@
    "tu": "src/m85/src/vqa.cpp",
    "status": "ORDER_PLACED",
    "evidence": "batch 67 (job 6ee1000a): 0 differing bytes; COFF section order and native flanks place it; no independent binding clue yet"
+  },
+  {
+   "rva": "0x967f0",
+   "symbol": "?Unused_Delay_Hook@@YIXXZ",
+   "tu": "src/ra2/unnamed/TU_496620.cpp",
+   "status": "ORDER_PLACED",
+   "evidence": "batch 76 (job a29c828f): exact 16 bytes; name from donor/neighbour order, no independent binding clue"
+  },
+  {
+   "rva": "0x130380",
+   "symbol": "?Stop_Execution@@YIXXZ",
+   "tu": "src/ra2/unnamed/TU_5301B0.cpp",
+   "status": "ORDER_PLACED",
+   "evidence": "batch 76 (job a29c828f): exact 16 bytes; name from donor/neighbour order, no independent binding clue"
   }
  ]
 }

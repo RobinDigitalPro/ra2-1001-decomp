@@ -3,3 +3,8 @@
 #include "../RECT.H"
 static RectangleStruct const ZeroRectA(0, 0, 0, 0);
 #include "../GAMECONST.H"
+
+// level-2 1.001: inferred from corresponding module order in version 1.006.
+void Unused_Delay_Hook(void)
+{
+}

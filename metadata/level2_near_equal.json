@@ -531,6 +531,46 @@
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): LoadProgressManager::Draw: NEAR_EQUAL_CANDIDATE; paired execution across 116 cases passed",
    "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x21ad30",
+   "symbol": "??0SyncState@@QAE@XZ",
+   "tu": "queue.cpp",
+   "diff_bytes": 0,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "batch 67 (job 6ee1000a): byte-exact as separate out-of-line definitions (80/80, 32/32); emitting them shifts 4 Print_CRCs bytes (TU count effect), so they stay unclaimed until the end phase (DEFERRED_TO_END.md)",
+   "meaning": "functionally equal (identical code); placement deferred to the end phase"
+  },
+  {
+   "rva": "0x21ad80",
+   "symbol": "??1SyncState@@QAE@XZ",
+   "tu": "queue.cpp",
+   "diff_bytes": 0,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "batch 67 (job 6ee1000a): byte-exact as separate out-of-line definitions (80/80, 32/32); emitting them shifts 4 Print_CRCs bytes (TU count effect), so they stay unclaimed until the end phase (DEFERRED_TO_END.md)",
+   "meaning": "functionally equal (identical code); placement deferred to the end phase"
+  },
+  {
+   "rva": "0x1e6550",
+   "symbol": "?Control_Proc@OwnerDraw@@YGJPAUHWND__@@IIJ@Z",
+   "tu": "ownrdraw.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "batch 76 (job a29c828f): Control_Proc: all 326 regions classified; two HWND key-storage repairs (MEANING fixed)",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x1c5350",
+   "symbol": "Load_Lobby_Options",
+   "tu": "netshare.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "batch 76 (job a29c828f): Load_Lobby_Options: Set_Slot_Node restored (MEANING fixed); all 127 regions classified",
+   "meaning": "functionally equivalent per region classification; byte match still open"
   }
  ],
  "not_near_equal": [

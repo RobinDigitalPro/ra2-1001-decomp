@@ -11806,7 +11806,6 @@ void Dictionary<Wstring,Channel>::expand(void)
 // Adapted from meastes/redalert2-decomp 7c68e23b61, recovered/wonline.cpp,
 // CChatEventSink::OnUserList (1.006 VA 0x00760C00), GPL-3.0-or-later.
 // The 1.001 callback builds a country/color reply and queues individual squad lookups.
-extern int WOLUserListReady; // 1.001 VA 0x00A5A880, binding open
 STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *users)
 {
 	if (g_PlayingNetGame) return S_OK;
@@ -11828,8 +11827,7 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 		}
 		unsigned long is_owner = users->flags & 1;
 		const char *nickname = (const char *)users->name;
-		char name_buffer[64];
-		strcpy(name_buffer, nickname); // level-2 1.001: STEERING keep the callback-local name snapshot for the session name
+		const char *session_name = nickname; // level-2 1.001: STEERING alias the live callback name to preserve sibling code generation
 		User entry = *users;
 		entry.next = NULL;
 		g_UserList.addTail(entry);
@@ -11854,13 +11852,14 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 			memset(ladder_names, 0, sizeof(ladder_names));
 		}
 		if (g_CurrentChannel.type && !g_IsChannelCreator) {
-			int index = Player_Name_To_Index(User_Name(users));
+			Wstring slot_name = User_Name(users);
+			int index = Player_Name_To_Index(slot_name);
 			if ((unsigned int)index >= 16U) continue;
 			ChannelUserInfo &slot = g_UserInfo[index];
 			memset(&slot, 0, sizeof(slot));
 			strcpy(slot.name, nickname);
 			if (stricmp(nickname, g_NickName.get()) != 0) {
-				if (Session.Players.Count() == 1) wcscpy(Session.GameName, Narrow_To_Wide(name_buffer));
+				if (Session.Players.Count() == 1) wcscpy(Session.GameName, Narrow_To_Wide(session_name));
 				NodeNameType *node = new NodeNameType;
 				if (node) {
 					memset(node, 0, sizeof(NodeNameType));
@@ -11886,14 +11885,14 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 			}
 		}
 	}
-	if (g_UserList.length() == 1 && g_CurrentChannel.type && !g_IsChannelCreator) {
+	if (g_CurrentChannel.type && !g_IsChannelCreator && g_UserList.length() == 1) {
 		User sole_user;
 		if (g_UserList.getHead(sole_user) && !stricmp((const char *)sole_user.name, g_NickName.get())) {
 			Handle_User_Leave(sole_user);
 		}
 	}
 	if (g_CurrentChannel.type) {
-		WOLUserListReady = 1;
+		IsColorChangePending = 1;
 		if (!g_IsChannelCreator) Enable_Host_Controls(WS_Find_Dialog(0xC9), true);
 		Clear_Accept_States();
 		WOLOptionsClass options;
@@ -11903,10 +11902,10 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 		else profile = g_PlayerProfile.Get();
 		PlayerProfile *active_profile = profile.Get();
 		if (active_profile) {
-			Session.Set_Side(profile->Country, false); // level-2 1.001: STEERING reload the owned profile for the first setter
-			Session.Set_Color(active_profile->Color, false);
+			Session.Set_Side(profile->Country, false);
+			Session.Set_Color(profile->Color, false);
 			char reply[64];
-			sprintf(reply, "R%d,%d", active_profile->Country, active_profile->Color);
+			sprintf(reply, "R%d,%d", profile->Country, profile->Color);
 			User host;
 			if (g_UserList.getHead(host)) {
 				g_pChat->RequestPrivateGameOptions(&host, reply);

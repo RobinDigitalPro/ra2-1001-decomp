@@ -83,7 +83,7 @@ void __fastcall SetPlayerAccepted(Wstring const & name, int status); // RA2: 0x0
 int __fastcall GetPlayerAccepted(Wstring const & name); // RA2: 0x0073D3F0, a player's accept status (the counterpart of Net2GetAccept)
 int __fastcall Assign_House_And_Color(Wstring const & name, int country, int color); // RA2: 0x0073D550, the counterpart of Net2SetHouseAndColor
 bool Is_Tournament_Session(void); // RA2: 0x0073BDB0, Online_Session_State (Session.TournamentState) is 1 or 2
-void Draw_Player_List(void); // RA2: 0x0073FEE0, redraws the chat service's player list (the counterpart of Net2DisplayUsers); level-2 1.001: 0x007359A0 takes no arguments
+WideWstring __fastcall Wide_From_7_Bit(Wstring const & string); // level-2 1.001: decode a 7-bit scenario description
 extern int WolOptionsLocked; // RA2: 0x00B2AC40, the Internet game options are not accepted any more
 extern NodeNameType * LobbyEntries[7]; // RA2: 0x00A72D2C, the fixed lobby entries: open, closed, easy, medium and hard computer, waiting and player
 bool __fastcall Is_Real_Player_Entry(NodeNameType * entry); // RA2: 0x005C9320, defined below
@@ -124,7 +124,7 @@ int __fastcall Player_Control_ID(int player); // RA2: 0x004D0EE0, the id of the 
 void __fastcall Set_Player_Map_State(char const * name, int state); // RA2: 0x005C3F00, defined above
 Wstring __fastcall Wstring_FromWide(WideWstring const & text); // RA2: 0x00771450, as netdlg2.cpp
 void Join_Lobby_Start_Reminder(void); // RA2: 0x005C28E0
-extern bool LobbyDialogFlag; // RA2: 0x00A72D52, as netdlg2.cpp
+extern bool Flag_A5A8BE; // level-2 1.001: joined lobby map-availability flag shared with wonline
 extern int LobbyObserverSlot; // RA2: 0x007E6D90, as netdlg2.cpp
 extern bool g_PlayingNetGame; // RA2: 0x00B2ABD9, as windlg.cpp
 
@@ -3866,6 +3866,9 @@ void __fastcall Save_Lobby_Options(HWND dialog, SessionOptionsClass * options) /
 	options->CratesAppear = Session.Options.Goodies; // RA2: as above
 }
 
+class MPPlayerNode;
+void __fastcall Set_Slot_Node(HWND dialog, int id, MPPlayerNode * node, int kind); // level-2 1.001: src/ra2/netshare.cpp, RVA 0x1c4d30
+
 void __fastcall Load_Lobby_Options(HWND dialog, SessionOptionsClass * options) // RA2: 0x005CCA30, not in TibSun; the saved game mode, map and settings are made current again (a restricted channel takes the first game mode if the saved one is not allowed) and every slot but the first is set to its saved type, side and color
 {
 	if (options->MPGameMode < 1 || options->MPGameMode > MultiplayerGameMode::GetModeCount()) { // RA2: as above
@@ -3925,7 +3928,9 @@ void __fastcall Load_Lobby_Options(HWND dialog, SessionOptionsClass * options) /
 		if (slot > limit) { // level-2 1.001: the slot at the limit keeps its saved type, and there is no observer type
 			kind = 3; // RA2: as above
 		}
-		Select_Entry_Kind(dialog, id, kind); // RA2: as above
+		NodeNameType * entry = Get_Kind_Entry(kind);
+		Select_Combo_By_Data(dialog, id, (int)entry);
+		Set_Slot_Node(dialog, id, reinterpret_cast<MPPlayerNode *>(entry), 0);
 		int side_id = Player_Side_Combo_ID(slot); // RA2: as above
 		int color_id = Player_Color_Combo_ID(slot); // RA2: as above
 		if (kind != 2 && kind != 3) { // RA2: as above
@@ -4381,7 +4386,7 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 	bool same = true; // RA2: as above
 	token = strtok(NULL, ","); // RA2: as above
 	WideWstring scenario_name(Session.Type == GAME_INTERNET && Is_Tournament_Session() // RA2: as above
-		? WideWstring(L"") : Wstring_ToWide(token)); // level-2 1.001: implicit conversion of the name
+		? WideWstring(L"") : Wide_From_7_Bit(token)); // level-2 1.001: the scenario name uses the 7-bit conversion
 	token = strtok(NULL, ","); // RA2: as above
 	int old_count = Session.ScenarioMaxPlayers; // RA2: as above
 	if (token != NULL) { // RA2: as above
@@ -4478,12 +4483,12 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 				Lobby_Chat_Printf(-1, StringTable::LoadString("GUI:JoinerNoMap", NULL, "C:\\RA2\\netshare.cpp", 1533), // level-2 1.001: line 1533
 					Session.Options.ScenarioDescription); // RA2: as above
 			}
-			LobbyDialogFlag = false; // RA2: as above
+			Flag_A5A8BE = false; // RA2: as above
 			EnableWindow(GetDlgItem(GameoptWindow(), IDC_ACCEPT), FALSE); // RA2: as above
 			InvalidateRect(GetDlgItem(GameoptWindow(), IDC_ACCEPT), 0, FALSE); // RA2: as above
 			Send_Host_Option("K0"); // RA2: as above
 		} else {
-			LobbyDialogFlag = true; // RA2: as above
+			Flag_A5A8BE = true; // RA2: as above
 			EnableWindow(GetDlgItem(GameoptWindow(), IDC_ACCEPT), TRUE); // RA2: as above
 			InvalidateRect(GetDlgItem(GameoptWindow(), IDC_ACCEPT), 0, FALSE); // RA2: as above
 			Send_Host_Option("K1"); // level-2 1.001: no map transfer of an unofficial scenario
@@ -4622,13 +4627,13 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 			char buffer[64]; // RA2: as above
 			sprintf(buffer, "A0"); // RA2: as above
 			Send_Host_Option(buffer); // RA2: as above
-			if (LobbyDialogFlag) { // RA2: as above
+			if (Flag_A5A8BE) { // RA2: as above
 				EnableWindow(GetDlgItem(GameoptWindow(), IDC_ACCEPT), TRUE); // RA2: as above
 			} else {
 				EnableWindow(GetDlgItem(GameoptWindow(), IDC_ACCEPT), FALSE); // RA2: as above
 			}
 			InvalidateRect(GetDlgItem(GameoptWindow(), IDC_ACCEPT), NULL, FALSE); // RA2: as above
-		} else if (!IsWindowEnabled(GetDlgItem(GameoptWindow(), IDC_ACCEPT)) && LobbyDialogFlag) { // RA2: as above
+		} else if (!IsWindowEnabled(GetDlgItem(GameoptWindow(), IDC_ACCEPT)) && Flag_A5A8BE) { // RA2: as above
 			EnableWindow(GetDlgItem(GameoptWindow(), IDC_ACCEPT), TRUE); // RA2: as above
 			InvalidateRect(GetDlgItem(GameoptWindow(), IDC_ACCEPT), NULL, FALSE); // RA2: as above
 		}
@@ -4637,7 +4642,7 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 		SendDlgItemMessage(GameoptWindow(), IDC_USERS, OD_DISABLEPAINT, 0, 0); // RA2: as above
 	}
 	if (g_pChat != NULL) { // RA2: as above
-		Draw_Player_List(); // level-2 1.001: no arguments
+		Redraw_Player_List(); // level-2 1.001: use the no-argument player-list redraw wrapper
 	} else {
 		Net2DisplayUsers(); // RA2: as above
 	}

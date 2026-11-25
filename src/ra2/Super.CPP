@@ -265,6 +265,7 @@ public:
     wchar_t const * Status_Text() const;
     bool Can_Fire() const;
     void Place(CellStruct const & cell, bool player);
+    void Deactivate_Firestorm(int, bool player) const;
     bool Is_Charging() const;
     void Reset();
 
@@ -1365,6 +1366,10 @@ bool SuperClass::Can_Fire() const
         return IsReady;
     }
     return false;
+}
+
+void SuperClass::Deactivate_Firestorm(int, bool player) const
+{
 }
 
 bool SuperClass::Is_Charging() const

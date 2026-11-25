@@ -21218,6 +21218,13 @@
   "name": "dynamic initializer (GAMECONST.H static)"
  },
  {
+  "rva": "0x967f0",
+  "tu": "src/ra2/unnamed/TU_496620.cpp",
+  "symbol": "?Unused_Delay_Hook@@YIXXZ",
+  "name": "Unused_Delay_Hook",
+  "evidence": "identical body, placed by source order (GUIDE D7); name not independently proven"
+ },
+ {
   "rva": "0x96800",
   "tu": "src/m85/src/delay.cpp",
   "symbol": "?Delay@@YIXH@Z",
@@ -43068,6 +43075,13 @@
   "tu": "src/ra2/unnamed/TU_5301B0.cpp",
   "symbol": "_$E38",
   "name": "dynamic initializer (GAMECONST.H static)"
+ },
+ {
+  "rva": "0x130380",
+  "tu": "src/ra2/unnamed/TU_5301B0.cpp",
+  "symbol": "?Stop_Execution@@YIXXZ",
+  "name": "Stop_Execution",
+  "evidence": "identical body, placed by source order (GUIDE D7); name not independently proven"
  },
  {
   "rva": "0x130390",
@@ -80977,6 +80991,12 @@
   "tu": "src/ra2/Super.CPP",
   "symbol": "?Can_Fire@SuperClass@@QBE_NXZ",
   "name": "SuperClass::Can_Fire"
+ },
+ {
+  "rva": "0x293fe0",
+  "tu": "src/ra2/Super.CPP",
+  "symbol": "?Deactivate_Firestorm@SuperClass@@QBEXH_N@Z",
+  "name": "SuperClass::Deactivate_Firestorm"
  },
  {
   "rva": "0x293ff0",
