@@ -1305,7 +1305,7 @@ void MapClass::Set_Map_Dimensions(Rect const & rect, bool reset_cells, int cell_
 		for (i = 0; i < Objects.Count(); i++) {
 			ObjectClass *obj = Objects[i];
 			if (obj->RTTI != RTTI_ANIM) {
-				obj->Set_Coord(coord + obj->Get_Coord());
+				obj->Set_Coord(obj->Get_Coord() + coord);
 			}
 		}
 
@@ -10797,31 +10797,22 @@ void MapClass::Reset_All_Subzones(void)
 int MapClass::Subzone_Span(CellSubzoneStruct * seed, int subzone_level, int subzone_id, Rect const & bounds, Cell const & cell)
 {
 	int zone = seed->ZoneID;
-
-	CellSubzoneStruct * end = seed;
 	CellSubzoneStruct * begin = seed;
+	CellSubzoneStruct * end = seed;
 	SUBZONE_CONNECTION_HASH_SET::ObjectType entry;
-
+	int last_adjacent = -1;
 	int y = cell.Y;
 	int x = cell.X;
-
-	// level-2 1.001: STEERING Group the span coordinates before the bounds to reproduce the original prologue.
-	int last_adjacent = -1;
-	int begin_x = x;
 	int end_x = x;
-	int ymin = bounds.Y; // level-2 1.001: STEERING initialize the Y limits first within each bounds pair.
 	int xmin = bounds.X;
-	int ymax = bounds.Height + bounds.Y - 1;
+	int ymin = bounds.Y;
+	int begin_x = x;
 	int xmax = bounds.Width + bounds.X - 1;
-
+	int ymax = bounds.Height + bounds.Y - 1;
 	SUBZONE_CONNECTION_HASH_SET * table = SubzoneConnectionHashTable[subzone_level];
 	int prev_height = seed->Height;
 
-	/*
-	**	Find the full extent of the current span by first scanning leftward
-	**	until a boundary is reached.
-	*/
-	while (true) {
+	while (begin->ZoneID == zone) {
 		if (x < xmin) {
 			break;
 		}
@@ -10830,30 +10821,24 @@ int MapClass::Subzone_Span(CellSubzoneStruct * seed, int subzone_level, int subz
 		}
 		begin->SubzoneID[subzone_level] = (short)subzone_id;
 		prev_height = begin->Height;
-		int prev_zone = begin[-1].ZoneID;
 		begin--;
 		x--;
-		if (prev_zone != zone) {
-			break;
-		}
 	}
 
 	begin_x = x;
-	int adjacent_subzone = begin->SubzoneID[subzone_level];
-	if (adjacent_subzone > 0 && abs(begin->Height - prev_height) < 2 && adjacent_subzone != last_adjacent) {
-		if (In_Local_Radar(Cell(x, y), true) && In_Local_Radar(Cell(x + 1, y), true)) {
-			int packed_pair = Zone_Pack32(adjacent_subzone, (unsigned short)subzone_id);
-			entry.Value.IsCrossBlock = false;
-			entry.Key = entry.Value.SubzoneID = packed_pair;
-			table->Add_Object(Zone_Pack8(adjacent_subzone, (unsigned short)subzone_id), entry);
-			last_adjacent = adjacent_subzone;
+	int neighbor = begin->SubzoneID[subzone_level];
+	if (neighbor > 0 && abs(begin->Height - prev_height) < 2 && neighbor != last_adjacent) {
+		if (In_Local_Radar(Cell(x, y), true)) {
+			if (In_Local_Radar(Cell(x + 1, y), true)) {
+				int packed_pair = Zone_Pack32(neighbor, (unsigned short)subzone_id);
+				entry.Value.IsCrossBlock = false;
+				entry.Key = entry.Value.SubzoneID = packed_pair;
+				table->Add_Object(Zone_Pack8(neighbor, (unsigned short)subzone_id), entry);
+				last_adjacent = neighbor;
+			}
 		}
 	}
 
-	/*
-	**	Scan rightward until a boundary is reached. This will then define the
-	**	extent of the current span.
-	*/
 	prev_height = seed->Height;
 	while (end->ZoneID == zone) {
 		if (end_x > xmax) {
@@ -10868,19 +10853,15 @@ int MapClass::Subzone_Span(CellSubzoneStruct * seed, int subzone_level, int subz
 		end_x++;
 	}
 
-	adjacent_subzone = end->SubzoneID[subzone_level];
-	if (adjacent_subzone > 0 && abs(end->Height - prev_height) < 2 && adjacent_subzone != last_adjacent) {
-		Cell probe;
-		probe.X = end_x;
-		probe.Y = y;
-		if (In_Local_Radar(probe, true)) {
-			probe = Cell(end_x - 1, y);
-			if (In_Local_Radar(probe, true)) {
-				int packed_pair = Zone_Pack32(adjacent_subzone, (unsigned short)subzone_id);
+	neighbor = end->SubzoneID[subzone_level];
+	if (neighbor > 0 && abs(end->Height - prev_height) < 2 && neighbor != last_adjacent) {
+		if (In_Local_Radar(Cell(end_x, y), true)) {
+			if (In_Local_Radar(Cell(end_x - 1, y), true)) {
+				int packed_pair = Zone_Pack32(neighbor, (unsigned short)subzone_id);
 				entry.Value.IsCrossBlock = false;
 				entry.Key = entry.Value.SubzoneID = packed_pair;
-				table->Add_Object(Zone_Pack8(adjacent_subzone, (unsigned short)subzone_id), entry);
-				last_adjacent = adjacent_subzone;
+				table->Add_Object(Zone_Pack8(neighbor, (unsigned short)subzone_id), entry);
+				last_adjacent = neighbor;
 			}
 		}
 	}
@@ -10890,140 +10871,115 @@ int MapClass::Subzone_Span(CellSubzoneStruct * seed, int subzone_level, int subz
 
 	CellSubzoneStruct * above = &begin[-stride];
 	CellSubzoneStruct * below = &begin[stride];
-	x = begin_x;
+	int scan_x = begin_x;
 
 	Cell span_cell;
 	span_cell.X = 0;
 	span_cell.Y = 0;
 
-	/*
-	 * Fill the row above the current span, recursing into any same-zone neighbor
-	 * spans and recording connections to adjacent foreign subzones.
-	 */
-	while (x <= end_x) {
-		adjacent_subzone = above->SubzoneID[subzone_level];
+	while (scan_x <= end_x) {
+		neighbor = above->SubzoneID[subzone_level];
 		CellSubzoneStruct * span_ptr;
-		if (x == begin_x) {
-			Cell left;
-			left.Y = y;
-			left.X = x + 1;
-			span_cell = left;
+		if (scan_x == begin_x) {
+			span_cell = Cell(scan_x + 1, y);
 			span_ptr = &above[stride + 1];
-		} else if (x < end_x) {
-			Cell middle;
-			middle.X = x;
-			middle.Y = y;
-			span_cell = middle;
+		} else if (scan_x < end_x) {
+			span_cell = Cell(scan_x, y);
 			span_ptr = &above[stride];
 		} else {
-			Cell right;
-			right.X = x - 1;
-			right.Y = y;
-			span_cell = right;
+			span_cell = Cell(scan_x - 1, y);
 			span_ptr = &above[stride - 1];
 		}
 
-		if (adjacent_subzone != 0 || y <= ymin || x < xmin || x > xmax) {
-			if (adjacent_subzone != (unsigned short)subzone_id && adjacent_subzone != last_adjacent) {
-				if (adjacent_subzone != 0) {
+		if (neighbor != 0 || y <= ymin || scan_x < xmin || scan_x > xmax) {
+			if (neighbor != (unsigned short)subzone_id && neighbor != last_adjacent) {
+				if (neighbor != 0) {
 					if (abs(span_ptr->Height - above->Height) < 2 && In_Local_Radar(span_cell, true)) {
 						Cell shadow_cell;
 						shadow_cell.Y = y - 1;
-						shadow_cell.X = x;
+						shadow_cell.X = scan_x;
 						if (In_Local_Radar(shadow_cell, true)) {
-							int packed_pair = Zone_Pack32(adjacent_subzone, (unsigned short)subzone_id);
-							if (x < xmin) {
+							int packed_pair = Zone_Pack32(neighbor, (unsigned short)subzone_id);
+							if (scan_x < xmin) {
 								entry.Value.IsCrossBlock = true;
 							} else {
 								entry.Value.IsCrossBlock = false;
-								if (x > xmax) {
+								if (scan_x > xmax) {
 									entry.Value.IsCrossBlock = true;
 								}
 							}
 							entry.Key = entry.Value.SubzoneID = packed_pair;
-							table->Add_Object(Zone_Pack8(adjacent_subzone, (unsigned short)subzone_id), entry);
-							last_adjacent = adjacent_subzone;
+							table->Add_Object(Zone_Pack8(neighbor, (unsigned short)subzone_id), entry);
+							last_adjacent = neighbor;
 						}
 					}
 				}
 			}
 			above++;
-			x++;
+			scan_x++;
 		} else if (above->ZoneID == zone) {
 			if (abs(span_ptr->Height - above->Height) < 2) {
 				Cell shadow_cell;
-				shadow_cell.X = x;
+				shadow_cell.X = scan_x;
 				shadow_cell.Y = y - 1;
 				Subzone_Span(above, subzone_level, subzone_id, bounds, shadow_cell);
 				continue;
 			}
 			above++;
-			x++;
+			scan_x++;
 		} else {
 			above++;
-			x++;
+			scan_x++;
 		}
 	}
 
-	/*
-	 * Fill the row below the current span using the same rules.
-	 */
-	x = begin_x;
-	while (x <= end_x) {
-		int shadow_subzone = below->SubzoneID[subzone_level];
+	scan_x = begin_x;
+	while (scan_x <= end_x) {
+		neighbor = below->SubzoneID[subzone_level];
 		CellSubzoneStruct * span_ptr;
-		if (x == begin_x) {
-			Cell left;
-			left.X = x + 1;
-			left.Y = y;
-			span_cell = left;
+		if (scan_x == begin_x) {
 			span_ptr = &below[-stride + 1];
-		} else if (x < end_x) {
-			Cell middle;
-			middle.X = x;
-			middle.Y = y;
-			span_cell = middle;
+			span_cell = Cell(scan_x + 1, y);
+		} else if (scan_x < end_x) {
 			span_ptr = &below[-stride];
+			span_cell = Cell(scan_x, y);
 		} else {
-			Cell right;
 			span_ptr = &below[-stride - 1];
-			right.X = x - 1;
-			right.Y = y;
-			span_cell = right;
+			span_cell = Cell(scan_x - 1, y);
 		}
 
-		if (shadow_subzone == 0 && y < ymax && x >= xmin && x <= xmax) {
-			if (below->ZoneID == zone && abs(below->Height - span_ptr->Height) < 2) {
-				Subzone_Span(below, subzone_level, subzone_id, bounds, Cell(x, y + 1));
-				continue;
-			}
-		} else {
-			if (shadow_subzone != (unsigned short)subzone_id && shadow_subzone != last_adjacent) {
-				if (shadow_subzone != 0) {
+		if (neighbor != 0 || y >= ymax || scan_x < xmin || scan_x > xmax) {
+			if (neighbor != (unsigned short)subzone_id && neighbor != last_adjacent) {
+				if (neighbor != 0) {
 					if (abs(below->Height - span_ptr->Height) < 2 && In_Local_Radar(span_cell, true)) {
 						Cell shadow_cell;
-						shadow_cell.X = x;
+						shadow_cell.X = scan_x;
 						shadow_cell.Y = y + 1;
 						if (In_Local_Radar(shadow_cell, true)) {
-							int packed_pair = Zone_Pack32(shadow_subzone, (unsigned short)subzone_id);
-							if (x < xmin) {
+							int packed_pair = Zone_Pack32(neighbor, (unsigned short)subzone_id);
+							if (scan_x < xmin) {
 								entry.Value.IsCrossBlock = true;
 							} else {
 								entry.Value.IsCrossBlock = false;
-								if (x > xmax) {
+								if (scan_x > xmax) {
 									entry.Value.IsCrossBlock = true;
 								}
 							}
 							entry.Key = entry.Value.SubzoneID = packed_pair;
-							table->Add_Object(Zone_Pack8(shadow_subzone, (unsigned short)subzone_id), entry);
-							last_adjacent = shadow_subzone;
+							table->Add_Object(Zone_Pack8(neighbor, (unsigned short)subzone_id), entry);
+							last_adjacent = neighbor;
 						}
 					}
 				}
 			}
+			below++;
+			scan_x++;
+		} else if (below->ZoneID == zone && abs(below->Height - span_ptr->Height) < 2) {
+			Subzone_Span(below, subzone_level, subzone_id, bounds, Cell(scan_x, y + 1));
+		} else {
+			below++;
+			scan_x++;
 		}
-		below++;
-		x++;
 	}
 
 	return(skip);

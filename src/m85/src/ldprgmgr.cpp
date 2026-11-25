@@ -527,10 +527,10 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 			Draw_Area_Text(unit_name, ProgressSurface, area, unit_pixel, 0); // RA2: as above
 
 			wchar_t const * brief = Briefing(side); // RA2: the country's briefing is drawn in an area of its own
-			area = Get_Briefing_Area(); // RA2: as above
-			point = Copy_Point((Point2D const *)&area); // RA2: as above
-			Shade_Text_Area(brief, ProgressSurface, point.X, point.Y, area.Width, 0, true); // RA2: as above
-			Draw_Area_Text(brief, ProgressSurface, area, pixel, 0); // RA2: as above
+			Rect region = Get_Briefing_Area(); // level-2 1.001: STEERING -- keep the briefing rectangle local to its use.
+			point = Copy_Point((Point2D const *)&region); // RA2: as above
+			Shade_Text_Area(brief, ProgressSurface, point.X, point.Y, region.Width, 0, true); // RA2: as above
+			Draw_Area_Text(brief, ProgressSurface, region, pixel, 0); // RA2: as above
 		}
 
 		wchar_t const * loading = StringTable::LoadString("GUI:LoadingEx", NULL, "C:\\RA2\\LdPrgMgr.cpp", 714); // RA2: the word for loading

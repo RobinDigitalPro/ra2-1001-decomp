@@ -5793,7 +5793,7 @@ LRESULT __stdcall Control_Proc(HWND window, UINT message, WPARAM wparam, LPARAM 
 			target = (HWND)wparam;
 		}
 
-		for (int scan = 0, index = 0; index < hwndarray.length(); ++index) { // level-2 1.001: STEERING declare the removal cursor first to retain the modal target reload.
+		for (int index = 0, scan = 0; index < hwndarray.length(); ++index) { // level-2 1.001: STEERING declare the traversal index first to match the modal-list register allocation.
 			hwndarray.get(topwindow, scan);
 			if (topwindow == target) {
 				hwndarray.remove(scan);
@@ -7215,286 +7215,440 @@ static void Stop_Static_Movie(HWND window, StaticRecord * data) // RA2: as above
 **	RA2: the window procedure of the static controls: text (typed out), an image, a shape or its
 **	animation, or a movie.
 */
+// Static control helpers and message handling adapted from gibbo101 @ed881f68a4.
+// level-2 1.001: INFERRED target-local adaptation of the YR dialog lookup.
+// level-2 1.001: STEERING return the record separately to preserve the keyHash call.
+static inline OwnerDraw::WinData *Static_Dialog_Record(HWND dialog)
+{
+	OwnerDraw::WinData *record = NULL;
+	Control_Table.getPointer((unsigned int)dialog, &record);
+	return record;
+}
+
+static inline int Static_Control_Volume(HWND dialog, HWND control)
+{
+	int type = Static_Dialog_Record(dialog)->Kind;
+	int id = GetDlgCtrlID(control);
+	if ((type == 0x94 ||
+		type == 0xd8 ||
+		type == 0xf5 ||
+		type == 0xe2 ||
+		type == 0xd5 ||
+		type == 0x101 ||
+		type == 0x129 ||
+		type == 0xd7 ||
+		type == 0xbb ||
+		type == 0x100 ||
+		type == 0xd6 ||
+		type == 0x125 ||
+		type == 0x122 ||
+		type == 0x112 ||
+		type == 0xe7 ||
+		type == 0x116 ||
+		type == 0x11d ||
+		type == 0x11c ||
+		type == 0xfe ||
+		type == 0x10f ||
+		type == 0x117 ||
+		type == 0x114 ||
+		type == 0xe6 ||
+		type == 0xf3 ||
+		type == 0xf4 ||
+		type == 0x2bc ||
+		type == 0x10e ||
+		type == 0xbc6 ||
+		type == 0xbc7) && id == 0x71c) {
+		return 100;
+	}
+	if (type == 0x94 && id == 0x6ea) {
+		return 100;
+	}
+	if (type == 0x94 && id == 0x6ec) {
+		return 100;
+	}
+	if (type == 0x94 && id == 0x6eb) {
+		return 100;
+	}
+	if (type == 0x103 && id == 0x72b) {
+		return 100;
+	}
+	if (type == 0xbc7 && id == 0x72b) {
+		return 100;
+	}
+	return 0;
+}
+
+static inline int Static_Control_Slot_Count(HWND dialog, HWND control)
+{
+	OwnerDraw::WinData *data = NULL;
+
+	Control_Table.getPointer((unsigned int)dialog, &data);
+	GetDlgCtrlID(control);
+	return 12;
+}
+
+static inline void Play_Static_Movie(StaticRecord *data, HWND window, char const *movieName)
+{
+	Stop_Static_Movie(window, data);
+	RECT drect;
+	Get_Display_Rect(window, &drect);
+	data->Movie = OwnerDraw_InitMovieHandle(movieName, AlternateSurface, NULL);
+	if (data->Movie != NULL) {
+		data->Movie->SetPosition(drect.left, drect.top);
+		MovieHandle *movie = data->Movie;
+		MoveWindow(window, drect.left, drect.top, movie->Width, movie->Height, FALSE);
+		SetTimer(window, 101, 34, NULL);
+	} else {
+		KillTimer(window, 101);
+		if (data->Movie2 != NULL) {
+			delete data->Movie2;
+			data->Movie2 = NULL;
+		}
+	}
+}
+
+// level-2 1.001: INFERRED target-local timer setter.
+// level-2 1.001: STEERING reference the child HWND to preserve its reload after GetParent.
+static inline void Set_Static_Animation_Timer(HWND parent, HWND const &window)
+{
+	int interval = Static_Control_Volume(parent, window);
+	SetTimer(window, 0, interval, NULL);
+}
+
 LRESULT __stdcall Static_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam) // RA2: as above
 {
-    unsigned int key = (unsigned int)window;
-    WinData *record = 0;
-    Control_Table.getPointer(key, &record);
-    StaticRecord *data = (StaticRecord *)record;
-    switch (message) {
-    case WM_PAINT: {
-        if (data->IsDisabled) {
-            ValidateRect(window, 0);
-            return 0;
-        }
-        if (data->Movie) {
-            ValidateRect(window, 0);
-            return 0;
-        }
-			if (!data->Back) { // RA2: as above
-				RECT display; // RA2: as above
-				Get_Display_Rect(window, &display); // RA2: as above
-				RECT client;
-				GetClientRect(window, &client);
-				BSurface * surface = new BSurface(client.right + 1, client.bottom + 1, 2); // RA2: as above
-				data->Back = surface; // RA2: as above
-				++Surface_Count; // RA2: as above
-				Rect destination(0, 0, client.right + 1, client.bottom + 1); // RA2: as above
-				Rect source(display.left, display.top, client.right + 1, client.bottom + 1); // RA2: as above
-				surface->Blit_From(destination, *AlternateSurface, source, false, true); // RA2: as above
-			}
-        RECT display;
-        Get_Display_Rect(window, &display);
-        if (data->IsFilled) {
-            Rect bounds(display.left, display.top, display.right - display.left, display.bottom - display.top);
-            AlternateSurface->Fill_Rect(bounds, DSurface::Build_Hicolor_Pixel(GetRValue(data->FillColor),
-                (unsigned char)(data->FillColor >> 8), GetBValue(data->FillColor)));
-        }
-        bool plain = data->PictureMode == 0;
-        bool typed = data->PictureMode == 1;
-        if (plain || typed) {
-            if (data->Text && (plain || (typed && data->IsPlaying))) {
-                LONG style = GetWindowLongA(window, GWL_STYLE);
-                int align = 16;
-                if (style & SS_CENTER) align = 17;
-                else if (style & SS_RIGHT) align = 18;
-                COLORREF color = data->TextColor;
-                if (style & WS_DISABLED) color = Disabled_Text_Color;
-                Draw_Text_In_Rect_Ex(AlternateSurface, data->Text, &display, data->Font, color,
-                    align, data->TextFlags, 0, data->Typed, data->TypeExtra);
-                if (data->TypingSound != -1) VocClass::PlayGlobal(data->TypingSound, 1.0f, 0x2000, 0);
-                if (typed) {
-                    int limit = wcslen(data->Text) + data->TypeExtra + 1;
-                    if (data->Typed < limit) {
-                        data->Typed += data->TypeStep;
-                        if (data->Typed >= limit) KillTimer(window, 0);
-                    }
-                }
-            }
-        } else {
-            bool image = data->PictureMode == 2;
-            bool shape = data->PictureMode == 3;
-            bool animated = data->PictureMode == 4;
-            if ((image || shape || animated) && (int)(GetTickCount() - data->StartTime) > data->Delay) {
-                Rect destination(display.left, display.top, display.right - display.left, display.bottom - display.top);
-                RECT client;
-                GetClientRect(window, &client);
-                Rect source(client.left, client.top, client.right - client.left, client.bottom - client.top);
-                AlternateSurface->Blit_From(destination, *data->Back, source, false, true);
-                if (image) {
-                    Surface *picture = data->Image;
-                    if (picture) {
-                        int width = picture->Get_Width(), height = picture->Get_Height();
-                        Rect area = destination;
-                        if (area.Width > width) { area.X += (area.Width - width) / 2; area.Width = width; }
-                        if (area.Height > height) { area.Y += (area.Height - height) / 2; area.Height = height; }
-                        SurfaceCache.DrawTrans(area, *AlternateSurface, *picture, DSurface::Build_Hicolor_Pixel(255, 0, 255));
-                        ValidateRect(window, 0);
-                        return 0;
-                    }
-                } else if ((shape || animated) && data->Shape) {
-                    ShapeSet *art = data->Shape;
-                    ConvertClass *drawer = data->Drawer;
-                    int height = art->Get_Height(), width = art->Get_Width();
-                    int y = destination.Y, x = destination.X;
-                    if (destination.Height > height) y += (destination.Height - height) / 2;
-                    if (destination.Width > width) x += (destination.Width - width) / 2;
-                    Point2D point(x, y);
-                    Rect clip = AlternateSurface->Get_Rect();
-                    int frame = data->Frame;
-                    Draw_Shape(*AlternateSurface, *drawer, art, frame, point, clip, ShapeFlags_Type(0x400),
-                        0, 0, ZGradientType(0), 1000, 0, 0, Point2D(0, 0));
-                    if (animated && data->IsPlaying) {
-                        if (++frame >= data->FrameCount) frame = 0;
-                        data->Frame = frame;
-                        if (data->Notify) SendMessageA(data->Notify, WM_USER + 216, frame, (LPARAM)window);
-                    }
-                }
-            }
-        }
-        ValidateRect(window, 0);
-        return 0;
-    }
-    case WM_MOVE: case WM_SIZE: case WM_WINDOWPOSCHANGED:
-        if (data) { delete data->Back; data->Back = 0; }
-        InvalidateRect(window, 0, FALSE);
-        return 0;
-    case WM_DESTROY:
-        if (data->Back) { delete data->Back; data->Back = 0; }
-        if (data->IsShapeAllocated) { operator delete(data->Shape); data->Shape = 0; }
-        if ((data->PictureMode == 1 && data->IsPlaying) || data->PictureMode == 4) KillTimer(window, 0);
-        Stop_Static_Movie(window, data);
-        break;
-    case WM_TIMER: {
-        if (wparam == 0x65) {
-            if (data->Movie) {
-                if (data->Movie->AdvanceFrame()) InvalidateRect(window, 0, FALSE);
-                if (data->Movie->FramesLeft()) {
-                    if (data->IsLooping) {
-                        data->Movie->SeekToFrame(1);
-                        DebugString("Looping movie\n");
-                    } else {
-                        Stop_Static_Movie(window, data);
-                    }
-                }
-            }
-            return 0;
-        }
-        if (data->PictureMode == 1) { InvalidateRect(window, 0, TRUE); return 0; }
-        bool animated = data->PictureMode == 4;
-        bool still = data->PictureMode == 2 || data->PictureMode == 3;
-        if ((still || animated) && (int)(GetTickCount() - data->StartTime) > data->Delay) {
-            if (still || (animated && data->IsPlaying)) {
-                InvalidateRect(window, 0, TRUE);
-                if (still) { KillTimer(window, 0); return 0; }
-            }
-            if (!data->FrameCount) {
-                KillTimer(window, 0);
-                if (data->Shape) {
-                    data->FrameCount = data->Shape->Get_Count();
-                    SetTimer(window, 0, data->FrameCount, 0);
-                }
-            }
-        }
-        return 0;
-    }
-		case OD_SUBCLASSED: {
-			WNDPROC proc = 0; // RA2: as above
-			Window_Proc_Table.getValue(window, proc); // RA2: as above
-			HWND parent = GetParent(window);
-			data->PictureMode = 0; // RA2: as above
-			Record_Kind((unsigned int)parent); // RA2: as above
-			GetDlgCtrlID(window); // RA2: as above
-			data->TextFlags = 0xC; // RA2: as above
-			data->TextColor = Text_Color; // RA2: as above
-			return(0);
+	unsigned int key = (unsigned int)window;
+	WinData *record = NULL;
+	Control_Table.getPointer(key, &record);
+	StaticRecord *data = (StaticRecord *)record;
+	RECT text_rect;
+	switch (message) {
+	case WM_PAINT: {
+		if (data->IsDisabled) {
+			ValidateRect(window, NULL);
+			break;
 		}
-
-    case OD_SETCOLOR:
-        if (data) {
-            if ((COLORREF)lparam != data->TextColor) InvalidateRect(window, 0, FALSE);
-            data->TextColor = lparam == -1 ? Text_Color : lparam;
-        }
-        return 0;
-    case WM_USER + 177:
-        if (data) { data->IsFilled = true; data->FillColor = lparam; }
-        return 0;
-    case OD_SETTEXTW: case WM_USER + 180:
-        if (data->Back) {
-            Surface *back = data->Back;
-            RECT display, client;
-            Get_Display_Rect(window, &display);
-            GetClientRect(window, &client);
-            Rect dst(display.left, display.top, client.right + 1, client.bottom + 1);
-            Rect src(0, 0, client.right + 1, client.bottom + 1);
-            AlternateSurface->Blit_From(dst, *back, src, false, true);
-            InvalidateRect(window, 0, FALSE);
-        }
-        return 1;
-		case WM_USER + 211: { // RA2: starts the animation
-			if (!data->Shape || data->PictureMode != 4 || data->IsPlaying) { // RA2: as above
-				return(0);
-			}
-			data->IsPlaying = true; // RA2: as above
-			HWND parent = GetParent(window);
-			WinData * parent_record = 0;
-			Control_Table.getPointer((unsigned int)parent, &parent_record);
-			int kind = parent_record->Kind; // RA2: as above
-			int id = GetDlgCtrlID(window); // RA2: as above
-			if (!((kind == 0x94 || kind == 0xd8 
-				|| kind == 0xf5 || kind == 0xe2 || kind == 0xd5 
-				|| kind == 0x101 || kind == 0x129 || kind == 0xd7 || kind == 0xbb 
-				|| kind == 0x100 || kind == 0xd6 || kind == 0x125 || kind == 0x122 
-				|| kind == 0x112 || kind == 0xe7 || kind == 0x116 || kind == 0x11d 
-				|| kind == 0x11c || kind == 0xfe || kind == 0x10f || kind == 0x117 
-				|| kind == 0x114 || kind == 0xe6 || kind == 0xf3 || kind == 0xf4 
-				|| kind == 700 || kind == 0x10e || kind == 0xbc6 || kind == 0xbc7) && id == 0x71c)) { // RA2: as above
-				bool slow; // RA2: as above
-				if (kind == 0x94) { // RA2: as above
-					if (id == 0x6ea || id == 0x6ec) { // RA2: as above
-						SetTimer(window, 0, 100, 0); // RA2: as above
-						return(0);
+		if (data->Movie != NULL) {
+			ValidateRect(window, NULL);
+			break;
+		}
+		if (data->Back == NULL) {
+			RECT drect;
+			Get_Display_Rect(window, &drect);
+			RECT crect;
+			GetClientRect(window, &crect);
+			BSurface *surf = new BSurface(crect.right + 1, crect.bottom + 1, 2);
+			data->Back = surf;
+			++Surface_Count;
+			Rect dst_rect;
+			dst_rect.X = 0;
+			dst_rect.Y = 0;
+			dst_rect.Width = crect.right + 1;
+			dst_rect.Height = crect.bottom + 1;
+			Rect src_rect;
+			src_rect.X = drect.left;
+			src_rect.Y = drect.top;
+			src_rect.Width = crect.right + 1;
+			src_rect.Height = crect.bottom + 1;
+			surf->Blit_From(dst_rect, *AlternateSurface, src_rect, false, true);
+		}
+		Get_Display_Rect(window, &text_rect);
+		if (data->IsFilled) {
+			Rect rect(text_rect.left, text_rect.top, text_rect.right - text_rect.left, text_rect.bottom - text_rect.top);
+			AlternateSurface->Fill_Rect(rect, DSurface::Build_Hicolor_Pixel(GetRValue(data->FillColor), (unsigned char)(data->FillColor >> 8), GetBValue(data->FillColor)));
+		}
+		bool text = data->PictureMode == 0;
+		bool typewriter = data->PictureMode == 1;
+		if (text || typewriter) {
+			if (data->Text != NULL && (text || (typewriter && data->IsPlaying))) {
+				LONG style = GetWindowLong(window, GWL_STYLE);
+				int draw_flags = 16;
+				if (style & SS_CENTER) {
+					draw_flags = 17;
+				} else if (style & SS_RIGHT) {
+					draw_flags = 18;
+				}
+				COLORREF color = data->TextColor;
+				if (style & WS_DISABLED) {
+					color = Disabled_Text_Color;
+				}
+				Draw_Text_In_Rect_Ex(AlternateSurface, data->Text, &text_rect, data->Font, color, draw_flags, data->TextFlags, 0, data->Typed, data->TypeExtra);
+				if (data->TypingSound != -1) {
+					VocClass::PlayGlobal(data->TypingSound, 1.0f, 0x2000, NULL);
+				}
+				if (typewriter) {
+					int length = wcslen(data->Text) + data->TypeExtra + 1;
+					if (data->Typed < length) {
+						data->Typed += data->TypeStep;
+						if (data->Typed >= length) {
+							KillTimer(window, 0);
+						}
 					}
-					slow = (id == 0x6eb); // RA2: as above
-				} else if (kind == 0x103 || kind == 0xbc7) { // RA2: as above
-					slow = (id == 0x72b); // RA2: as above
-				} else {
-					slow = false; // RA2: as above
-				}
-				if (!slow) { // RA2: as above
-					SetTimer(window, 0, 0, 0); // RA2: as above
-					return(0);
 				}
 			}
-			SetTimer(window, 0, 100, 0); // RA2: as above
-			return(0);
+		} else {
+			bool pcx = data->PictureMode == 2;
+			bool shape = data->PictureMode == 3;
+			bool animated = data->PictureMode == 4;
+			if (pcx || shape || animated) {
+				int now = GetTickCount();
+				if (now - data->StartTime > data->Delay) {
+					Rect dst_rect(text_rect.left, text_rect.top, text_rect.right - text_rect.left, text_rect.bottom - text_rect.top);
+					RECT crect;
+					GetClientRect(window, &crect);
+					Rect src_rect(crect.left, crect.top, crect.right - crect.left, crect.bottom - crect.top);
+					AlternateSurface->Blit_From(dst_rect, *data->Back, src_rect, false, true);
+					if (pcx) {
+						Surface *image = data->Image;
+						if (image != NULL) {
+							int width = image->Get_Width();
+							int height = image->Get_Height();
+							Rect rect = dst_rect;
+							if (rect.Width > width) {
+								rect.X += (rect.Width - width) / 2;
+								rect.Width = width;
+							}
+							if (rect.Height > height) {
+								rect.Y += (rect.Height - height) / 2;
+								rect.Height = height;
+							}
+							SurfaceCache.DrawTrans(rect, *AlternateSurface, *image, DSurface::Build_Hicolor_Pixel(255, 0, 255));
+						}
+					} else if (shape || animated) {
+						ShapeSet *shapes = data->Shape;
+						if (shapes != NULL) {
+							ConvertClass *drawer = data->Drawer;
+							int height = shapes->Get_Height();
+							int width = shapes->Get_Width();
+							Rect rect = dst_rect;
+							if (rect.Width > width) {
+								rect.X += (rect.Width - width) / 2;
+								rect.Width = width;
+							}
+							if (rect.Height > height) {
+								rect.Y += (rect.Height - height) / 2;
+								rect.Height = height;
+							}
+							Point2D point(rect.X, rect.Y);
+							Rect bounds = AlternateSurface->Get_Rect();
+							int frame = data->Frame;
+							Draw_Shape(*AlternateSurface, *drawer, shapes, frame, point, bounds, ShapeFlags_Type(0x400), 0, 0, ZGradientType(0), 1000, 0, 0, Point2D(0, 0));
+							if (animated && data->IsPlaying) {
+								if (++frame >= data->FrameCount) {
+									frame = 0;
+								}
+								data->Frame = frame;
+								if (data->Notify != NULL) {
+									SendMessage(data->Notify, WM_USER + 216, frame, (LPARAM)window);
+								}
+							}
+						}
+					}
+				}
+			}
 		}
+		ValidateRect(window, NULL);
+		break;
+	}
+	case WM_MOVE:
+	case WM_SIZE:
+	case WM_WINDOWPOSCHANGED:
+		if (data != NULL) {
+			delete data->Back;
+			data->Back = NULL;
+		}
+		InvalidateRect(window, NULL, FALSE);
+		break;
+	case WM_DESTROY: {
+		if (data->Back != NULL) {
+			delete data->Back;
+			data->Back = NULL;
+		}
+		if (data->IsShapeAllocated) {
+			operator delete(data->Shape);
+			data->Shape = NULL;
+		}
+		if (data->PictureMode == 1) {
+			if (data->IsPlaying) {
+				KillTimer(window, 0);
+			}
+		} else if (data->PictureMode == 4) {
+			KillTimer(window, 0);
+		}
+		HWND const movieWindow = window;
+		if (data->Movie != NULL) {
+			delete data->Movie;
+			data->Movie = NULL;
+		}
+		KillTimer(movieWindow, 101);
+		if (data->Movie2 != NULL) {
+			delete data->Movie2;
+			data->Movie2 = NULL;
+		}
+	}
+	default:
+		goto call_original; // level-2 1.001: STEERING preserve the original default dispatch block.
+	case OD_SUBCLASSED: {
+		WNDPROC proc = NULL;
+		Window_Proc_Table.getValue(window, proc);
+		HWND parent = GetParent(window);
+		data->PictureMode = 0;
+		data->TextFlags = Static_Control_Slot_Count(parent, window);
+		data->TextColor = Text_Color;
+		break;
+	}
+	case OD_SETCOLOR:
+		if (data == NULL) break;
+		if ((COLORREF)lparam != data->TextColor) {
+			InvalidateRect(window, NULL, FALSE);
+		}
+		if (lparam == -1) {
+			data->TextColor = Text_Color;
+		} else {
+			data->TextColor = lparam;
+		}
+		break;
+	case WM_USER + 177:
+		if (data == NULL) break;
+		data->IsFilled = true;
+		data->FillColor = lparam;
+		break;
+	case WM_USER + 178:
+	case WM_USER + 180: {
+		Surface *cachedSurf = data->Back;
+		if (cachedSurf != NULL) {
+			Get_Display_Rect(window, &text_rect);
+			RECT crect;
+			GetClientRect(window, &crect);
 
-    case WM_USER + 238:
-        if (data->PictureMode == 1 && !data->IsPlaying) {
-            data->IsPlaying = true;
-            data->Typed = 1;
-            SetTimer(window, 0, data->TypeRate, 0);
-            InvalidateRect(window, 0, FALSE);
-        }
-        return 0;
-    case WM_USER + 212:
-        if (data->PictureMode == 4 && data->IsPlaying) { KillTimer(window, 0); data->IsPlaying = false; }
-        return 0;
-    case WM_USER + 213:
-        if (data->PictureMode == 4) { data->Frame = lparam; InvalidateRect(window, 0, TRUE); }
-        return 0;
-    case WM_USER + 214:
-        return data->PictureMode == 4 ? data->Frame : -1;
-    case WM_USER + 215:
-        if (data->PictureMode == 4) data->Notify = (HWND)lparam;
-        return 0;
-    case WM_USER + 223:
-        if ((int)wparam >= 0 && (int)wparam < Movies.Count()) {
-            char const *name = Movies[wparam];
-            Stop_Static_Movie(window, data);
-            RECT display;
-            Get_Display_Rect(window, &display);
-            data->Movie = OwnerDraw_InitMovieHandle(name, AlternateSurface, 0);
-            if (data->Movie) {
-                data->Movie->SetPosition(display.left, display.top);
-                MoveWindow(window, display.left, display.top, data->Movie->Width, data->Movie->Height, FALSE);
-                SetTimer(window, 0x65, 34, 0);
-            } else {
-                Stop_Static_Movie(window, data);
-            }
-        }
-        return 0;
-    case WM_USER + 228: {
-        Stop_Static_Movie(window, data);
-        RECT display;
-        Get_Display_Rect(window, &display);
-        data->Movie = OwnerDraw_InitMovieHandle((char const *)lparam, AlternateSurface, 0);
-        if (data->Movie) {
-            data->Movie->SetPosition(display.left, display.top);
-            MoveWindow(window, display.left, display.top, data->Movie->Width, data->Movie->Height, FALSE);
-            SetTimer(window, 0x65, 34, 0);
-        } else {
-            Stop_Static_Movie(window, data);
-        }
-        return 0;
-    }
-    case WM_USER + 226:
-        Stop_Static_Movie(window, data);
-        return 0;
-    case WM_USER + 224:
-        if (data->Movie) data->Movie->Pause(true);
-        return 0;
-    case WM_USER + 225:
-        if (data->Movie) data->Movie->Pause(false);
-        return 0;
-    case WM_USER + 227:
-        data->IsLooping = wparam;
-        return 0;
-    }
-    WNDPROC previous = 0;
-    Window_Proc_Table.getValue(window, previous);
-    return CallWindowProcA(previous, window, message, wparam, lparam);
+			Rect src_rect(0, 0, crect.right + 1, crect.bottom + 1);
+			Rect dst_rect(text_rect.left, text_rect.top, src_rect.Width, src_rect.Height);
+
+			AlternateSurface->Blit_From(dst_rect, *cachedSurf, src_rect, false, true);
+			InvalidateRect(window, NULL, FALSE);
+		}
+		return 1;
+	}
+	case WM_USER + 211:
+		if (data->Shape != NULL && data->PictureMode == 4 && !data->IsPlaying) {
+			data->IsPlaying = true;
+			HWND parent = GetParent(window);
+			Set_Static_Animation_Timer(parent, window);
+		}
+		break;
+	case WM_USER + 238:
+		if (data->PictureMode == 1 && !data->IsPlaying) {
+			data->IsPlaying = true;
+			data->Typed = 1;
+			SetTimer(window, 0, data->TypeRate, NULL);
+			InvalidateRect(window, NULL, FALSE);
+		}
+		break;
+	case WM_USER + 212:
+		if (data->PictureMode == 4 && data->IsPlaying) {
+			KillTimer(window, 0);
+			data->IsPlaying = false;
+		}
+		break;
+	case WM_USER + 213:
+		if (data->PictureMode == 4) {
+			data->Frame = lparam;
+			InvalidateRect(window, NULL, TRUE);
+		}
+		break;
+	case WM_USER + 214: {
+		int frame = -1;
+		if (data->PictureMode == 4) {
+			frame = data->Frame;
+		}
+		return frame;
+	}
+	case WM_USER + 215:
+		if (data->PictureMode == 4) {
+			data->Notify = (HWND)lparam;
+		}
+		break;
+	case WM_USER + 223:
+		if ((int)wparam >= 0 && (int)wparam < Movies.Count()) {
+			char const *movieName = Movies[(int)wparam];
+			Play_Static_Movie(data, window, movieName);
+		}
+		break;
+	case WM_USER + 228: {
+		Play_Static_Movie(data, window, (char const *)lparam);
+		break;
+	}
+	case WM_USER + 226: {
+		Stop_Static_Movie(window, data);
+		break;
+	}
+	case WM_USER + 224:
+		if (data->Movie != NULL) {
+			data->Movie->Pause(true);
+		}
+		break;
+	case WM_USER + 225:
+		if (data->Movie != NULL) {
+			data->Movie->Pause(false);
+		}
+		break;
+	case WM_USER + 227:
+		data->IsLooping = wparam;
+		break;
+	case WM_TIMER: {
+		if (wparam == 101) {
+			if (data->Movie != NULL) {
+				if (data->Movie->AdvanceFrame()) {
+					InvalidateRect(window, NULL, FALSE);
+				}
+				if (data->Movie->FramesLeft()) {
+					if (data->IsLooping) {
+						data->Movie->SeekToFrame(1);
+						DebugString("Looping movie\n");
+					} else {
+						Stop_Static_Movie(window, data);
+					}
+				}
+			}
+			break;
+		}
+		if (data->PictureMode == 1) {
+			InvalidateRect(window, NULL, TRUE);
+			break;
+		}
+		bool animated = data->PictureMode == 4;
+		bool still = data->PictureMode == 2 || data->PictureMode == 3;
+		if (still || animated) {
+			int now = GetTickCount();
+			if (now - data->StartTime > data->Delay) {
+				if (still || (animated && data->IsPlaying)) {
+					InvalidateRect(window, NULL, TRUE);
+					if (still) {
+						KillTimer(window, 0);
+						break;
+					}
+				}
+				if (data->FrameCount == 0) {
+					KillTimer(window, 0);
+					if (data->Shape != NULL) {
+						data->FrameCount = data->Shape->Get_Count();
+						SetTimer(window, 0, data->FrameCount, NULL);
+					}
+				}
+			}
+		}
+		break;
+	}
+	}
+	return 0;
+
+call_original:
+	WNDPROC proc = NULL;
+	WNDPROC *found = NULL;
+	if (Window_Proc_Table.getPointer(window, &found) && found) {
+		proc = *found;
+	}
+	return CallWindowProc(proc, window, message, wparam, lparam);
 }
 
 }
@@ -7854,57 +8008,6 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 			InvalidateRect(window, 0, FALSE);
 			break; // level-2 1.001: pass_on is tested after the switch
 
-		case 0x4bb:
-		case 0x4bc:
-			wide = 0; // level-2 1.001: narrow text
-		case 0x4c1:
-		case 0x4c2: {
-			wchar_t const * string = (wchar_t const *)lparam; // level-2 1.001: as above
-			if (message == 0x4bc || message == 0x4c2) { // level-2 1.001: the add variants
-				if (!wide) { // level-2 1.001: as above
-					result = CallWindowProcA(proc, window, CB_ADDSTRING, 0, lparam); // level-2 1.001: as above
-				} else {
-					result = CallWindowProcA(proc, window, CB_ADDSTRING, 0, (LPARAM)Wide_To_Narrow(string)); // level-2 1.001: as above
-				}
-			} else {
-				if (!wide) { // level-2 1.001: as above
-					result = CallWindowProcA(proc, window, CB_INSERTSTRING, wparam, lparam); // level-2 1.001: as above
-				} else {
-					result = CallWindowProcA(proc, window, CB_INSERTSTRING, wparam, (LPARAM)Wide_To_Narrow(string)); // level-2 1.001: as above
-				}
-			}
-			if (result == CB_ERR || result == CB_ERRSPACE) { // level-2 1.001: as above
-				return(result);
-			}
-			int index = result; // level-2 1.001: as above
-			int length; // level-2 1.001: as above
-			if (wide) { // level-2 1.001: as above
-				length = wcslen(string); // level-2 1.001: as above
-			} else {
-				length = strlen((char const *)string); // level-2 1.001: as above
-			}
-			TextNode * node = ((NodeList *)data)->Add_Node(length); // level-2 1.001: as above
-			if (node) { // level-2 1.001: as above
-				node->Reserved_0C = wide; // level-2 1.001: as above
-				if (wide) { // level-2 1.001: as above
-					wcscpy(node->Data, string); // level-2 1.001: as above
-				} else {
-					Char_To_Wide(node->Data, (char const *)string, -1); // level-2 1.001: as above
-				}
-				result = CallWindowProcA(proc, window, CB_SETITEMDATA, index, (LPARAM)node); // level-2 1.001: as above
-				if (result != CB_ERR && result != CB_ERRSPACE) { // level-2 1.001: as above
-					return(index);
-				}
-			} else {
-				result = CB_ERRSPACE; // level-2 1.001: as above
-			}
-			CallWindowProcA(proc, window, CB_DELETESTRING, index, 0); // level-2 1.001: as above
-			if (node) { // level-2 1.001: as above
-				((NodeList *)data)->Remove_Node(node); // level-2 1.001: as above
-			}
-			return(result);
-		}
-
 		case CB_SHOWDROPDOWN:
 			result = TRUE; // level-2 1.001: as above
 			if (!wparam) { // level-2 1.001: as above
@@ -8129,6 +8232,58 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 			} // level-2 1.001: as above
 			return(result);
 		}
+		// level-2 1.001: STEERING Keep the insertion cases together here to reproduce VC6 case layout.
+		case 0x4bb:
+		case 0x4bc:
+			wide = 0; // level-2 1.001: narrow text
+		case 0x4c1:
+		case 0x4c2: {
+			wchar_t const * string = (wchar_t const *)lparam; // level-2 1.001: as above
+			if (message == 0x4bc || message == 0x4c2) { // level-2 1.001: the add variants
+				if (!wide) { // level-2 1.001: as above
+					result = CallWindowProcA(proc, window, CB_ADDSTRING, 0, lparam); // level-2 1.001: as above
+				} else {
+					result = CallWindowProcA(proc, window, CB_ADDSTRING, 0, (LPARAM)Wide_To_Narrow(string)); // level-2 1.001: as above
+				}
+			} else {
+				if (!wide) { // level-2 1.001: as above
+					result = CallWindowProcA(proc, window, CB_INSERTSTRING, wparam, lparam); // level-2 1.001: as above
+				} else {
+					result = CallWindowProcA(proc, window, CB_INSERTSTRING, wparam, (LPARAM)Wide_To_Narrow(string)); // level-2 1.001: as above
+				}
+			}
+			if (result == CB_ERR || result == CB_ERRSPACE) { // level-2 1.001: as above
+				return(result);
+			}
+			int index = result; // level-2 1.001: as above
+			int length; // level-2 1.001: as above
+			if (wide) { // level-2 1.001: as above
+				length = wcslen(string); // level-2 1.001: as above
+			} else {
+				length = strlen((char const *)string); // level-2 1.001: as above
+			}
+			TextNode * node = ((NodeList *)data)->Add_Node(length); // level-2 1.001: as above
+			if (node) { // level-2 1.001: as above
+				node->Reserved_0C = wide; // level-2 1.001: as above
+				if (wide) { // level-2 1.001: as above
+					wcscpy(node->Data, string); // level-2 1.001: as above
+				} else {
+					Char_To_Wide(node->Data, (char const *)string, -1); // level-2 1.001: as above
+				}
+				result = CallWindowProcA(proc, window, CB_SETITEMDATA, index, (LPARAM)node); // level-2 1.001: as above
+				if (result != CB_ERR && result != CB_ERRSPACE) { // level-2 1.001: as above
+					return(index);
+				}
+			} else {
+				result = CB_ERRSPACE; // level-2 1.001: as above
+			}
+			CallWindowProcA(proc, window, CB_DELETESTRING, index, 0); // level-2 1.001: as above
+			if (node) { // level-2 1.001: as above
+				((NodeList *)data)->Remove_Node(node); // level-2 1.001: as above
+			}
+			return(result);
+		}
+
 		case WM_PAINT: { // level-2 1.001: INFERRED source position: the last case. Case bodies are laid out by dispatch group, so this moves no code, but VC6 spends the inline budget from the end: with paint after CB_SHOWDROPDOWN, its remove/WinData/expand calls go out of line as in 1.001
 			BitFont * font = data->Font; // level-2 1.001: as above
 			int dropped = SendMessageA(window, CB_GETDROPPEDSTATE, 0, 0); // level-2 1.001: as above
@@ -8328,6 +8483,7 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 		}
 	}
 
+	wchar_t wide_text[0x1400]; // Used by both narrow and wide message handlers.
 	switch (message) {
 		case LB_GETSEL: {
 			int selected = 0; // level-2 1.001: as above
@@ -8536,6 +8692,22 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			break;
 		}
 
+		case WM_SIZE:
+			if ((int)record->ScrollBar > 1) { // level-2 1.001: as above
+				RECT parent_display; // level-2 1.001: as above
+				Get_Display_Rect(GetParent(window), &parent_display); // level-2 1.001: as above
+				RECT list_display; // level-2 1.001: as above
+				Get_Display_Rect(window, &list_display); // level-2 1.001: as above
+				MoveWindow(record->ScrollBar, list_display.right - parent_display.left, list_display.top - parent_display.top, // level-2 1.001: as above
+					scrollbar_width, list_display.bottom - list_display.top, TRUE); // level-2 1.001: as above
+			}
+			if (record->Back) { // level-2 1.001: as above
+				if ((int)(lparam & 0xffff) != record->Back->Get_Width() || (int)((unsigned int)lparam >> 16) != record->Back->Get_Height()) { // level-2 1.001: as above
+					Free_Control_Surface((unsigned int)window); // level-2 1.001: the size changed
+				}
+			}
+			break;
+
 		case WM_SETFONT: {
 			HDC dc = GetDC(window);
 			TEXTMETRICA metrics; // level-2 1.001: as above
@@ -8628,7 +8800,6 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 		case 0x4c4:
 		case 0x4c5:
 		case 0x4c6: {
-			wchar_t wide_text[0x1400]; // level-2 1.001: as above
 			Char_To_Wide(wide_text, (char const *)lparam, 0x1400); // level-2 1.001: as above
 			lparam = (LPARAM)wide_text; // level-2 1.001: as above
 		}
@@ -8873,22 +9044,6 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			}
 			break;
 		}
-
-		case WM_SIZE:
-			if ((int)record->ScrollBar > 1) { // level-2 1.001: as above
-				RECT parent_display; // level-2 1.001: as above
-				Get_Display_Rect(GetParent(window), &parent_display); // level-2 1.001: as above
-				RECT list_display; // level-2 1.001: as above
-				Get_Display_Rect(window, &list_display); // level-2 1.001: as above
-				MoveWindow(record->ScrollBar, list_display.right - parent_display.left, list_display.top - parent_display.top, // level-2 1.001: as above
-					scrollbar_width, list_display.bottom - list_display.top, TRUE); // level-2 1.001: as above
-			}
-			if (record->Back) { // level-2 1.001: as above
-				if ((int)(lparam & 0xffff) != record->Back->Get_Width() || (int)((unsigned int)lparam >> 16) != record->Back->Get_Height()) { // level-2 1.001: as above
-					Free_Control_Surface((unsigned int)window); // level-2 1.001: the size changed
-				}
-			}
-			break;
 
 		case LB_SETTOPINDEX: {
 			int top = wparam; // level-2 1.001: as above

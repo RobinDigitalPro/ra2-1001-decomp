@@ -47094,6 +47094,12 @@
   "name": "MapClass::Reset_Subzone"
  },
  {
+  "rva": "0x161080",
+  "tu": "src/m85/src/map.cpp",
+  "symbol": "?Subzone_Span@MapClass@@QAEHPAUCellSubzoneStruct@@HHABV?$TRect@H@@ABVCell@@@Z",
+  "name": "MapClass::Subzone_Span"
+ },
+ {
   "rva": "0x161910",
   "tu": "src/m85/src/map.cpp",
   "symbol": "?Register_Subzone_Zone_Connections@MapClass@@QAEXH@Z",
@@ -61614,6 +61620,12 @@
   "name": "OwnerDraw::New_Edit_Proc"
  },
  {
+  "rva": "0x1eac10",
+  "tu": "src/m85/src/ownrdraw.cpp",
+  "symbol": "?Static_Proc@OwnerDraw@@YGJPAUHWND__@@IIJ@Z",
+  "name": "OwnerDraw::Static_Proc"
+ },
+ {
   "rva": "0x1ebdb0",
   "tu": "src/m85/src/ownrdraw.cpp",
   "symbol": "?Checkbox_Proc@OwnerDraw@@YGJPAUHWND__@@IIJ@Z",
@@ -67444,6 +67456,12 @@
   "tu": "src/m85/src/aircraft.cpp",
   "symbol": "?Increase_Table_Size@?$IndexClass@HPAVAbstractClass@@@@AAE_NH@Z",
   "name": "?Increase_Table_Size@?$IndexClass@HPAVAbstractClass@@@@AAE_NH@Z"
+ },
+ {
+  "rva": "0x226160",
+  "tu": "src/m85/src/queue.cpp",
+  "symbol": "?search_compfunc@?$IndexClass@HPAVObjectClass@@@@CAHPBX0@Z",
+  "name": "IndexClass<int,ObjectClass*>::search_compfunc"
  },
  {
   "rva": "0x226190",

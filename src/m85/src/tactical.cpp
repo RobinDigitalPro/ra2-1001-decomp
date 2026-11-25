@@ -1118,7 +1118,7 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 		unsigned panheight = abs(yoffset);
 		int width = TacticalDimensions.Width - panwidth; // level-2 1.001: the shared extent is computed before the start offsets
 		int height = TacticalDimensions.Height - panheight;
-		int ystart = (yoffset < 0) ? panheight : 0;
+		int ystart = (yoffset < 0) ? -yoffset : 0;
 		int xstart = (xoffset < 0) ? panwidth : 0;
 
 		Rect sourcerect(TacticalDimensions.X + xstart, TacticalDimensions.Y + ystart, width, height);
@@ -1175,10 +1175,10 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 			 * left), 'ypanrect' the strip revealed by vertical scrolling. 'bounds' is the region
 			 * that the blit above preserved, used to clip the depth wipe and shroud.
 			 */
+			bool scrolled_left = LastTacPixelX > TacPixelX;
+			bool scrolled_right = LastTacPixelX < TacPixelX;
 			bool scrolled_up = LastTacPixelY > TacPixelY;
 			bool scrolled_down = LastTacPixelY < TacPixelY;
-			bool scrolled_right = LastTacPixelX < TacPixelX;
-			bool scrolled_left = LastTacPixelX > TacPixelX;
 
 			Rect leftstrip(TacticalRect.X, TacticalRect.Y, panwidth, TacticalRect.Height);
 			Rect rightstrip(TacticalRect.X + TacticalRect.Width - panwidth, TacticalRect.Y, panwidth, TacticalRect.Height);

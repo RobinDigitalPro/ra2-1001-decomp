@@ -8,13 +8,13 @@ This project reconstructs the source code of **Command & Conquer: Red Alert 2, G
 
 Our target binary is the GAME.EXE of an **old repack of Red Alert 2 1.001**, not a clean retail install. That repack contains no-CD patches. We reconstruct the whole executable as it is, so those patches are reconstructed as well, clearly labelled as repack deltas (for example the disk checks `Get_Disk_ID`/`Force_Available` and `VolumeCheck`). The rest of the code is the 1.001 game code. A retail 1.001 GAME.EXE differs from ours only in those patched places.
 
-## Status (2026-11-24)
+## Status (2026-11-25)
 
 | Measure | Value |
 |---|---|
-| Byte-identical functions (claims) | 17,779 |
-| Share of `.text` reproduced (including identified library code) | 94.97 % |
-| Share of `.text` from our own source | 92.51 % |
+| Byte-identical functions (claims) | 17,782 |
+| Share of `.text` reproduced (including identified library code) | 95.16 % |
+| Share of `.text` from our own source | 92.70 % |
 | Functionally equivalent near misses (codegen-only residue, `metadata/level2_near_equal.json`) | 10 |
 | Strict whole-executable link check | every claimed function placed at its original address |
 
