@@ -11808,7 +11808,7 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 		}
 		if (g_CurrentChannel.type && !g_IsChannelCreator) {
 			int index = Player_Name_To_Index(User_Name(users));
-			if (index < 0 || index >= 16) continue;
+			if ((unsigned int)index >= 16U) continue;
 			ChannelUserInfo &slot = g_UserInfo[index];
 			memset(&slot, 0, sizeof(slot));
 			strcpy(slot.name, nickname);
@@ -11822,7 +11822,7 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 					node->Address = User_To_IPX_Address(users);
 					node->Set_Country(-2);
 					node->Set_Color(-2);
-					if (!Session.Players.Add(node)) delete node;
+					Session.Players.Add(node);
 				}
 			}
 		}

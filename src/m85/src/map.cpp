@@ -6252,20 +6252,20 @@ void MapClass::Destroy_Bridge2_Near(Cell const &cell) // RA2: RA2's form
 		}
 	}
 	CellClass *cellptr = &Map[cell];
-	int step; // RA2: as above
-	int facing = 0; // RA2: as above
+	FacingType step; // RA2: as above
+	FacingType facing = FACING_N; // RA2: as above
 	if (!cellptr->IsUnderBridge && !cellptr->WasUnderBridge) {
 		for (int index = 0; index < 8; ++index) { // RA2: as above
-			Cell adjacent = Adjacent_Cell(cell, FacingType(facing)); // RA2: as above
+			Cell adjacent = Adjacent_Cell(cell, facing); // RA2: as above
 			cellptr = &Map[adjacent];
 			if (cellptr->IsUnderBridge || cellptr->WasUnderBridge) break; // RA2: as above
-			Cell adjacent2 = Adjacent_Cell(adjacent, FacingType(facing)); // RA2: as above
+			Cell adjacent2 = Adjacent_Cell(adjacent, facing); // RA2: as above
 			cellptr = &Map[adjacent2]; // RA2: as above
 			if (cellptr->IsUnderBridge || cellptr->WasUnderBridge) break; // RA2: as above
-			adjacent = Adjacent_Cell(adjacent2, FacingType(facing)); // RA2: as above
+			adjacent = Adjacent_Cell(adjacent2, facing); // RA2: as above
 			cellptr = &Map[adjacent];
 			if (cellptr->IsUnderBridge || cellptr->WasUnderBridge) break; // RA2: as above
-			facing = (facing + 1) & 7; // RA2: as above
+			facing = Facing_Add(facing, FACING_NE); // RA2: as above
 		}
 	}
 	if (!cellptr->IsUnderBridge && !cellptr->WasUnderBridge) return; // RA2: as above
@@ -6277,11 +6277,11 @@ void MapClass::Destroy_Bridge2_Near(Cell const &cell) // RA2: RA2's form
 		Cell walk = cellptr->Fetch_CellID(); // RA2: as above
 		int count = 0;
 		
-		if (cellptr->IsBridgeEastWest) step = 4; // RA2: as above
-		else step = 2; // RA2: as above
+		if (cellptr->IsBridgeEastWest) step = FACING_S; // RA2: as above
+		else step = FACING_E; // RA2: as above
 		CellClass *walkptr; // RA2: as above
 		while (true) {
-			Cell const &from = walk; walk = Adjacent_Cell_L(from, FacingType(step)); // RA2: as above
+			Cell const &from = walk; walk = Adjacent_Cell_L(from, step); // RA2: as above
 			walkptr = &Map[walk];
 			if (walkptr->WasUnderBridge) { // RA2: as above
 				if (++count >= 4) return; // RA2: as above
@@ -6289,11 +6289,11 @@ void MapClass::Destroy_Bridge2_Near(Cell const &cell) // RA2: RA2's form
 				break;
 			}
 		}
-		int back = (step - 4) & 7; // RA2: as above
+		FacingType back = Facing_Sub(step, FACING_180); // RA2: as above
 		origin = (AdjacentCell[back & 7] + walk) + AdjacentCell[back & 7]; // RA2: as above
 	}
 	
-	int shared_direction = cellptr->IsBridgeEastWest ? 6 : 0; // RA2: as above
+	FacingType shared_direction = cellptr->IsBridgeEastWest ? FACING_W : FACING_N; // RA2: as above
 	Cell spancell = origin;
 	DynamicVectorClass<Cell> cells;
 	int tile; // RA2: as above
@@ -6302,7 +6302,7 @@ void MapClass::Destroy_Bridge2_Near(Cell const &cell) // RA2: RA2's form
 		while (spancell.X >= MapRect.X) { // RA2: as above
 			if (spancell.X > MapRect.X + MapRect.Width) break; // RA2: as above
 			if (spancell.Y < MapRect.Y || spancell.Y > MapRect.Y + MapRect.Height) break; // RA2: as above
-			if (Is_Valid(spancell)) { // RA2: as above
+			if (Array[spancell.X + spancell.Y * MAP_CELL_H] != 0) { // RA2: as above
 				spanptr = &Map[spancell]; // RA2: as above
 				tile = spanptr->ITType - IsometricTileTypeClass::BridgeSet + 1; // RA2: as above
 				if (((tile == IsometricTileTypeClass::BridgeTopLeft1 || tile == IsometricTileTypeClass::BridgeTopLeft2) && spanptr->SubTile == 8) || // RA2: as above
@@ -6317,14 +6317,14 @@ void MapClass::Destroy_Bridge2_Near(Cell const &cell) // RA2: RA2's form
 
 destroy_span: // RA2: as above
 	{
-		step = (shared_direction - 4) & 7; // RA2: as above
+		step = Facing_Sub(shared_direction, FACING_180); // RA2: as above
 		Cell end = spancell; // RA2: as above
 		int hits; // RA2: as above
 		for (hits = 0; hits < 3; ++hits) { // RA2: as above
 			if (Damage_Bridge(spancell)) break; // RA2: as above
 		}
 		while (true) {
-			end = Adjacent_Cell(end, FacingType(step)); // RA2: as above
+			end = Adjacent_Cell(end, step); // RA2: as above
 			spanptr = &Map[end]; // RA2: as above
 			if (end.X < MapRect.X || end.X > MapRect.X + MapRect.Width || // RA2: as above
 				end.Y < MapRect.Y || end.Y > MapRect.Y + MapRect.Height) // RA2: as above
@@ -6333,7 +6333,7 @@ destroy_span: // RA2: as above
 			if (Is_Bridge_Span_End(tile, step, spanptr)) break; // RA2: as above
 		}
 		if (tile != -1) { // RA2: as above
-			end = AdjacentCell[(step - 4) & 7] + end; // level-2 1.001: offset + cell
+			end = end + AdjacentCell[(step - 4) & 7]; // level-2 1.001: cell + offset
 			for (hits = 0; hits < 3; ++hits) { // RA2: as above
 				if (Damage_Bridge(end)) break; // RA2: as above
 			}

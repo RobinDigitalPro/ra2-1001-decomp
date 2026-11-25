@@ -12,9 +12,9 @@ Our target binary is the GAME.EXE of an **old repack of Red Alert 2 1.001**, not
 
 | Measure | Value |
 |---|---|
-| Byte-identical functions (claims) | 17,782 |
-| Share of `.text` reproduced (including identified library code) | 95.16 % |
-| Share of `.text` from our own source | 92.70 % |
+| Byte-identical functions (claims) | 17,783 |
+| Share of `.text` reproduced (including identified library code) | 95.20 % |
+| Share of `.text` from our own source | 92.74 % |
 | Functionally equivalent near misses (codegen-only residue, `metadata/level2_near_equal.json`) | 10 |
 | Strict whole-executable link check | every claimed function placed at its original address |
 

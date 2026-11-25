@@ -994,16 +994,17 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 	int xleft = point.X;
 	short * bottom_right = &buffer[bottom_offset + point.X];
 	short * top_left = &buffer[top_offset + point.X];
-	short * top_right = top_left;
+	// level-2 1.001: STEERING - initialize the second top cursor independently.
+	short * top_right = &buffer[point.X + top_offset];
 	int xright = point.X;
 	short * bottom_left = &buffer[bottom_offset + point.X];
 
 	while (true) {
 		decision += rady_squared + xterm;
 		if (decision >= 0) {
+			y--;
 			yterm -= 2 * radx_squared;
 			decision -= yterm;
-			y--;
 
 			bottom_right -= pitch;
 			top_left += pitch;
@@ -1012,13 +1013,13 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 		}
 		xterm += 2 * rady_squared;
 
+		xright++;
+		xleft--;
+
 		bottom_right++;
 		top_left--;
 		top_right++;
 		bottom_left--;
-
-		xright++;
-		xleft--;
 
 		if (xterm >= yterm) {
 			break;
@@ -1064,14 +1065,13 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 	 * Set up the decision variables for the steep (high slope) arcs of the
 	 * ellipse that extend away from the horizontal extreme points.
 	 */
-	y = 0;
+	Point2D offset(radx, 0);
 	yterm = 0;
 	product = radx * rady_squared;
 	xterm = 2 * product;
-	int x = radx;		/// This value is never used.
 	decision = rady_squared / 4 - product;
 
-	int left_offset = pitch * point.Y - radx;
+	int left_offset = pitch * point.Y - offset.X;
 	int center_offset = pitch * point.Y;
 	xleft = point.X - radx;
 	bottom_right = &buffer[point.X + center_offset + radx];
@@ -1093,7 +1093,7 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 			bottom_left++;
 		}
 		yterm += 2 * radx_squared;
-		y++;
+		offset.Y++;
 
 		bottom_right += pitch;
 		top_left -= pitch;
@@ -1103,19 +1103,19 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 		if (yterm > xterm) {
 			break;
 		}
-		int ypos = y + point.Y;
+		int ypos = offset.Y + point.Y;
 		if (xright >= cliprect.X && xright < cliprect.X + cliprect.Width && ypos >= cliprect.Y && ypos < cliprect.Y + cliprect.Height) {
 			*bottom_right = color;
 		}
-		ypos = point.Y - y;
+		ypos = point.Y - offset.Y;
 		if (xleft >= cliprect.X && xleft < cliprect.X + cliprect.Width && ypos >= cliprect.Y && ypos < cliprect.Y + cliprect.Height) {
 			*top_left = color;
 		}
-		ypos = point.Y - y;
+		ypos = point.Y - offset.Y;
 		if (xright >= cliprect.X && xright < cliprect.X + cliprect.Width && ypos >= cliprect.Y && ypos < cliprect.Y + cliprect.Height) {
 			*top_right = color;
 		}
-		ypos = point.Y + y;
+		ypos = point.Y + offset.Y;
 		if (xleft >= cliprect.X && xleft < cliprect.X + cliprect.Width && ypos >= cliprect.Y && ypos < cliprect.Y + cliprect.Height) {
 			*bottom_left = color;
 		}

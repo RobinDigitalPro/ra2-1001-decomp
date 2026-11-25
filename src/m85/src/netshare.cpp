@@ -1564,7 +1564,16 @@ int CALLBACK Scenario_DlgProc(HWND window, UINT message, WPARAM wparam, LPARAM l
 			MultiplayerGameMode * mode = Initial_Map_Mode(Session.Options.MPModeIndex);
 			Populate_Mode_Control(window, mode);
 			if (mode) {
-				Populate_Scenario_List(window, mode);
+				DynamicVectorClass<MultiMission const *> maps;
+				int count = Session.Scenarios.Count();
+				for (int i = 0; i < count; i++) {
+					MultiMission const * map = Session.Scenarios[i];
+					if (mode->IsMapAllowed(map)) {
+						maps.Add(map);
+					}
+				}
+				HWND list = GetDlgItem(window, IDC_AILEVEL_SLIDER);
+				mode->DrawTeamDropdown(list, &maps, NULL);
 			}
 			Enable_Random_Scenario(window, mode);
 			Restore_Map_Selection(window);
@@ -4230,7 +4239,7 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 	if (copy[0] == 'L') { // RA2: as above
 		WideWstring names = Wstring_ToWide(text + 1); // level-2 1.001: implicit conversion of the name list
 		Set_Slot_Names(names.get()); // RA2: as above
-		HWND dialog = WS_Find_Dialog(IDD_WOL_GUEST); // RA2: as above
+		HWND dialog = WS_Find_Dialog(IDD_WOL_GUEST); // level-2 1.001: STEERING try the guest dialog if the WOL host is absent // RA2: as above
 		if (dialog != NULL) { // RA2: as above
 			if (Find_First_Player_Slot() != Session.LocalSlot) { // level-2 1.001: no leave on a missing slot and no observer/side combo refill
 				int slot = Find_First_Player_Slot(); // RA2: as above
@@ -4399,7 +4408,16 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 	if (mode != NULL && !same) { // RA2: as above
 		mode->UnfixAlliances(); // RA2: as above
 	}
-	HWND dialog = GameoptWindow(); // RA2: as above
+	HWND dialog = WS_Find_Dialog(IDD_WOL_GAMEOPT); // level-2 1.001: STEERING keep the active dialog handle across the four ordered lookups
+	if (dialog == NULL) {
+		dialog = WS_Find_Dialog(IDD_WOL_GUEST);
+	}
+	if (dialog == NULL) {
+		dialog = WS_Find_Dialog(IDD_MPLAYER_HOST); // level-2 1.001: STEERING try the multiplayer host after both WOL dialogs
+	}
+	if (dialog == NULL) {
+		dialog = WS_Find_Dialog(IDD_MPLAYER_GUEST); // level-2 1.001: STEERING use the multiplayer guest as the final fallback
+	} // RA2: as above
 	HWND mode_label = GetDlgItem(dialog, 1772);
 	SendMessageA(mode_label, OD_SETTEXTW, 0, (LPARAM)mode->UIName.text()); // RA2: as above
 	HWND scenario_label = GetDlgItem(dialog, IDC_SCENARIONAME);
@@ -4435,7 +4453,8 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 		Lobby_Chat_Printf(-1, L"Gameopt parse failed"); // RA2: as above
 	}
 	{
-		for (char *name = strtok(NULL, ",:"); name != NULL; name = strtok(NULL, ",:")) { // RA2: as above
+		for (token = strtok(NULL, ",:"); token != NULL; token = strtok(NULL, ",:")) {
+			char *name = token; // level-2 1.001: STEERING retain the name while the tokenizer advances through country and color
 			if (strcmp(name, "@") == 0) { // RA2: as above
 				break; // RA2: as above
 			}
@@ -4460,7 +4479,11 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 			if (_stricmp(name, Session.Handle) == 0) { // RA2: as above
 				IsColorChangePending = 0; // RA2: as above
 			}
-			if (g_pChat != NULL && Assign_House_And_Color(name, country, color) != 0) { // level-2 1.001: implicit conversion of the name
+			int assigned = 0; // level-2 1.001: STEERING preserve the integer return value through temporary destruction
+			if (g_pChat != NULL) {
+				assigned = Assign_House_And_Color(name, country, color); // level-2 1.001: STEERING save the result before the temporary name is destroyed
+			}
+			if (assigned != 0) {
 				changed = true; // RA2: as above
 			} else if (g_pChat == 0 && Net2SetHouseAndColor(name, country, color) != 0) { // RA2: as above
 				changed = true; // RA2: as above

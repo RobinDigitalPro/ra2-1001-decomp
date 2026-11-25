@@ -46602,6 +46602,12 @@
   "name": "MapClass::Repair_Bridge"
  },
  {
+  "rva": "0x1539b0",
+  "tu": "src/m85/src/map.cpp",
+  "symbol": "?Destroy_Bridge2_Near@MapClass@@QAEXABVCell@@@Z",
+  "name": "MapClass::Destroy_Bridge2_Near"
+ },
+ {
   "rva": "0x153fc0",
   "tu": "src/m85/src/map.cpp",
   "symbol": "?Is_Bridge_Span_End@@YI_NHHPBVCellClass@@@Z",

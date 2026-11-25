@@ -11287,14 +11287,17 @@ int OwnerDraw::Default_Dialog_Proc(HWND window, UINT message, WPARAM wparam, LPA
     case WM_NCHITTEST: {
         HWND status = GetDlgItem(window, 0x695);
         if (status) {
-            unsigned int x = LOWORD(lparam);
             unsigned int y = HIWORD(lparam);
-            RECT bounds;
-            GetWindowRect(window, &bounds);
-            LONG local_x = x - bounds.left; // level-2 1.001: STEERING separate point coordinates across WideWstring construction.
-            LONG local_y = y - bounds.top;
+            unsigned int x = LOWORD(lparam);
+            // level-2 1.001: STEERING keep the converted point live and release bounds before text construction.
+            POINT local = { x, y };
+            {
+                RECT bounds;
+                GetWindowRect(window, &bounds);
+                local.x -= bounds.left;
+                local.y -= bounds.top;
+            }
             WideWstring text;
-            POINT local = { local_x, local_y };
             HWND item = ChildWindowFromPointEx(window, local, CWP_SKIPINVISIBLE);
             if (item) {
                 text = Get_Item_Tip_Text_At(window, item, x, y);

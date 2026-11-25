@@ -483,7 +483,8 @@ inline bool Spark_Ballistic_Step(Vector3 & position, Vector3 & velocity, double 
 	}
 
 	bool blocked = false;
-	if (!start_under_bridge && !end_under_bridge) {
+	// level-2 1.001: STEERING keep the bridge crossing flags live in this order.
+	if (!end_under_bridge && !start_under_bridge) {
 		if (position.Z >= (double)height_gl && position.Z - 150.0f < (double)height_gl) {
 			BuildingClass * building = cellptr->Cell_Building();
 			if (building || cellptr->Has_Wall_Or_Gate()) {
@@ -496,8 +497,6 @@ inline bool Spark_Ballistic_Step(Vector3 & position, Vector3 & velocity, double 
 						blocked = false;
 					}
 				}
-			} else {
-				blocked = false;
 			}
 		}
 	}
@@ -506,7 +505,7 @@ inline bool Spark_Ballistic_Step(Vector3 & position, Vector3 & velocity, double 
 		if (start_under_bridge) {
 			position.Z = height_bridge;
 		} else if (end_under_bridge) {
-			position.Z = height_gl + BRIDGE_LEPTON_HEIGHT - 20; // level-2 1.001: STEERING retain ground height through the obstacle checks.
+			position.Z = height_bridge - 20;
 		} else if ((float)(height_gl - 100) < position.Z) {
 			position.Z = (float)height_gl;
 		}
@@ -514,8 +513,7 @@ inline bool Spark_Ballistic_Step(Vector3 & position, Vector3 & velocity, double 
 		slope_matrix = Get_Slope_Matrix(TacticalMap->Get_Cell_Ramp(coord2));
 		Matrix3D slope_matrix_inv;
 		slope_matrix_inv = Matrix3D::Orthogonal_Inverse(slope_matrix);
-		Vector3 vec = velocity; // level-2 1.001: STEERING copy before reflecting Y to recover the early frame layout.
-		vec.Y = -vec.Y;
+		Vector3 vec(velocity.X, -velocity.Y, velocity.Z);
 		vec = slope_matrix_inv.Rotate_Vector(vec);
 		vec *= elasticity; // level-2 1.001: STEERING preserve the original vector scale call for unit elasticity.
 		vec.Z = -vec.Z;
@@ -537,6 +535,7 @@ inline bool Spark_Ballistic_Step(Vector3 & position, Vector3 & velocity, double 
 void ParticleClass::Spark_Behavior_AI(void)
 {
 	Coord coord = PositionCoord;
+	coord = Coord(coord.X, coord.Y, coord.Z); // level-2 1.001: STEERING reconstruct the current position before the ballistic step to retain both Coord calls.
 	MovementDirection.Z -= Rule->Gravity;
 	Vector3 velocity(MovementDirection.X, MovementDirection.Y, MovementDirection.Z);
 	Vector3 position(coord.X, coord.Y, coord.Z);
