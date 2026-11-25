@@ -4170,7 +4170,12 @@ void __fastcall Update_Observer_Buttons(HWND dialog) // RA2: 0x005CD540, not in 
 }
 
 
-bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // level-2 1.001: STEERING (local order / control-flow shape). RA2: 0x005C3FF0, replaces TibSun's DecodePubGameopt; the executable decodes every kind of game options string (Z, O, A, C, L, G, K, P and the host's full options) and returns true when the scenario changed
+void __fastcall Enable_Slot_Controls(HWND dialog, int slot, bool enabled);
+void __fastcall Set_Player_Has_Scenario(char const * name, int state);
+void __fastcall Update_Slot_Count(HWND dialog, int old_count, int count, MultiplayerGameMode * mode);
+int __fastcall Set_Player_Side_Color(char const * name, int country, int color);
+
+bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // level-2 1.001: STEERING (local order / control-flow shape). RA2 1.001: 0x005BEAF0. Handles A, C, L, G, K and the host's full options; returns true when the scenario changed.
 {
 	static int _last_game_speed = -1; // RA2: 0x007E6DD8, the previous options are kept in function statics: three ints in the data segment
 	static int _last_credits = -1; // RA2: 0x007E6DDC
@@ -4293,12 +4298,12 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 				for (int i = 0; i < 8; i++) { // RA2: as above
 					HWND control = GetDlgItem(dialog, Get_Slot_Control_Id(i));
 					EnableWindow(control, FALSE); // RA2: as above
-					Update_Slot_Controls(dialog, i, false); // RA2: as above
+					Enable_Slot_Controls(dialog, i, false); // RA2: as above
 				}
 				int (__fastcall *lookup)(int) = Get_Slot_Control_Id; // level-2 1.001: STEERING retain the separate slot-control lookup
 				HWND control = GetDlgItem(dialog, lookup(slot));
 				EnableWindow(control, TRUE); // RA2: as above
-				Update_Slot_Controls(dialog, slot, true); // RA2: as above
+				Enable_Slot_Controls(dialog, slot, true); // RA2: as above
 				Select_Player_Side(dialog, Session.LocalSlot); // RA2: as above
 				Select_Player_Color(dialog, Session.LocalSlot); // RA2: as above
 			}
@@ -4327,7 +4332,7 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 				state = 1;
 				break;
 			}
-			Set_Player_Map_State(sender, state);
+			Set_Player_Has_Scenario(sender, state);
 		}
 		free(copy); // RA2: as above
 		return(false); // RA2: as above
@@ -4419,7 +4424,7 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 	}
 	MultiplayerGameMode *mode = MultiplayerGameMode::Get(Session.Options.MPModeIndex); // RA2: as above
 	if (dialog_id == IDD_MPLAYER_GUEST || dialog_id == IDD_WOL_GUEST) { // RA2: as above
-		Change_Slot_Count(GameoptWindow(), old_count, Session.ScenarioMaxPlayers, // RA2: as above
+		Update_Slot_Count(GameoptWindow(), old_count, Session.ScenarioMaxPlayers, // RA2: as above
 			mode); // RA2: as above
 	}
 	bool found = true; // RA2: as above
@@ -4531,7 +4536,7 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 			}
 			if (assigned != 0) {
 				changed = true; // RA2: as above
-			} else if (g_pChat == 0 && Net2SetHouseAndColor(name, country, color) != 0) { // RA2: as above
+			} else if (g_pChat == 0 && Set_Player_Side_Color(name, country, color) != 0) { // RA2: as above
 				changed = true; // RA2: as above
 			}
 		}

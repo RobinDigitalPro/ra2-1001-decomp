@@ -8935,7 +8935,8 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			if (GetUpdateRect(window, &update, FALSE)) { // level-2 1.001: as above
 				int count = SendMessageA(window, LB_GETCOUNT, 0, 0); // level-2 1.001: as above
 				LONG style = GetWindowLongA(window, GWL_STYLE); // level-2 1.001: as above
-				for (int row = SendMessageA(window, LB_GETTOPINDEX, 0, 0); row < count; row++) { // level-2 1.001: as above
+				for (int position = SendMessageA(window, LB_GETTOPINDEX, 0, 0); position < count; ++position) { // level-2 1.001: STEERING keep the row index separate from the cell byte offset.
+					const int row = position; // level-2 1.001: STEERING use the signed index for both bounds checks.
 					RECT item; // level-2 1.001: as above
 					if (SendMessageA(window, LB_GETITEMRECT, row, (LPARAM)&item) == LB_ERR) { // level-2 1.001: as above
 						continue;

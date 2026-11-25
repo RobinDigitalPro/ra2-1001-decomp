@@ -69395,6 +69395,12 @@
   "name": "dynamic initializer (GAMECONST.H static)"
  },
  {
+  "rva": "0x230f00",
+  "tu": "src/ra2/unnamed/TU_630D30.cpp",
+  "symbol": "?TU_630D30_routine_230F00@@YI_NPBVAircraftClass@@@Z",
+  "name": "TU_630D30_routine_230F00"
+ },
+ {
   "rva": "0x230f10",
   "tu": "src/m85/src/reinf.cpp",
   "symbol": "?Do_Reinforcements@@YI_NPBVTeamTypeClass@@H@Z",

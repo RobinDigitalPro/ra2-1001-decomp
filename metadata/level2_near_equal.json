@@ -571,6 +571,26 @@
    "verdict": "CODEGEN_ONLY",
    "evidence": "batch 76 (job a29c828f): Load_Lobby_Options: Set_Slot_Node restored (MEANING fixed); all 127 regions classified",
    "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x1ee640",
+   "symbol": "?List_Proc@OwnerDraw@@YGJPAUHWND__@@IIJ@Z",
+   "tu": "ownrdraw.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "batch 77 (job f415f739): List_Proc: all 972 regions statically equivalent under documented contracts",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x1beaf0",
+   "symbol": "?Net2DecodeGameopt@@YI_NPBD0@Z",
+   "tu": "netshare.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "batch 77 (job f415f739): Net2DecodeGameopt: all 176 regions statically equivalent (Session+0x14 and decoding fixes integrated)",
+   "meaning": "functionally equivalent per region classification; byte match still open"
   }
  ],
  "not_near_equal": [
