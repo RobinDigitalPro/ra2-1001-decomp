@@ -311,6 +311,46 @@
    "verdict": "CODEGEN_ONLY",
    "evidence": "batch 72 classification + batch 73 (job 35f8261f): all 18 undecided regions resolved as code generation; all 415 function bodies and relocation targets reproduced",
    "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x402b0",
+   "symbol": "BuildingClass::Exit_Object",
+   "tu": "building.cpp",
+   "diff_bytes": 1291,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): 119 regions proven: 95 previously undecided are CODEGEN_ONLY, 2 MEANING call bindings repaired and integrated, 22 CODEGEN_ONLY",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x292ef0",
+   "symbol": "?Place@SuperClass@@QAEXABVCell@@_N@Z",
+   "tu": "super.cpp",
+   "diff_bytes": 78,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 18 undecided regions CODEGEN_ONLY for gameplay; two constants with equal values live in distinct physical storage (binding detail for the end phase)",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x27370",
+   "symbol": "?Find_Path_Regular@AStarClass@@AAEPAUPathStruct@@ABVCell@@0PAVFootClass@@PAW4FacingType@@H_N@Z",
+   "tu": "astar.cpp",
+   "diff_bytes": 426,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 31 regions CODEGEN_ONLY, zero MEANING",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x21fa40",
+   "symbol": "?Extract_Compressed_Events@@YIHPAXH@Z",
+   "tu": "queue.cpp",
+   "diff_bytes": 595,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 94 regions CODEGEN_ONLY after operand-binding checks",
+   "meaning": "functionally equivalent per region classification; byte match still open"
   }
  ],
  "not_near_equal": [
