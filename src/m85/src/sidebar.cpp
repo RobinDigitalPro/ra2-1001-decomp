@@ -2522,7 +2522,8 @@ bool SidebarClass::StripClass::Recalc(void)
 		}
 
 		bool const can_scroll = got_old && BuildableCount != 0; // level-2 1.001: STEERING
-		if (can_scroll) {
+		// level-2 1.001: STEERING recheck the saved index before using it in the second scan.
+		if (can_scroll && oldpos < max_visible) {
 			bool got_new = false;
 			int newpos;
 			for (newpos = 0; newpos < BuildableCount; newpos++) {

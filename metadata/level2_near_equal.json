@@ -131,6 +131,26 @@
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch64g_*.md and batch60 target06 (jobs b81e4c73, 5d58f931): the 4 bytes are two independent stack reloads (EBX/start, EDI/closest) restored in swapped order at 0x220d4f; 68 builds kept the identical residue; gibbo's YR form does not transfer",
    "meaning": "functionally equivalent: order of two independent reloads (codegen only); original bug kept (fallback-walk rejection clears an already clear flag, gibbo BUGS.md); fix codegen in the end phase with the complete file linked"
+  },
+  {
+   "rva": "0x190670",
+   "symbol": "Projectile_Motion",
+   "tu": "missile.cpp",
+   "diff_bytes": 51,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch67_*.md (batch 67, job 6ee1000a): an eight-byte stack reservation moves across the coordinate copy and x87 calculation; neither uses ESP in between; controls and all emitted functions agree",
+   "meaning": "functionally equivalent: instruction order or stack-reservation placement only (codegen only); fix in the end phase with the complete file linked"
+  },
+  {
+   "rva": "0x480f0",
+   "symbol": "?Do_MISSION_MISSILE@BuildingClass@@QAEHXZ",
+   "tu": "building.cpp",
+   "diff_bytes": 10,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch67_*.md (batch 67, job 6ee1000a): one independent field load moves across a shift and push; controls and all emitted functions agree",
+   "meaning": "functionally equivalent: instruction order or stack-reservation placement only (codegen only); fix in the end phase with the complete file linked"
   }
  ],
  "not_near_equal": [
