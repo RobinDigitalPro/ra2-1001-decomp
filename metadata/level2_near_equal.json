@@ -301,6 +301,16 @@
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
+  },
+  {
+   "rva": "0x145970",
+   "symbol": "?Set_Map_Dimensions@MapClass@@UAEXABV?$TRect@H@@_NH1@Z",
+   "tu": "map.cpp",
+   "diff_bytes": 590,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "batch 72 classification + batch 73 (job 35f8261f): all 18 undecided regions resolved as code generation; all 415 function bodies and relocation targets reproduced",
+   "meaning": "functionally equivalent per region classification; byte match still open"
   }
  ],
  "not_near_equal": [

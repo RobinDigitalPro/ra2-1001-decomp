@@ -3178,9 +3178,6 @@ none: // RA2: as above
  *   04/10/1995 JLB : Handles building production by computer.                                 *
  *   06/17/1995 JLB : Handles refinery exit.                                                   *
  *=============================================================================================*/
-// level-2 1.001: the stub at 0x51F1C0 (it always answers false in this build); Exit_Object passes the house
-bool __fastcall Is_Storm_Grounding_Aircraft(HouseClass * house);
-
 int BuildingClass::Exit_Object(TechnoClass * base)
 {
 	if (!base) return(0);
@@ -3207,7 +3204,7 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 			House->Update_Production_Mode(RTTI_AIRCRAFT);
 			House->BuildAircraft = AIRCRAFT_NONE;
 
-			if (!HasFreeLink(base) && (!Is_Storm_Grounding_Aircraft(House) || air->Class->IsAirportBound)) {
+			if (!HasFreeLink(base) && (!House->Ion_Sensitives_Should_Be_Offline() || air->Class->IsAirportBound)) {
 				if (!air->Class->IsAirportBound) {
 
 					/*
@@ -3255,7 +3252,7 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 				air->Set_Height(0);
 				ScenarioInit++;
 
-				if (Is_Storm_Grounding_Aircraft(House)) {
+				if (House->Ion_Sensitives_Should_Be_Offline()) {
 					Cell nearby = air->Nearby_Location(this);
 					if (air->Unlimbo(Coord(nearby, 0), air->Pose_Dir())) {
 						ScenarioInit--;

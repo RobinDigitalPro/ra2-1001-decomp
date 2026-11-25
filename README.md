@@ -15,7 +15,7 @@ Our target binary is the GAME.EXE of an **old repack of Red Alert 2 1.001**, not
 | Byte-identical functions (claims) | 17,791 |
 | Share of `.text` reproduced (including identified library code) | 95.46 % |
 | Share of `.text` from our own source | 93.00 % |
-| Functionally equivalent near misses (codegen-only residue, `metadata/level2_near_equal.json`) | 30 |
+| Functionally equivalent near misses (codegen-only residue, `metadata/level2_near_equal.json`) | 31 |
 | Strict whole-executable link check | every claimed function placed at its original address |
 
 - A function counts as **matched** only when every byte outside relocations equals the original and every relocation is bound to the right target.

@@ -4439,7 +4439,7 @@ bool __fastcall Net2DecodeGameopt(char const * text, char const * sender) // lev
 	SendMessageA(scenario_label, OD_SETTEXTW, 0, (LPARAM)Session.Options.ScenarioDescription); // RA2: as above
 	Scen->Scenario = -1; // RA2: as above
 	Frame = 0; // RA2: as above
-	Session.TournamentState = 2; // RA2: as above
+	Session.CommProtocol = COMM_PROTOCOL_MULTI_E_COMP; // level-2 1.001: select multi-frame event compression
 	if (old_official != Session.ScenarioIsOfficial // RA2: as above
 		|| old_length != Session.ScenarioFileLength) { // RA2: as above
 		same = false; // RA2: as above

@@ -8221,7 +8221,13 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 
 		case OD_SUBCLASSED: {
 			int & heights_set = ((int *)data->Reserved_18)[1];
-			if (!heights_set || SendMessageA(window, CB_GETITEMHEIGHT, 0, 0) != data->Font->LineHeight + 6) { // level-2 1.001: +0x1C: the item heights are set
+			bool set_heights = !heights_set;
+			if (!set_heights) {
+				// level-2 1.001: the synchronous height query can change the font.
+				const int line_height = data->Font->LineHeight;
+				set_heights = SendMessageA(window, CB_GETITEMHEIGHT, 0, 0) != line_height + 6;
+			}
+			if (set_heights) {
 				SendMessageA(window, CB_SETITEMHEIGHT, (WPARAM)-1, data->Font->LineHeight + 2); // level-2 1.001: as above
 				SendMessageA(window, CB_SETITEMHEIGHT, 0, data->Font->LineHeight + 6); // level-2 1.001: as above
 				heights_set = 1; // level-2 1.001: as above
