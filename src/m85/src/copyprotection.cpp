@@ -62,6 +62,7 @@ void __fastcall DispatchLauncherMessage(MSG *msg)
 }
 
 // CopyProtection::CheckProtectedData
+// level-2 1.001: REPACK PATCH 0x917f0 The repack replaces the stack allocation with an immediate successful return.
 bool CheckProtectedData(void)
 {
 	DebugString("COPYPROTECTION - Validating\n");

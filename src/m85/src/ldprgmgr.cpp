@@ -529,7 +529,8 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 
 			wchar_t const * brief = Briefing(side); // RA2: the country's briefing is drawn in an area of its own
 			area = Get_Briefing_Area(); // level-2 1.001: STEERING reuse the country rectangle for the briefing.
-			point = Copy_Point((Point2D const *)&area); // RA2: as above
+			Point2D const briefing_origin(area.X, area.Y); // level-2 1.001: STEERING give the point copy a coordinate object at the briefing call.
+			point = Copy_Point(&briefing_origin); // level-2 1.001: STEERING preserve the point-return call and its result lifetime.
 			Shade_Text_Area(brief, ProgressSurface, point.X, point.Y, area.Width, 0, true); // RA2: as above
 			Draw_Area_Text(brief, ProgressSurface, area, pixel, 0); // RA2: as above
 		}

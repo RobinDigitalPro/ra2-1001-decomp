@@ -1,0 +1,57 @@
+{
+ "about": "In-place binary patches of the repack baseline (AGENTS rule 15). Each entry: rva, length, original_hex (our compile of the original 1.001 source), patched_hex (GAME.EXE), function, what, evidence. Applied after linking in the final build.",
+ "entries": [
+  {
+   "rva": "0x917f0",
+   "length": 3,
+   "original_hex": "83ec10",
+   "patched_hex": "b001c3",
+   "function": "CopyProtection::CheckProtectedData",
+   "what": "The repack replaces the validation routine’s 16-byte stack allocation with an immediate true return.",
+   "evidence": "The recovered C++ accounts for the complete 240-byte COFF contribution. All eleven relocated operands agree with independently resolved bindings. The three contiguous entry bytes are the only differences. See cp69-bindings.json for the whole-function hashes and offsets. Claude integration check 2026-11-25 (level2_check after batch 69, job 1f0418a1): the function differs from GAME.EXE in exactly these bytes and nowhere else; every relocation bound."
+  },
+  {
+   "rva": "0xd2058",
+   "length": 8,
+   "original_hex": "51ffd583f805751e",
+   "patched_hex": "c7012e5c00009090",
+   "function": "GetCDClass::GetCDClass",
+   "what": "Archive replaces the call through the cached drive-type import, its result comparison, and the conditional skip with a local constant store and two NOPs.",
+   "evidence": "Same eight-byte boundary; compiled and image fallback share the imported GetDriveTypeA slot. The next drive-recording block is identical. Claude integration check 2026-11-25 (level2_check after batch 69, job 1f0418a1): the function differs from GAME.EXE in exactly these bytes and nowhere else; every relocation bound."
+  },
+  {
+   "rva": "0xd2084",
+   "length": 2,
+   "original_hex": "7eca",
+   "patched_hex": "9090",
+   "function": "GetCDClass::GetCDClass",
+   "what": "Two NOPs occupy the primary drive loop back edge.",
+   "evidence": "The preceding increment and compare and the subsequent field reload are intact; the archive does not consume the compare flags. Claude integration check 2026-11-25 (level2_check after batch 69, job 1f0418a1): the function differs from GAME.EXE in exactly these bytes and nowhere else; every relocation bound."
+  },
+  {
+   "rva": "0xd208b",
+   "length": 1,
+   "original_hex": "75",
+   "patched_hex": "eb",
+   "function": "GetCDClass::GetCDClass",
+   "what": "The archive changes the post-loop conditional branch to an unconditional branch with its original destination.",
+   "evidence": "Displacement remains identical; the count test and entire fallback body are still present. Only the opcode differs. Claude integration check 2026-11-25 (level2_check after batch 69, job 1f0418a1): the function differs from GAME.EXE in exactly these bytes and nowhere else; every relocation bound."
+  }
+ ],
+ "functions": [
+  {
+   "rva": "0x917f0",
+   "symbol": "?CheckProtectedData@CopyProtection@@YI_NXZ",
+   "tu": "src/m85/src/copyprotection.cpp",
+   "status": "MATCHED_WITH_REPACK_PATCH",
+   "differing_bytes": 3
+  },
+  {
+   "rva": "0xd2010",
+   "symbol": "??0GetCDClass@@QAE@XZ",
+   "tu": "src/m85/src/getcd.cpp",
+   "status": "MATCHED_WITH_REPACK_PATCH",
+   "differing_bytes": 11
+  }
+ ]
+}

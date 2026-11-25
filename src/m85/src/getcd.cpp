@@ -24,6 +24,7 @@
 /// that turn out to be CD-ROM drives. The disc searching code walks this list when it
 /// hunts for the game CD, so an empty list means there is nowhere to look.
 /// </summary>
+// level-2 1.001: REPACK PATCH 0xd2058 drive query, 0xd2084 loop edge, 0xd208b fallback branch.
 GetCDClass::GetCDClass(void)
 {
 	char path[] = "a:\\";
