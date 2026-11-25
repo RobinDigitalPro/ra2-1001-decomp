@@ -595,8 +595,6 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 			rot *= 1.5;
 		}
 
-		Coord old_coord = coord;
-
 		/*
 		 * A projectile chasing an aircraft flies straight at its quarry rather
 		 * than hugging the terrain on the way, since there is no ground between
@@ -607,6 +605,7 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 			is_aircraft = TarCom->RTTI == RTTI_AIRCRAFT;
 		}
 
+		Coord old_coord = coord; // level-2 1.001: STEERING place the snapshot next to the motion call
 		DirType heading((Dir256)(IsLaunching ? 0 : rot)); // level-2 1.001: STEERING materialize the launch heading before the motion call
 		distance = Projectile_Motion(coord, velocity, target_coord, heading, is_aircraft, Class->IsAirburst, Class->IsVeryHigh, Class->Level); // RA2: the eighth argument (BulletTypeClass +0x26D) is pushed at 0x0045FD0E; level-2 1.001: STEERING materialize motion inputs before the coordinate update
 		CellClass * cellptr = &Map[coord];
@@ -761,8 +760,8 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 		target_cell = TargetCoords.As_Cell(); // level-2 1.001: STEERING order the two cell temporaries before collision checks
 		Cell cell = coord.As_Cell();
 		if (cell == target_cell && !Class->Vertical && HeightAGL < LEVEL_LEPTON_H * 2) {
+			forced = true; // level-2 1.001: STEERING order the independent impact locals
 			impact = IMPACT_NORMAL;
-			forced = true;
 			collided = true;
 		} else {
 			CellClass * cellptr = &Map[cell];
@@ -770,8 +769,8 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 			BuildingClass * building = cellptr->Cell_Building();
 			BuildingClass * target_building = target_cellptr->Cell_Building();
 			if (building != NULL && !Class->Vertical && building == target_building && HeightAGL < LEVEL_LEPTON_H * 2) {
+				forced = true; // level-2 1.001: STEERING order the independent impact locals
 				impact = IMPACT_NORMAL;
-				forced = true;
 				collided = true;
 			} else {
 				/*
@@ -784,8 +783,8 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 				bool is_ally = techno != NULL && Payback != NULL && Payback->House->Is_Ally(techno);
 				bool is_close = techno != NULL && coord.Distance_To(techno->PositionCoord) < CELL_LEPTON / 2; // level-2 1.001: through the Get_Coord copy
 				if (!is_payback && !is_ally && is_close) {
+					forced = true; // level-2 1.001: STEERING order the independent impact locals
 					impact = IMPACT_NORMAL;
-					forced = true;
 					if (!Class->IsInaccurate) {
 						coord = techno->Position;
 					}
@@ -877,7 +876,7 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 			if (Class->ROT > 0 || Class->IsFueled) { // level-2 1.001: STEERING order impact tests to retain the recovered case layout
 				fuse = Fuse.Fuse_Checkup(coord); // level-2 1.001: STEERING order impact tests to retain the recovered case layout
 			} // level-2 1.001: fueled projectiles check the fuse too
-			if (fuse == FUSE_EXPLODE_FAR && Payback != NULL && Payback->TClass->JumpJet) { // level-2 1.001: shots of a jump jet go off close; level-2 1.001: STEERING order impact tests to retain the recovered case layout
+			if (Payback != NULL && Payback->TClass->JumpJet && fuse == FUSE_EXPLODE_FAR) { // level-2 1.001: shots of a jump jet go off close; level-2 1.001: STEERING order impact tests to retain the recovered case layout
 				fuse = FUSE_EXPLODE_CLOSE;
 			}
 			if (!forced && (fuse == FUSE_WAIT || Class->IsDropping)) { // level-2 1.001: STEERING order impact tests to retain the recovered case layout
