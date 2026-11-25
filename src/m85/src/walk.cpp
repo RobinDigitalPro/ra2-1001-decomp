@@ -224,7 +224,7 @@ void STDMETHODCALLTYPE WalkLocomotionClass::Force_Immediate_Destination(CoordStr
 // level-2 1.001: INFERRED adjacent coordinate with preserved Z.
 static inline Coord Walk_Adjacent(Coord const & start, Point2D const & offset)
 {
-	return Coord(Point2D(start.X, start.Y) + offset, start.Z);
+	return Point3D(Point2D(start.X, start.Y) + offset, start.Z); // level-2 1.001: STEERING construct the projected base point before converting to Coord.
 }
 
 void WalkLocomotionClass::Movement_AI(bool first_pass)
@@ -335,7 +335,8 @@ void WalkLocomotionClass::Movement_AI(bool first_pass)
 			} else {
 
 				FootClass * const adjacent_foot = LinkedTo;
-				Coord coord = Walk_Adjacent(adjacent_foot->Get_Coord(), AdjacentPoint[(int)dir & 7]);
+				Point2D const & offset = AdjacentPoint[(int)dir & 7]; // level-2 1.001: STEERING give the adjacent offset a separate lifetime.
+				Coord coord = Walk_Adjacent(adjacent_foot->Get_Coord(), offset);
 				Cell cell = coord;
 
 				if (adjacent_foot->IsOnBridge ^ Map[Adjacent_Cell(adjacent_foot->Get_Coord(), dir)].IsUnderBridge) {

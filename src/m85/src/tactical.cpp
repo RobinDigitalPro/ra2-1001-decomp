@@ -2593,10 +2593,12 @@ void Tactical::Draw_Tiles(Cell const & cell, Rect const & cliprect)
 					overlap = true;
 				}
 
-				if (cellptr->Elevation > 0 && !draw) {
+				int elevation = cellptr->Elevation;
+				if (elevation > 0 && !draw) {
 					int diff = height - level; // level-2 1.001: 0x29dba0 tests height - level (col 0/2) and height - level + 1 (col 1)
 					if (col != 1) {
-						if (diff < 0 && cellptr->Elevation + diff >= 0) {
+						// level-2 1.001: STEERING spell out the height interval in levels.
+						if (height < level && elevation >= level - height) {
 							draw = true;
 						} else {
 							draw = overlap;
@@ -2605,7 +2607,7 @@ void Tactical::Draw_Tiles(Cell const & cell, Rect const & cliprect)
 						draw = overlap;
 					} else {
 						draw = true;
-						if (cellptr->Elevation + diff + 1 <= 0) {
+						if (elevation + diff + 1 <= 0) {
 							draw = overlap;
 						}
 					}
@@ -4161,7 +4163,8 @@ void Tactical::Draw_Radial_Indicators(void)
 
 	// RA2: the rest of 0x6AC420: while the placement cursor carries a building with a radial range, its range ring pulses and the nearest like building in reach is marked
 	// level-2 1.001: the early return, the nested range test, the named zone cell, int distances and separate loop counters follow gibbo101/ra2-decomp src/tactical.cpp @719fcc7 (YR 0x6DBE20, GPL-3.0-or-later); this gives the 1.001 frame (0x38) and slots. Still open: 1.001 keeps 0 in ebx up to the ring call
-	if (!Options.ActionLines) return; // RA2: Options byte +0x1A, tested at 0x6AC474
+	bool actionLinesOff = !Options.ActionLines; // level-2 1.001: STEERING retain the option result through the ring call
+	if (actionLinesOff) return; // level-2 1.001: STEERING only the enabled path reaches the ring; RA2: Options byte +0x1A, tested at 0x6AC474
 	BuildingClass * pending = (BuildingClass *)Map.PendingObjectPtr; // RA2: the object on the placement cursor (0x833680)
 	if (pending && pending->Fetch_RTTI() == RTTI_BUILDING) {
 		if (pending->GetRadialIndicatorRange() > 0) { // RA2: 0x451930 is called twice
@@ -4170,13 +4173,14 @@ void Tactical::Draw_Radial_Indicators(void)
 			static RGBClass black(0, 0, 0); // RA2: function-local static with a guard bit, 0xABE54C
 			static int pulse = 0; // RA2: 0xABFD78
 			static int pulse_dir = 1; // RA2: 0x7F6974
-			pulse += pulse_dir * 10; // RA2: the ring color pulses 0..100
-			if (pulse >= 100) pulse_dir = -1; // RA2: as above
-			else if (pulse <= 0) pulse_dir = 1; // RA2: as above
+			pulse += pulse_dir * 10;
+			if (pulse <= 0 || pulse >= 100) { // level-2 1.001: STEERING share the two pulse endpoints
+				pulse_dir = pulse <= 0 ? 1 : -1; // level-2 1.001: STEERING select the inward direction at either endpoint
+			}
 			RGBClass color = pending->House->RemapColorRGB; // RA2: house color at +0x55E9
 			color.Adjust(pulse, black); // RA2: as above
 			int range = pending->GetRadialIndicatorRange(); // RA2: as above
-			Draw_Radial_Ellipse(range, false, center, color, true, false); // RA2: 0x451BF0 with these flags
+			Draw_Radial_Ellipse(range, false, center, color, true, actionLinesOff); // level-2 1.001: STEERING reuse the checked false option; RA2: 0x451BF0 with these flags
 			int nearest = 0x7FFFFFFF; // RA2: first pass finds the shortest distance within twice the range
 			int houses = PlayerPtr->Buildings.Count(); // RA2: read once, for both passes (0x6AC5B8)
 			for (int j = 0; j < houses; j++) { // RA2: as above

@@ -1200,7 +1200,9 @@ void Combatant_Select_Command(bool clear)
         }
     }
     Selection_Scope_Message(buffer);
-    Show_Command_Message(buffer);
+    // level-2 1.001: STEERING Dispatch the message through its original out-of-line helper.
+    void (*show)(wchar_t const *, int) = Show_Command_Message;
+    show(buffer, -1);
     delete list;
     LastCommand = 1;
     AttackMoveArmed = false;

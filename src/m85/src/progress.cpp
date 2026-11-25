@@ -436,6 +436,39 @@ void ProgressScreenClass::Draw_Name(Point2D pt, wchar_t const * name, ColorSchem
 }
 
 
+// level-2 1.001: INFERRED Construct the rectangle at the player-row blit boundary.
+static inline Rect Player_Flag_Rect(Point2D pt, int w, int h)
+{
+	return Rect(pt.X, pt.Y, w, h);
+}
+
+// level-2 1.001: INFERRED Build the magenta transparency key for the flag.
+static inline short Player_Flag_Key()
+{
+	return (short)DSurface::Build_Hicolor_Pixel(255, 0, 255);
+}
+
+// level-2 1.001: INFERRED Check the destination surface before drawing the flag.
+static inline void Draw_Player_Transparent(Rect const & rect, Surface * flag, short trans)
+{
+	if (HiddenSurface != NULL && !((DSurface *)HiddenSurface)->Is_Lost()) {
+		SurfaceCache.DrawTrans(rect, *HiddenSurface, *flag, trans);
+	}
+}
+
+// level-2 1.001: INFERRED measure and draw the player flag.
+static inline void Draw_Player_Flag(ProgressScreenClass * screen, Point2D pt, Surface * flag)
+{
+	int width = 0;
+	int height = 0;
+	// level-2 1.001: STEERING retain the flag size call boundary.
+	void (ProgressScreenClass::*measure)(int *, int *) = &ProgressScreenClass::Flag_Size;
+	(screen->*measure)(&width, &height);
+	Rect rect = Player_Flag_Rect(pt, width, height);
+	short trans = (short)Player_Flag_Key();
+	Draw_Player_Transparent(rect, flag, trans);
+}
+
 /// <summary>
 /// RA2: draws a player's row: the bar, the country flag (when shown; the observer's in a network game) and the
 /// name.
@@ -462,26 +495,27 @@ void ProgressScreenClass::Draw_Player(ColorScheme * scheme, wchar_t const * name
 	int bary = Bar_Offset(flags);
 	barpt.X += 5;
 	bary += y;
-	Point2D itempt(pt.X + barwidth + 15, pt.Y);
+	Point2D itempt(pt.X, pt.Y);
+	itempt.X += barwidth + 15;
 	Point2D flagpt = itempt;
 	if (flags) {
 		flagpt.Y = y + Flag_Offset(flags);
 	}
 	Point2D namept = itempt;
-	int textoffset = y + Text_Offset(flags);
+	int textoffset = Text_Offset(flags);
 	if (flags) {
 		int flagwidth;
 		int flagheight;
 		Flag_Size(&flagwidth, &flagheight);
 		namept.X = itempt.X + flagwidth + 10;
 	}
-	namept.Y = textoffset;
+	namept.Y = y + textoffset;
 	Draw_Bar(Point2D(barpt.X, bary), fraction, HiddenSurface, scheme);
 	if (flags) {
 		int country = Session.Players[player]->Get_Country();
 		Surface * image = Country_Flag(country);
 		if (image != NULL) {
-			Draw_Flag(flagpt, image);
+			Draw_Player_Flag(this, flagpt, image);
 		}
 	}
 	Draw_Name(namept, name, scheme, pt.X - namept.X + width - 3);

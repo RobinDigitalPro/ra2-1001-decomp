@@ -1260,7 +1260,8 @@ void MapClass::Set_Map_Dimensions(Rect const & rect, bool reset_cells, int cell_
 
 			Cell dcell = c->Fetch_CellID();
 			if (c != NULL) {
-				*c = *cptr;
+				CellClass const &from = *cptr; // level-2 1.001: STEERING keep the restore source alive through assignment.
+				*c = from;
 				c->Set_CellID(dcell);
 			}
 		}
@@ -1349,17 +1350,17 @@ void MapClass::Set_Map_Dimensions(Rect const & rect, bool reset_cells, int cell_
 		}
 
 		Reset_Iterator();
-		cptr = Iterate();
-		while (cptr != NULL) {
-			if (cptr->IsBridgeDeck && cptr->BridgeDeckCell == NULL) {
-				FacingType facing = cptr->IsBridgeEastWest ? FACING_N : FACING_E;
-				if (cptr->Overlay == OVERLAY_BRIDGE1 || cptr->Overlay == OVERLAY_BRIDGE2) {
-					cptr->Set_Under_Bridge(facing);
+		CellClass *iter = Iterate(); // level-2 1.001: STEERING scope bridge repair to its own iterator.
+		while (iter) {
+			if (iter->IsBridgeDeck && iter->BridgeDeckCell == NULL) {
+				FacingType facing = iter->IsBridgeEastWest ? FACING_N : FACING_E;
+				if (iter->Overlay == OVERLAY_BRIDGE1 || iter->Overlay == OVERLAY_BRIDGE2) {
+					iter->Set_Under_Bridge(facing);
 				} else {
-					cptr->Set_Under_Rail_Bridge(facing);
+					iter->Set_Under_Rail_Bridge(facing);
 				}
 			}
-			cptr = Iterate();
+			iter = Iterate();
 		}
 
 		if (refresh_map) {

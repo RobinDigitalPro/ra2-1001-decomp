@@ -226,7 +226,12 @@ extern int WDTSetting_A25604;               // 0xa25604
 extern int WDTSetting_A25608;               // 0xa25608
 
 // 16-bit pixel from RGB components with the shifts of BLIT.H (as in LdPrgMgr.cpp).
-inline unsigned RGB_To_Pixel(int red, int green, int blue)
+// level-2 1.001: STEERING split packed channels before font colour conversion.
+static inline unsigned Red_Component(int color) { return color & 255; }
+static inline unsigned Green_Component(int color) { return (color >> 8) & 255; }
+static inline unsigned Blue_Component(int color) { return (color >> 16) & 255; }
+
+inline int RGB_To_Pixel(int red, int green, int blue)
 {
     return ((red >> BlitFormat.RedShiftLeft) << BlitFormat.RedShiftRight)
         | ((green >> BlitFormat.GreenShiftLeft) << BlitFormat.GreenShiftRight)
@@ -586,6 +591,7 @@ public:
 // RTTI .?AVCampaign@WorldDominationTour@@, vtable 0x799e84. Only the members used here.
 class Campaign : public ReferenceCounted {
 public:
+    int Get_Faction() const { return Side; }
     int Map_Variant(int theater);           // 0x31af30
     int Stage(int theater);                 // 0x31af60
     void Finish_Review(int theater);        // 0x31af70
@@ -748,16 +754,22 @@ template class VectorClass<MSSfxEntry *>;
 
 using namespace WorldDominationTour;
 
+// level-2 1.001: STEERING share the source coordinate and filename lookup used by both buttons.
+static inline WideStringClass Selection_Text(char const * label, int line)
+{
+    return WideStringClass(Fetch_String(label, NULL, "C:\\RA2\\WDTSel.cpp", line));
+}
+
 // 0x322120
 #line 130 "C:\\RA2\\WDTSel.cpp"
 Selection::Selection(rc_ptr<WorldDominationTour::Campaign> const & campaign, int theater) :
     Campaign(campaign),
-    Voice(campaign->Side),
+    Voice(campaign->Get_Faction()),
     Aborted(false),
     LastMouse(-1, -1),
     LastStage(campaign->Properties->Last_Stage()),
     MouseState(-1),
-    Map(Map::Create(campaign->Properties->Is_Enabled(), theater, campaign->Side)),
+    Map(Map::Create(campaign->Properties->Is_Enabled(), theater, campaign->Get_Faction())),
     HoverID(-1),
     Palette(NULL),
     ZoomingTarget(NULL),
@@ -769,7 +781,9 @@ Selection::Selection(rc_ptr<WorldDominationTour::Campaign> const & campaign, int
     State(State::Create()),
     ThemeName(NULL)
 {
-    OldTextColor = TextFont->Set_Color(RGB_To_Pixel(WDTTextColor & 0xff, (WDTTextColor >> 8) & 0xff, (WDTTextColor >> 16) & 0xff));
+    int color = WDTTextColor;
+    int pixel = RGB_To_Pixel(Red_Component(color), Green_Component(color), Blue_Component(color));
+    OldTextColor = TextFont->Set_Color(pixel);
     Add_Anim(Voice.Create_Anim());
 
     CCFileClass file("WDTMAP.INI");
@@ -778,16 +792,16 @@ Selection::Selection(rc_ptr<WorldDominationTour::Campaign> const & campaign, int
     Load_Voice_Overs(ini, "VoiceOvers");
     Load_Sounds(ini, "SOUNDS");
     CharStringClass layout;
-    ini.Get_String("LAYOUTS", Int_To_String(Campaign->Properties->Is_Available()), NullString, layout);
+    ini.Get_String("LAYOUTS", Int_To_String(campaign->Properties->Is_Available()), NullString, layout);
     Load_Layout(ini, layout);
-    Map->Load(ini, *this, Campaign->Map_Variant(theater));
+    Map->Load(ini, *this, campaign->Map_Variant(theater));
 
-    WideStringClass play(Fetch_String("GUI:PlayWDT", NULL, __FILE__, __LINE__));
+    WideStringClass play(Selection_Text("GUI:PlayWDT", 157));
     MSBitPrintAnim * anim = new MSBitPrintAnim(play, Map->PlayRect, true);
     anim->Set_Centered(true);
     Add_Anim(anim);
 
-    WideStringClass back(Fetch_String("TXT_BACK", NULL, __FILE__, __LINE__));
+    WideStringClass back(Selection_Text("TXT_BACK", 164));
     anim = new MSBitPrintAnim(back, Map->BackRect, true);
     anim->Set_Centered(true);
     Add_Anim(anim);
