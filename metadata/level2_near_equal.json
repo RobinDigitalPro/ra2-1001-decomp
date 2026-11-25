@@ -351,6 +351,106 @@
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 94 regions CODEGEN_ONLY after operand-binding checks",
    "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x2bfe50",
+   "symbol": "?Fire_At@TechnoClass@@UAEPAVBulletClass@@PAVAbstractClass@@H@Z",
+   "tu": "techno.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Fire_At: batch 73 x87 rounding difference repaired for every signed 32-bit displacement (MEANING fixed); remaining regions CODEGEN_ONLY",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x312de0",
+   "symbol": "?Movement_AI@WalkLocomotionClass@@QAEX_N@Z",
+   "tu": "walk.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Movement_AI: all 128 regions CODEGEN_ONLY with operand-level proofs",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x16bd10",
+   "symbol": "?Split_Region@MapRegionClass@@QAE_NXZ",
+   "tu": "mapgen.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Split_Region: all 295 regions CODEGEN_ONLY",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0xebf50",
+   "symbol": "?Random_Cell_In_Zone@HouseClass@@QBE?AVCell@@W4ZoneType@@@Z",
+   "tu": "house.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Random_Cell_In_Zone: all 41 undecided regions CODEGEN_ONLY; switch ordinals and all gameplay actions agree; SOUTH/WEST entries 13/8 bytes shifted",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x38570",
+   "symbol": "Psychic_Detector_Covers_Techno",
+   "tu": "building.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Psychic_Detector_Covers_Techno: 20 undecided regions CODEGEN_ONLY after one source edit",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x203750",
+   "symbol": "?Smoke_AI@ParticleSystemClass@@AAEXXZ",
+   "tu": "partsys.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Smoke_AI: NEAR_EQUAL_CANDIDATE (batch 74 report)",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0xa68a0",
+   "symbol": "?Dropship_Screen@@YIXXZ",
+   "tu": "dropship.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Dropship_Screen: inline loadout commit restored; all 334 undecided regions CODEGEN_ONLY",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0xac360",
+   "symbol": "DSurface::Draw_Depth_Antialiased_Line",
+   "tu": "dsurface.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Draw_Depth_Antialiased_Line: NEAR_EQUAL_CANDIDATE (4421 incl. omitted bytes)",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x275a60",
+   "symbol": "?Recalc@StripClass@SidebarClass@@QAE_NXZ",
+   "tu": "sidebar.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): StripClass::Recalc: all 14 undecided regions CODEGEN_ONLY; redundant bounds check removed",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x2ebb60",
+   "symbol": "?Combatant_Select_Command@@YIX_N@Z",
+   "tu": "UICmnds.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Combatant_Select_Command: all 26 undecided regions CODEGEN_ONLY",
+   "meaning": "functionally equivalent per region classification; byte match still open"
   }
  ],
  "not_near_equal": [

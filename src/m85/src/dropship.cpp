@@ -941,7 +941,19 @@ void Dropship_Screen(void)
 	}
 
 	for (i = 0; i < selections.Count(); ++i) {
-		PlayerPtr->DropshipLoadouts[i / SLOT_PER_DROPSHIP].Add(selections[i]);
+		// level-2 1.001: The selected loadout update is inline at RVA 0xa8f25.
+		TechnoTypeClass *ttype = selections[i];
+		DropshipLoadoutClass &loadout = PlayerPtr->DropshipLoadouts[i / SLOT_PER_DROPSHIP];
+		if (loadout.EntryCount < SLOT_PER_DROPSHIP) {
+			int usage_index = Dropship_Allowable_Index(ttype);
+			if (usage_index == -1 || Scen->AllowableUnitCounts[usage_index] < Scen->AllowableUnitMaximums[usage_index]) {
+				loadout.Entries[loadout.EntryCount++] = ttype;
+				loadout.TotalCost += ttype->Raw_Cost();
+				if (usage_index != -1) {
+					Scen->AllowableUnitCounts[usage_index]++;
+				}
+			}
+		}
 	}
 
 	delete drawer_dropship;

@@ -2522,8 +2522,8 @@ bool SidebarClass::StripClass::Recalc(void)
 		}
 
 		bool const can_scroll = got_old && BuildableCount != 0; // level-2 1.001: STEERING
-		// level-2 1.001: STEERING recheck the saved index before using it in the second scan.
-		if (can_scroll && oldpos < max_visible) {
+		// A successful first scan leaves oldpos within the visible range.
+		if (can_scroll) {
 			bool got_new = false;
 			int newpos;
 			for (newpos = 0; newpos < BuildableCount; newpos++) {
@@ -2538,8 +2538,8 @@ bool SidebarClass::StripClass::Recalc(void)
 				int const row_shift = (oldpos - newpos) / 2; // level-2 1.001: STEERING
 				TopIndex = TopIndex - row_shift; // level-2 1.001: TopIndex counts rows of two
 				int const last_row = (BuildableCount - max_visible) / 2; // level-2 1.001: STEERING
-				int const limited = MIN(TopIndex, last_row); // level-2 1.001: STEERING evaluate the upper row bound once
-				TopIndex = MAX(0, limited);
+				// level-2 1.001: STEERING keep the donor clamp expression so VC6 repeats the signed upper bound.
+				TopIndex = MAX(0, MIN(TopIndex, last_row));
 			} else {
 				TopIndex = 0;
 			}

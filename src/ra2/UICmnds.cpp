@@ -1153,7 +1153,8 @@ static DynamicVectorClass<TechnoClass *> * Collect_Visible_Combatant_Candidates(
     int count = TacticalMap->Visible_Count();
     for (int index = 0; index < count; index++) {
         ObjectClass * object = TacticalMap->Visible_Object(index);
-        if (!Is_Techno(object)) {
+        // level-2 1.001: STEERING Test the complemented one-bit kind flag without spilling it to a byte local.
+        if (!object || (1 ^ object->Flag1) != 0) {
             continue;
         }
         TechnoClass * techno = (TechnoClass *)object;

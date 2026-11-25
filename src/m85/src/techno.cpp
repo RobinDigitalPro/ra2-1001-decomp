@@ -5021,8 +5021,9 @@ BulletClass * TechnoClass::Fire_At(AbstractClass * target, int which) // level-2
 				shot.X = displacement.X;
 				shot.Y = displacement.Y;
 				shot.Z = displacement.Z;
-				double x = shot.X, y = shot.Y, z = shot.Z;
-				float distance = (float)fastmath::sqrt(y * y + z * z + x * x);
+				double z = shot.Z, x = shot.X, y = shot.Y; // level-2 1.001: STEERING keep Z in x87 and round X and Y through their float slots.
+				y = y * y + z * z; // level-2 1.001: STEERING finish the Y/Z sum before adding X.
+				float distance = (float)fastmath::sqrt(y + x * x);
 				int spread = Scen->RandomNumber(0, Rule->BallisticScatter) * (int)distance / Weapon_Range(which);
 				DirType sdir(Random_Double(0.0, M_PI * 2));
 				displacement = Move_Coord(displacement, sdir, spread);

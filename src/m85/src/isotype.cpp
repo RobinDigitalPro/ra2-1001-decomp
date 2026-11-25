@@ -1920,6 +1920,7 @@ void IsometricTileTypeClass::Draw_Tile(LightConvertClass * drawer, int subtile, 
 											} while (run != 0);
 										}
 										zrow = &IsoDrawData.RowDepth[IsoDrawData.DepthWidth];
+										IsoDrawData.DepthPtr = zrow;
 										IsoDrawData.RowStartCol += ISO_DRAW_WIDTH;
 										IsoDrawData.RowRunLength += ISO_DRAW_WIDTH;
 									}
@@ -2344,7 +2345,7 @@ void IsometricTileTypeClass::Draw_Tile(LightConvertClass * drawer, int subtile, 
 									/*
 									 * Plain extra image (no depth), no wrapping.
 									 */
-									for (int row = 0; row < IsoDrawData.SpanHeight; ++row) {
+									for (int row = 0; row != IsoDrawData.SpanHeight && row < IsoDrawData.SpanHeight; ++row) { // level-2 1.001: STEERING test exact row completion before the signed height bound.
 										for (int col = 0; col < (int)IsoDrawData.SpanWidth; ++col) {
 											const int pixel = *(unsigned char *)IsoDrawData.SrcPixel; // level-2 1.001: STEERING retain the source intensity for the palette lookup.
 											if (pixel) {

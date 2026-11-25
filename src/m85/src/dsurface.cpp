@@ -1650,12 +1650,13 @@ bool DSurface::Draw_Depth_Antialiased_Line(Rect const & cliprect, Point2D const 
 					int cov = *abuffer;
 					if (z < *zbuffer) {
 						if (cov) {
+							// level-2 1.001: STEERING order independent gradient reads for this raster path.
 							int lidx = (int)((double)weight * intensity);
 							int oidx = (int)((double)otherweight * intensity);
 							lf = GradientTable[lidx];
+							int neighbor_background = GradientTable[256 - oidx]; // level-2 1.001: STEERING keep this gradient sample local to the pixel blend.
 							int line_background = GradientTable[256 - lidx]; // level-2 1.001: STEERING keep this gradient sample local to the pixel blend.
 							nf = GradientTable[oidx];
-							int neighbor_background = GradientTable[256 - oidx]; // level-2 1.001: STEERING keep this gradient sample local to the pixel blend.
 
 							RGBClass line = Deconstruct_Hicolor_Pixel(*(unsigned short *)((char *)buffer + 2 * xoff));
 							RGBClass neighbor = Deconstruct_Hicolor_Pixel(*(unsigned short *)((char *)buffer + neighoff));
@@ -1664,7 +1665,7 @@ bool DSurface::Draw_Depth_Antialiased_Line(Rect const & cliprect, Point2D const 
 							int outlr = line.Get_Red();
 							int outng = neighbor.Get_Green();
 							int outlg = line.Get_Green();
-							int outnb = neighbor.Get_Blue();
+							int outnb; // level-2 1.001: STEERING read the channel in its selected blend arm.
 							int outlb = line.Get_Blue();
 							if (blend_red) {
 								outlr = (cov * (red * nf + outlr * neighbor_background)) >> 15;
@@ -1676,7 +1677,9 @@ bool DSurface::Draw_Depth_Antialiased_Line(Rect const & cliprect, Point2D const 
 							}
 							if (blend_blue) {
 								outlb = (cov * (blue * nf + outlb * neighbor_background)) >> 15;
-								outnb = (cov * (blue * lf + outnb * line_background)) >> 15;
+								outnb = (cov * (blue * lf + neighbor.Get_Blue() * line_background)) >> 15; // level-2 1.001: STEERING read the channel in its selected blend arm.
+							} else {
+								outnb = neighbor.Get_Blue(); // level-2 1.001: STEERING read the channel in its selected blend arm.
 							}
 
 							int wb = min(255, outnb); // level-2 1.001: Westwood min() template
@@ -1749,12 +1752,13 @@ bool DSurface::Draw_Depth_Antialiased_Line(Rect const & cliprect, Point2D const 
 					int cov = *abuffer;
 					if (z < *zbuffer) {
 						if (cov) {
+							// level-2 1.001: STEERING order independent gradient reads for this raster path.
 							int lidx = (int)((double)weight * intensity);
 							int oidx = (int)((double)otherweight * intensity);
-							lf = GradientTable[lidx];
 							int line_background = GradientTable[256 - lidx]; // level-2 1.001: STEERING keep this gradient sample local to the pixel blend.
-							int neighbor_background = GradientTable[256 - oidx]; // level-2 1.001: STEERING keep this gradient sample local to the pixel blend.
 							nf = GradientTable[oidx];
+							int neighbor_background = GradientTable[256 - oidx]; // level-2 1.001: STEERING keep this gradient sample local to the pixel blend.
+							lf = GradientTable[lidx];
 
 							RGBClass line = Deconstruct_Hicolor_Pixel(*(unsigned short *)((char *)buffer + byteoff));
 							RGBClass neighbor = Deconstruct_Hicolor_Pixel(*(unsigned short *)((char *)buffer + byteoff + 2));
@@ -1763,7 +1767,7 @@ bool DSurface::Draw_Depth_Antialiased_Line(Rect const & cliprect, Point2D const 
 							int outnb = neighbor.Get_Blue();
 							int outnr = neighbor.Get_Red();
 							int outlr = line.Get_Red();
-							int outng = neighbor.Get_Green();
+							int outng; // level-2 1.001: STEERING read the channel in its selected blend arm.
 							int outlg = line.Get_Green();
 							if (blend_red) {
 								outlr = (cov * (red * lf + outlr * line_background)) >> 15;
@@ -1771,7 +1775,9 @@ bool DSurface::Draw_Depth_Antialiased_Line(Rect const & cliprect, Point2D const 
 							}
 							if (blend_green) {
 								outlg = (cov * (green * lf + outlg * line_background)) >> 15;
-								outng = (cov * (green * nf + outng * neighbor_background)) >> 15;
+								outng = (cov * (green * nf + neighbor.Get_Green() * neighbor_background)) >> 15; // level-2 1.001: STEERING read the channel in its selected blend arm.
+							} else {
+								outng = neighbor.Get_Green(); // level-2 1.001: STEERING read the channel in its selected blend arm.
 							}
 							if (blend_blue) {
 								outlb = (cov * (blue * lf + outlb * line_background)) >> 15;
@@ -1856,12 +1862,13 @@ bool DSurface::Draw_Depth_Antialiased_Line(Rect const & cliprect, Point2D const 
 					int cov = *abuffer;
 					if (z < *zbuffer) {
 						if (cov) {
+							// level-2 1.001: STEERING order independent gradient reads for this raster path.
 							int lidx = (int)((double)weight * intensity);
 							int oidx = (int)((double)otherweight * intensity);
 							lbk = GradientTable[256 - lidx];
 							int line_foreground = GradientTable[lidx]; // level-2 1.001: STEERING keep this gradient sample local to the pixel blend.
-							nbk = GradientTable[256 - oidx];
 							int neighbor_foreground = GradientTable[oidx]; // level-2 1.001: STEERING keep this gradient sample local to the pixel blend.
+							nbk = GradientTable[256 - oidx];
 
 							RGBClass line = Deconstruct_Hicolor_Pixel(*(unsigned short *)((char *)buffer + 2 * xoff));
 							RGBClass neighbor = Deconstruct_Hicolor_Pixel(*(unsigned short *)((char *)buffer + neighoff));
@@ -1960,12 +1967,13 @@ bool DSurface::Draw_Depth_Antialiased_Line(Rect const & cliprect, Point2D const 
 					int cov = *abuffer;
 					if (z < *zbuffer) {
 						if (cov) {
+							// level-2 1.001: STEERING order independent gradient reads for this raster path.
 							int lidx = (int)((double)weight * intensity);
 							int oidx = (int)((double)otherweight * intensity);
-							nbk = GradientTable[256 - oidx];
 							lbk = GradientTable[256 - lidx];
-							nf = GradientTable[oidx];
 							lf = GradientTable[lidx];
+							nbk = GradientTable[256 - oidx];
+							nf = GradientTable[oidx];
 
 							RGBClass line = Deconstruct_Hicolor_Pixel(*(unsigned short *)((char *)buffer + byteoff));
 							RGBClass neighbor = Deconstruct_Hicolor_Pixel(*(unsigned short *)((char *)buffer + byteoff + 2));

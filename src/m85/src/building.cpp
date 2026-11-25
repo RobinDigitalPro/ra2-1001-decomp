@@ -230,7 +230,8 @@ static inline bool Psychic_Target_In_Range(BuildingClass const * detector, Abstr
 {
 	Coord a = detector->Center_Coord();
 	Coord b = target->Center_Coord();
-	return(a.Distance_To(b) <= Cell_To_Lepton(detector->Class->PsychicDetectionRadius));
+	int distance = a.Distance_To(b);
+	return(distance <= Cell_To_Lepton(detector->Class->PsychicDetectionRadius));
 }
 
 bool __fastcall Psychic_Detector_Covers_Techno(TechnoClass const * techno) // level-2 1.001: 0x438570 (tactical.cpp calls it; name provisional); free function of the executable. Lifted from the 1.001 disassembly, not yet byte-identical; the inlining decisions and frame size match
