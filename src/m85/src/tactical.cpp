@@ -1302,7 +1302,7 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 		 * its action line as well.
 		 */
 		int count = Technos.Count();
-		for (int i = 0; i < count; i++) {
+		for (int i = 0; i < count;) { // level-2 1.001: STEERING advance on the owner exit and after the detector path to preserve the timer layout.
 			TechnoClass * techno = Technos[i];
 			if (techno->House->Is_Player_Control()) {
 				if (techno->IsSelected && !planning) { // level-2 1.001: STEERING - test the selected flag first.
@@ -1314,11 +1314,14 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 						capture->Draw_Link();
 					}
 				}
+				i++;
+				continue;
 			} else if (Psychic_Detector_Covers_Techno(techno)) {
 				if (techno->Is_Foot() && !techno->IsInLimbo) {
 					((FootClass *)techno)->Draw_Action_Line();
 				}
 			}
+			i++;
 		}
 
 		if (planning) {

@@ -277,33 +277,29 @@ inline Rect Name_Area(void) // level-2 1.001: STEERING construct the country rec
 /// <summary>
 /// The area of the name of the country's unit, 200 by 20 at the top, centred on screens past 800 by 600.
 /// </summary>
-inline Rect Unit_Area(void) // RA2: as above
+inline Rect Unit_Area(void) // level-2 1.001: STEERING initialize the unit rectangle before applying screen offsets.
 {
-	Rect area; // RA2: the result
-	if (VideoModeWidth == ScreenWidths[0]) { // RA2: the area depends on the screen size
-		area.X = 16; // RA2: as above
-		area.Y = 72; // RA2: as above
-	} else {
-		area.X = 20; // RA2: as above
-		area.Y = 90; // RA2: as above
+	Rect area(20, 90, 200, 20);
+	if (VideoModeWidth == ScreenWidths[0]) {
+		area.X = 16;
+		area.Y = 72;
 	}
-	area.Width = 200; // RA2: as above
-	area.Height = 20; // RA2: as above
-	if (VideoModeWidth >= ScreenWidths[1]) { // RA2: centred on screens past 800 by 600
-		area.X += (VideoModeWidth - ScreenWidths[1]) / 2; // RA2: as above
-		area.Y += (VideoModeHeight - ScreenHeights[1]) / 2; // RA2: as above
+	if (VideoModeWidth >= ScreenWidths[1]) {
+		area.X += (VideoModeWidth - ScreenWidths[1]) / 2;
+		area.Y += (VideoModeHeight - ScreenHeights[1]) / 2;
 	}
-	return area; // RA2: as above
+	return area;
 }
 
 /// <summary>
 /// Changes the lower case letters of a text to capitals, those of the Latin-1 letters from 0xE0 to 0xFE too.
 /// </summary>
-inline void Upper_Case(wchar_t * string) // RA2: as above
+inline void Upper_Case(wchar_t * string) // level-2 1.001: STEERING use an index for the unit label's case conversion.
 {
-	for (wchar_t * p = string; *p != 0; p++) { // RA2: every character of the text
-		if ((*p >= 'a' && *p <= 'z') || (*p >= 0xE0 && *p <= 0xFE)) { // RA2: a lower case letter
-			*p -= 0x20; // RA2: its capital is 32 below
+	for (int i = 0; string[i]; ++i) {
+		wchar_t ch = string[i];
+		if ((ch >= 'a' && ch <= 'z') || (ch >= 0xE0 && ch <= 0xFE)) {
+			string[i] = ch - 0x20;
 		}
 	}
 }
@@ -524,9 +520,9 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 			Upper_Case(unit_name); // RA2: as above
 			Rect unit_area = Unit_Area(); // level-2 1.001: STEERING keep the unit rectangle local to its draw.
 			RGBClass const & unit_color = BlackColor; // level-2 1.001: STEERING preserve the unit draw's color conversion.
-			unsigned short unit_pixel = DSurface::Build_Hicolor_Pixel(unit_color); // RA2: as above
+			int unit_pixel = DSurface::Build_Hicolor_Pixel(unit_color); // level-2 1.001: STEERING keep the packed color full-width until decoding.
 			RECT rect = { unit_area.X, unit_area.Y, unit_area.X + unit_area.Width, unit_area.Y + unit_area.Height }; // level-2 1.001: STEERING expand the unit label draw at its call site.
-			RGBClass rgb = DSurface::Deconstruct_Hicolor_Pixel(unit_pixel); // level-2 1.001: STEERING recover the label color from the surface pixel.
+			RGBClass rgb = DSurface::Deconstruct_Hicolor_Pixel(static_cast<unsigned short>(unit_pixel)); // level-2 1.001: STEERING recover the label color from the surface pixel.
 			Draw_Text_In_Rect_Ex(ProgressSurface, unit_name, &rect, BitFont::Instance,
 				rgb.Get_Red() | (rgb.Get_Green() << 8) | (rgb.Get_Blue() << 16),
 				0, 12, 0, 0, 0); // level-2 1.001: STEERING draw the unit label through the underlying font API.
