@@ -256,21 +256,22 @@ inline void Loading_Filename(char * filename, int side, char const * suffix) // 
 /// <summary>
 /// The area of the country's name, 200 by 20 at the bottom, centred on screens past 800 by 600.
 /// </summary>
-inline void Name_Area(Rect & area) // RA2: as above
+inline Rect Name_Area(void) // level-2 1.001: STEERING construct the country rectangle after centering its origin.
 {
+	int x;
+	int y;
 	if (VideoModeWidth == ScreenWidths[0]) { // RA2: the area depends on the screen size
-		area.X = 385; // RA2: as above
-		area.Y = 436; // RA2: as above
+		x = 385; // RA2: as above
+		y = 436; // RA2: as above
 	} else {
-		area.X = 533; // RA2: as above
-		area.Y = 545; // RA2: as above
+		x = 533; // RA2: as above
+		y = 545; // RA2: as above
 	}
-	area.Width = 200; // RA2: as above
-	area.Height = 20; // RA2: as above
 	if (VideoModeWidth >= ScreenWidths[1]) { // RA2: centred on screens past 800 by 600
-		area.X += (VideoModeWidth - ScreenWidths[1]) / 2; // RA2: as above
-		area.Y += (VideoModeHeight - ScreenHeights[1]) / 2; // RA2: as above
+		x += (VideoModeWidth - ScreenWidths[1]) / 2; // RA2: as above
+		y += (VideoModeHeight - ScreenHeights[1]) / 2; // RA2: as above
 	}
+	return Rect(x, y, 200, 20);
 }
 
 /// <summary>
@@ -513,8 +514,7 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 		int pixel = DSurface::Build_Hicolor_Pixel(pixel_color); // RA2: as above
 
 		wchar_t const * country_name = Country_Name(side); // RA2: the country's name sits at the bottom
-		Rect area; // RA2: as above
-		Name_Area(area); // RA2: as above
+		Rect area = Name_Area(); // level-2 1.001: STEERING receive the country rectangle by value.
 		point = Copy_Point((Point2D const *)&area); // RA2: as above
 		Shade_Text_Area(country_name, ProgressSurface, point.X, point.Y, area.Width, 2, false); // RA2: as above
 		Draw_Area_Text(country_name, ProgressSurface, area, pixel, 2); // RA2: as above
@@ -525,7 +525,11 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 			Rect unit_area = Unit_Area(); // level-2 1.001: STEERING keep the unit rectangle local to its draw.
 			RGBClass const & unit_color = BlackColor; // level-2 1.001: STEERING preserve the unit draw's color conversion.
 			unsigned short unit_pixel = DSurface::Build_Hicolor_Pixel(unit_color); // RA2: as above
-			Draw_Area_Text(unit_name, ProgressSurface, unit_area, unit_pixel, 0); // RA2: as above
+			RECT rect = { unit_area.X, unit_area.Y, unit_area.X + unit_area.Width, unit_area.Y + unit_area.Height }; // level-2 1.001: STEERING expand the unit label draw at its call site.
+			RGBClass rgb = DSurface::Deconstruct_Hicolor_Pixel(unit_pixel); // level-2 1.001: STEERING recover the label color from the surface pixel.
+			Draw_Text_In_Rect_Ex(ProgressSurface, unit_name, &rect, BitFont::Instance,
+				rgb.Get_Red() | (rgb.Get_Green() << 8) | (rgb.Get_Blue() << 16),
+				0, 12, 0, 0, 0); // level-2 1.001: STEERING draw the unit label through the underlying font API.
 
 			wchar_t const * brief = Briefing(side); // RA2: the country's briefing is drawn in an area of its own
 			area = Get_Briefing_Area(); // level-2 1.001: STEERING reuse the country rectangle for the briefing.

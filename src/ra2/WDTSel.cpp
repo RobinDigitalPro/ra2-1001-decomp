@@ -966,6 +966,13 @@ TargetTerritoryRange::TargetTerritoryRange(DynamicVectorClass<rc_ptr<Territory> 
     : Cursor(vector, index) {}
 #pragma auto_inline(on)
 
+// level-2 1.001: INFERRED resolve an optional cached territory entry.
+static inline Territory * Target_Territory(TerritoryCursor const & cursor, rc_ptr<Territory> const * entry)
+{
+    // level-2 1.001: STEERING carry both the indexed slot and its receiver into VC6's call sequence.
+    return (entry ? *entry : *cursor).Get();
+}
+
 void Selection::Show_State(rc_ptr<WorldDominationTour::State> const & state, bool animate, bool fast)
 {
     {
@@ -995,13 +1002,11 @@ void Selection::Show_State(rc_ptr<WorldDominationTour::State> const & state, boo
         int owner = state->Get_Owner(id);
         if (owner != oldowner) {
             Poll_Input();
-            // level-2 1.001: STEERING access the territory through its member to align the following artwork block.
-            Territory * (rc_ptr<Territory>::* receiver)() = &rc_ptr<Territory>::operator ->;
-            ((*cursor).*receiver)()->Set_State(owner, *this, !Aborted || fast);
+            Target_Territory(cursor, &*cursor)->Set_State(owner, *this, !Aborted || fast);
         }
         if (animate && owner == 1) {
             // level-2 1.001: STEERING capture the territory pointer before the map offset.
-            Territory * location = (*cursor).Get();
+            Territory * location = Target_Territory(cursor, &*cursor);
             Point2D const & offset = Map.Get()->Offset;
             int x = location->Target.X + offset.X;
             int y = location->Target.Y + offset.Y;

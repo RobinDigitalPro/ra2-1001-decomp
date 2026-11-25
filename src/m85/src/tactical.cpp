@@ -1251,6 +1251,9 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 
 	if (drawpass == DRAW_PASS_BACKGROUND || drawpass == DRAW_PASS_FULL) {
 		LogicalSurface->Blit_From(TacticalRect, *TileSurface, TacticalRect);
+		if (drawpass == DRAW_PASS_BACKGROUND) { // level-2 1.001: STEERING - the background pass exits after the blit.
+			return;
+		}
 	}
 
 	if (drawpass == DRAW_PASS_FOREGROUND || drawpass == DRAW_PASS_FULL) {
@@ -1302,7 +1305,7 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 		for (int i = 0; i < count; i++) {
 			TechnoClass * techno = Technos[i];
 			if (techno->House->Is_Player_Control()) {
-				if (!planning && techno->IsSelected) {
+				if (techno->IsSelected && !planning) { // level-2 1.001: STEERING - test the selected flag first.
 					if (TechnoClass::ActionLines) {
 						techno->Draw_Action_Line(false, 0);
 					}

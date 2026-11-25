@@ -1073,10 +1073,10 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 	int left_offset = pitch * point.Y - offset.X;
 	int center_offset = pitch * point.Y;
 	xleft = point.X - radx;
-	bottom_right = &buffer[point.X + center_offset + radx];
+	// level-2 1.001: STEERING - keep the right endpoint live from the pixel call.
+	bottom_right = &buffer[center_offset + xright];
 	top_left = &buffer[point.X + center_offset - radx];
 	top_right = &buffer[point.X + center_offset + radx];
-	xright = point.X + radx;
 	bottom_left = &buffer[point.X + left_offset];
 
 	while (true) {
@@ -1084,12 +1084,13 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 		if (decision >= 0) {
 			xterm -= 2 * rady_squared;
 			decision -= xterm;
+			// level-2 1.001: STEERING - step each horizontal coordinate with its two cursors.
 			bottom_right--;
+			top_right--;
 			xright--;
 			top_left++;
-			xleft++;
-			top_right--;
 			bottom_left++;
+			xleft++;
 		}
 		yterm += 2 * radx_squared;
 

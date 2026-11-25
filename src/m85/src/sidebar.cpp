@@ -2537,7 +2537,8 @@ bool SidebarClass::StripClass::Recalc(void)
 				int const row_shift = (oldpos - newpos) / 2; // level-2 1.001: STEERING
 				TopIndex = TopIndex - row_shift; // level-2 1.001: TopIndex counts rows of two
 				int const last_row = (BuildableCount - max_visible) / 2; // level-2 1.001: STEERING
-				TopIndex = MAX(0, MIN(TopIndex, last_row));
+				int const limited = MIN(TopIndex, last_row); // level-2 1.001: STEERING evaluate the upper row bound once
+				TopIndex = MAX(0, limited);
 			} else {
 				TopIndex = 0;
 			}
