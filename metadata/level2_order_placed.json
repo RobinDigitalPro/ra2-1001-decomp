@@ -1,0 +1,34 @@
+{
+ "about": "Claims whose bytes are verified but whose NAME rests only on anchored COFF source order (identical empty bodies). User 2026-11-25: '1 and keep an eye out for 2': claim them labelled, and promote each one as soon as an independent clue (call from a matched function, vtable slot, function-pointer table) confirms or corrects the name; on a correction swap the names, never drop the bytes.",
+ "utc": "2026-11-25T14:04Z",
+ "functions": [
+  {
+   "rva": "0x1e600",
+   "symbol": "??1AlphaLightingRemapClass@@QAE@XZ",
+   "tu": "src/m85/src/alphalighting.cpp",
+   "status": "ORDER_PLACED",
+   "evidence": "batch 67 (job 6ee1000a): 0 differing bytes; COFF section order and native flanks place it; no independent binding clue yet"
+  },
+  {
+   "rva": "0x4b460",
+   "symbol": "?Building_Empty_Function@@YAXXZ",
+   "tu": "src/m85/src/building.cpp",
+   "status": "ORDER_PLACED",
+   "evidence": "batch 67 (job 6ee1000a): 0 differing bytes; COFF section order and native flanks place it; no independent binding clue yet"
+  },
+  {
+   "rva": "0x225de0",
+   "symbol": "?Check_Mirror@@YIXXZ",
+   "tu": "src/m85/src/queue.cpp",
+   "status": "ORDER_PLACED",
+   "evidence": "batch 67 (job 6ee1000a): 0 differing bytes; COFF section order and native flanks place it; no independent binding clue yet"
+  },
+  {
+   "rva": "0x312370",
+   "symbol": "?vqanoop3@@YIXXZ",
+   "tu": "src/m85/src/vqa.cpp",
+   "status": "ORDER_PLACED",
+   "evidence": "batch 67 (job 6ee1000a): 0 differing bytes; COFF section order and native flanks place it; no independent binding clue yet"
+  }
+ ]
+}

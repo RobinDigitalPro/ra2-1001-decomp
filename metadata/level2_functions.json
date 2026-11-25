@@ -6588,6 +6588,13 @@
   "name": "??0AlphaLightingRemapClass@@QAE@H@Z"
  },
  {
+  "rva": "0x1e600",
+  "tu": "src/m85/src/alphalighting.cpp",
+  "symbol": "??1AlphaLightingRemapClass@@QAE@XZ",
+  "name": "AlphaLightingRemapClass::~AlphaLightingRemapClass",
+  "evidence": "identical body, placed by source order (GUIDE D7); name not independently proven"
+ },
+ {
   "rva": "0x1e610",
   "tu": "src/ra2/templates/VECTOR_INSTANCES.cpp",
   "symbol": "?Clear@?$DynamicVectorClass@PAVAlphaLightingRemapClass@@@@UAEXXZ",
@@ -11182,6 +11189,13 @@
   "tu": "src/m85/src/building.cpp",
   "symbol": "?Factory_AI@BuildingClass@@QAEXXZ",
   "name": "?Factory_AI@BuildingClass@@QAEXXZ"
+ },
+ {
+  "rva": "0x4b460",
+  "tu": "src/m85/src/building.cpp",
+  "symbol": "?Building_Empty_Function@@YAXXZ",
+  "name": "Building_Empty_Function",
+  "evidence": "identical body, placed by source order (GUIDE D7); name not independently proven"
  },
  {
   "rva": "0x4b470",
@@ -67440,6 +67454,13 @@
   "name": "?Dump_Packet_Too_Late_Stuff@@YIXPAVEventClass@@@Z"
  },
  {
+  "rva": "0x225de0",
+  "tu": "src/m85/src/queue.cpp",
+  "symbol": "?Check_Mirror@@YIXXZ",
+  "name": "Check_Mirror",
+  "evidence": "identical body, placed by source order (GUIDE D7); name not independently proven"
+ },
+ {
   "rva": "0x225df0",
   "tu": "src/m85/src/queue.cpp",
   "symbol": "?Calc_Frames_Behind@@YIXPAUFrameSyncStruct@@H@Z",
@@ -96178,6 +96199,13 @@
   "tu": "src/m85/src/vqa.cpp",
   "symbol": "?DebugString@@YAXPBDZZ",
   "name": "?DebugString@@YAXPBDZZ"
+ },
+ {
+  "rva": "0x312370",
+  "tu": "src/m85/src/vqa.cpp",
+  "symbol": "?vqanoop3@@YIXXZ",
+  "name": "vqanoop3",
+  "evidence": "identical body, placed by source order (GUIDE D7); name not independently proven"
  },
  {
   "rva": "0x312380",
