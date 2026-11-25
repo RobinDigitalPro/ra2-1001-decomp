@@ -75,3 +75,6 @@ Every external source used. Credit them in the final release, and notify their a
 - 2026-11-24 YuriPlanet/vera20k (VERA20K, Rust YR reimplementation, GPLv3 + LEGAL.md additional terms): reference only (docs, Ghidra notes, native oracle), no code adopted; https://github.com/YuriPlanet/vera20k @b3f9cb2.
 - 2026-11-24 omarelarab/ra2-engine (0BSD, C++17 RA2/YR reimplementation): reference only (docs/re behaviour notes, docs/gap); https://github.com/omarelarab/ra2-engine @a8cfdcc.
 - 2026-11-24 gibbo101/ra2-decomp @8c1df26fac: MapClass::Can_Repair_Bridge and Quaternion::Make_Closest ported with byte-identical proof on RA2 1.001 (batch 54).
+
+## Detail: gibbo101 ed881f6 port (2026-11-25)
+- gibbo101/ra2-decomp @ed881f68a4: source forms of MapClass::Subzone_Span (src/map.cpp) and OwnerDraw::StaticHandler (src/ownrdraw.cpp; our OwnerDraw::Static_Proc) adopted with byte-identical proof on our 1.001; ParticleClass::Spark_Behavior_AI (src/particle.cpp) adopted as a near miss (3 bytes left).
