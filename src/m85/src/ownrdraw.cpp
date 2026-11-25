@@ -362,7 +362,7 @@ extern Rect *Default_Button_Strip; // RA2: as above
 extern int Surface_Count; // RA2: as above
 namespace OwnerDraw { extern unsigned short Blue_Mask; } // RA2: as above
 extern unsigned short Edit_Buffer[0x1400]; // RA2: as above
-namespace OwnerDraw { extern unsigned short Red_Green_Masks[2]; } // RA2: as above
+namespace OwnerDraw { extern unsigned short Red_Mask, Green_Mask; } // RA2: as above
 extern OwnerDraw::Tooltip ODTooltip; // RA2: as above
 extern int BlueLeft; // RA2: as above
 extern int BlueRight; // RA2: as above
@@ -7926,11 +7926,11 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 {
 	static wchar_t text[256]; // level-2 1.001: the shown item's text (0xA5AF98)
 
-	LRESULT result = 0; // level-2 1.001: as above
+	bool pass_on = true; // level-2 1.001: STEERING Order the initialized locals as a group to keep the three switch tables at their native offsets.
 	int wide = 1; // level-2 1.001: the item messages take wide text unless noted
-	bool pass_on = true; // level-2 1.001: as above
-	wchar_t wide_text[0x1400]; // Buffer for the narrow search messages that fall through to wide search.
+	LRESULT result = 0; // level-2 1.001: as above
 	WNDPROC proc = 0; // level-2 1.001: as above
+	wchar_t wide_text[0x1400]; // Buffer for the narrow search messages that fall through to wide search.
 	Window_Proc_Table.getValue(window, proc); // level-2 1.001: as above
 	RECT display; // level-2 1.001: as above
 	Get_Display_Rect(window, &display); // level-2 1.001: as above
@@ -8665,6 +8665,15 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			return(lparam);
 		}
 
+		case WM_VSCROLL: {
+			pass_on = false; // level-2 1.001: as above
+			int top = SendMessageA(record->ScrollBar, SBM_GETPOS, 0, 0); // level-2 1.001: as above
+			if (top != SendMessageA(window, LB_GETTOPINDEX, 0, 0)) { // level-2 1.001: as above
+				SendMessageA(window, LB_SETTOPINDEX, top, 0); // level-2 1.001: as above
+			}
+			break;
+		}
+
 		case LB_DELETESTRING: {
 			ArrayList<int> * colors = List_Row_Colors(record); // level-2 1.001: as above
 			if (colors && colors->length() > (int)wparam) { // level-2 1.001: as above
@@ -9035,15 +9044,6 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 				return(0);
 			}
 			break;
-
-		case WM_VSCROLL: {
-			pass_on = false; // level-2 1.001: as above
-			int top = SendMessageA(record->ScrollBar, SBM_GETPOS, 0, 0); // level-2 1.001: as above
-			if (top != SendMessageA(window, LB_GETTOPINDEX, 0, 0)) { // level-2 1.001: as above
-				SendMessageA(window, LB_SETTOPINDEX, top, 0); // level-2 1.001: as above
-			}
-			break;
-		}
 
 		case LB_SETTOPINDEX: {
 			int top = wparam; // level-2 1.001: as above
@@ -10195,17 +10195,18 @@ void __fastcall Hotkey_Text(unsigned short hotkey, wchar_t *text) // RA2: as abo
 
 namespace OwnerDraw { // RA2: as above
 
-unsigned short Red_Green_Masks[2]; // RA2: as above
+unsigned short Red_Mask = 0;
+unsigned short Green_Mask = 0;
 unsigned short Blue_Mask = 0; // RA2: as above
 
 void Init_Color_Masks() // RA2: as above
 {
-    Red_Green_Masks[0] = 0xff; // RA2: as above
-    Red_Green_Masks[0] >>= DSurface::Get_Red_Left(); // RA2: as above
-    Red_Green_Masks[0] <<= DSurface::Get_Red_Right(); // RA2: as above
-    Red_Green_Masks[1] = 0xff; // RA2: as above
-    Red_Green_Masks[1] >>= DSurface::Get_Green_Left(); // RA2: as above
-    Red_Green_Masks[1] <<= DSurface::Get_Green_Right(); // RA2: as above
+    Red_Mask = 0xff; // RA2: as above
+    Red_Mask >>= DSurface::Get_Red_Left(); // RA2: as above
+    Red_Mask <<= DSurface::Get_Red_Right(); // RA2: as above
+    Green_Mask = 0xff; // RA2: as above
+    Green_Mask >>= DSurface::Get_Green_Left(); // RA2: as above
+    Green_Mask <<= DSurface::Get_Green_Right(); // RA2: as above
     Blue_Mask = 0xff; // RA2: as above
     Blue_Mask >>= DSurface::Get_Blue_Left(); // RA2: as above
     Blue_Mask <<= DSurface::Get_Blue_Right(); // RA2: as above
@@ -10808,8 +10809,8 @@ void __fastcall Shade_Edges(Rect const &area, Surface &surface, int left_width, 
             for (int x = area.X; x < area.X + left_width; ++x) { // RA2: as above
                 unsigned short pixel = pixels[index]; // RA2: as above
 
-                pixels[index] = ((pixel >> 1) & ((Red_Green_Masks[0] >> 1) & (unsigned int)Red_Green_Masks[0])) | // RA2: as above
-                                ((pixel >> 1) & ((Red_Green_Masks[1] >> 1) & Red_Green_Masks[1])) | // RA2: as above
+                pixels[index] = ((pixel >> 1) & ((Red_Mask >> 1) & (unsigned int)Red_Mask)) | // RA2: as above
+                                ((pixel >> 1) & ((Green_Mask >> 1) & Green_Mask)) | // RA2: as above
                                 ((pixel >> 1) & (Blue_Mask >> 1)); // RA2: as above
 
                 index++;
@@ -10822,8 +10823,8 @@ void __fastcall Shade_Edges(Rect const &area, Surface &surface, int left_width, 
             for (int x = area.X + left_width; x < area.Width + area.X; ++x) { // RA2: as above
                 unsigned short pixel = pixels[index]; // RA2: as above
 
-                pixels[index] = ((pixel >> 1) & ((Red_Green_Masks[0] >> 1) & (unsigned int)Red_Green_Masks[0])) | // RA2: as above
-                                ((pixel >> 1) & ((Red_Green_Masks[1] >> 1) & Red_Green_Masks[1])) | // RA2: as above
+                pixels[index] = ((pixel >> 1) & ((Red_Mask >> 1) & (unsigned int)Red_Mask)) | // RA2: as above
+                                ((pixel >> 1) & ((Green_Mask >> 1) & Green_Mask)) | // RA2: as above
                                 ((pixel >> 1) & (Blue_Mask >> 1)); // RA2: as above
 
                 index++;

@@ -431,12 +431,6 @@ EgoClass::EgoClass(int x, int y, wchar_t const * text, int flags)
     wcscpy(Text, text);
 }
 
-// 0xb3370
-EgoClass::~EgoClass()
-{
-    delete [] Text;
-}
-
 // 0xb3380
 bool EgoClass::Scroll(int distance)
 {

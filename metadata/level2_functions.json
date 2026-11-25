@@ -24109,7 +24109,7 @@
  },
  {
   "rva": "0xb3370",
-  "tu": "src/ra2/Egos.CPP",
+  "tu": "src/m85/src/egos.cpp",
   "symbol": "??1EgoClass@@QAE@XZ",
   "name": "EgoClass::~EgoClass"
  },
@@ -24130,6 +24130,12 @@
   "tu": "src/m85/src/egos.cpp",
   "symbol": "?Wipe@EgoClass@@QAEXPAVSurface@@@Z",
   "name": "?Wipe@EgoClass@@QAEXPAVSurface@@@Z"
+ },
+ {
+  "rva": "0xb34d0",
+  "tu": "src/m85/src/egos.cpp",
+  "symbol": "?Show_Credits@@YIXXZ",
+  "name": "Show_Credits"
  },
  {
   "rva": "0xb4040",
@@ -57852,6 +57858,12 @@
   "name": "?Scenario_Dialog@@YIHPAUHWND__@@@Z"
  },
  {
+  "rva": "0x1c0a70",
+  "tu": "src/m85/src/netshare.cpp",
+  "symbol": "?Scenario_DlgProc@@YGHPAUHWND__@@IIJ@Z",
+  "name": "Scenario_DlgProc"
+ },
+ {
   "rva": "0x1c11f0",
   "tu": "src/m85/src/netshare.cpp",
   "symbol": "?Select_List_Item_By_Data@@YIHPAUHWND__@@H@Z",
@@ -77122,6 +77134,12 @@
   "tu": "src/m85/src/xsurface.cpp",
   "symbol": "?Fill_Rect_Trans@XSurface@@UAE_NABV?$TRect@H@@ABVRGBClass@@I@Z",
   "name": "?Fill_Rect_Trans@XSurface@@UAE_NABV?$TRect@H@@ABVRGBClass@@I@Z"
+ },
+ {
+  "rva": "0x282680",
+  "tu": "src/m85/src/srfcache.cpp",
+  "symbol": "?DrawMasked@SurfaceCacheClass@@QAE_NABV?$TRect@H@@AAVSurface@@11PAXHHH@Z",
+  "name": "SurfaceCacheClass::DrawMasked"
  },
  {
   "rva": "0x282c30",
@@ -102736,6 +102754,12 @@
   "tu": "src/m85/src/wonline.cpp",
   "symbol": "?WOL_Add_Buddy_Dialog_Proc@@YGHPAUHWND__@@IIJ@Z",
   "name": "WOL_Add_Buddy_Dialog_Proc"
+ },
+ {
+  "rva": "0x346940",
+  "tu": "src/m85/src/wonline.cpp",
+  "symbol": "?WOL_Buddy_List_Dialog_Proc@@YGHPAUHWND__@@IIJ@Z",
+  "name": "WOL_Buddy_List_Dialog_Proc"
  },
  {
   "rva": "0x347440",

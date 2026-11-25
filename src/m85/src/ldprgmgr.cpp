@@ -535,8 +535,8 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 
 		wchar_t const * loading = StringTable::LoadString("GUI:LoadingEx", NULL, "C:\\RA2\\LdPrgMgr.cpp", 714); // RA2: the word for loading
 		area = Get_Loading_Text_Area(); // RA2: as above
-		point = Copy_Point((Point2D const *)&area); // RA2: as above
-		Shade_Text_Area(loading, ProgressSurface, point.X, point.Y, area.Width, 0, false); // RA2: as above
+		Point2D loading_point = Copy_Point((Point2D const *)&area); // level-2 1.001: STEERING keep the loading origin local to the loading text.
+		Shade_Text_Area(loading, ProgressSurface, loading_point.X, loading_point.Y, area.Width, 0, false); // RA2: as above
 		Draw_Area_Text(loading, ProgressSurface, area, pixel, 0); // RA2: as above
 	}
 }

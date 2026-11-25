@@ -480,7 +480,7 @@ bool SurfaceCacheClass::DrawTrans(Rect const & rect, Surface & tosurface, Surfac
 /// <param name="x_offset">Horizontal scroll/clip offset.</param>
 /// <param name="y_offset">Vertical scroll/clip offset.</param>
 /// <returns>True on success, false if a surface lock failed.</returns>
-bool SurfaceCacheClass::DrawMasked(Rect const & rect, Surface & tosurface, Surface & fromsurface, Surface & masksurface, void * palette, bool center, int x_offset, int y_offset)
+bool SurfaceCacheClass::DrawMasked(Rect const & rect, Surface & tosurface, Surface & fromsurface, Surface & masksurface, void * palette, int center, int x_offset, int y_offset)
 {
 	unsigned short pal16[256];
 

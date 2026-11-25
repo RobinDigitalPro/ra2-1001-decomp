@@ -11498,17 +11498,20 @@ int __fastcall Run_Online_Menu(bool first_time) // level-2 1.001: 0x007474E0, th
 			}
 			case 5: {
 				Wstring name((char *)buddy.name);
-				bool found = Find_Channel(name, g_GameChannelList, game);
-				if (!found) {
+				bool found;
+				if (!Find_Channel(name, g_GameChannelList, game)) {
 					if (!Get_Channel_List(0x21, false)) {
 						DebugString("Buddy List Guest Get Channel List failed\n");
+						found = false;
 					} else {
 						found = Find_Channel(name, g_GameChannelList, game);
 					}
-					if (!found) {
-						DebugString("Buddy List Guest Find Channel by name failed\n");
-						break;
-					}
+				} else {
+					found = true;
+				}
+				if (!found) {
+					DebugString("Buddy List Guest Find Channel by name failed\n");
+					break;
 				}
 				if (Join_Game_Channel(&game)) {
 					int remaining = 500;
@@ -11579,6 +11582,17 @@ static inline void Set_Buddy_Refresh_Enabled(HWND button, BOOL enabled)
 	EnableWindow(button, enabled);
 }
 
+// level-2 1.001: INFERRED timer-only helper, keeping the queue rebuild at the original inline depth.
+static inline void Queue_Timer_Buddy_Requests(void)
+{
+	for (int i = 0; i < g_BuddyList.length(); i++) {
+		Wstring node;
+		g_BuddyList.get(node, i);
+		g_BuddyRequests.addTail(node);
+	}
+	Request_Next_Buddy_Find();
+}
+
 BOOL CALLBACK WOL_Buddy_List_Dialog_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam) // RA2: 1.001 0x00746940, buddy list dialog (0x116)
 {
 	if (message == WM_INITDIALOG && lparam) {
@@ -11606,13 +11620,19 @@ BOOL CALLBACK WOL_Buddy_List_Dialog_Proc(HWND window, UINT message, WPARAM wpara
 		}
 		return(FALSE);
 	case WM_TIMER:
-		if (wparam == 0x704) {
-			KillTimer(window, 0x704);
-			Set_Buddy_Refresh_Enabled(GetDlgItem(window, 0x704), TRUE);
-		} else if (wparam == 0) {
-			if ((unsigned)(time(NULL) - g_BuddyRefreshTime) > 30) {
-				Refresh_Buddy_Channels();
+		if (wparam) {
+			if (wparam == 0x704) {
+				KillTimer(window, 0x704);
+				EnableWindow(GetDlgItem(window, 0x704), TRUE);
 			}
+		} else if ((unsigned)(time(NULL) - g_BuddyRefreshTime) > 30) {
+			g_BuddyRefreshTime = time(NULL);
+			if (!Get_Channel_List(0x21, true)) {
+				SetEvent(g_WaitEventHandles[5]);
+				return(FALSE);
+			}
+			g_BuddyRequests.clear();
+			Queue_Timer_Buddy_Requests();
 		}
 		return(FALSE);
 	case WM_COMMAND:

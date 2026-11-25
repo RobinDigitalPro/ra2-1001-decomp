@@ -1087,7 +1087,8 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 	 * Either the whole view, or just the strips the pan exposed.
 	 */
 	if (fullredraw) {
-		xoffset = yoffset = 0;
+		xoffset = 0;
+		yoffset = 0;
 	}
 
 	/*
@@ -1096,15 +1097,18 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 	 * frame has been rendered, a pan is only honoured if the world coordinate also changed. The
 	 * foreground pass never rebuilds the cached layers.
 	 */
-	bool render = false; // level-2 1.001: the foreground pass is tested first; an unchanged later frame is ruled out before the shared redraw tests
+	// level-2 1.001: STEERING - express the shared redraw test in both eligible branches.
+	bool render = false;
 	if (drawpass != DRAW_PASS_FOREGROUND) {
 		if (fullredraw) {
 			render = true;
-		} else if (!IsFirstRender && !has_selectable_buildings && DirtyAreas.Count() == 0 && !IsToRedraw && TacticalCoord.X == LastTacticalCoord.X && TacticalCoord.Y == LastTacticalCoord.Y) {
-			render = false;
+		} else if (IsFirstRender) {
+			render = has_selectable_buildings || IsToRedraw || DirtyAreas.Count() != 0 || TacPixelX != LastTacPixelX || TacPixelY != LastTacPixelY;
 		} else if (has_selectable_buildings) {
 			render = true;
-		} else {
+		} else if (DirtyAreas.Count() == 0 && IsToRedraw) {
+			render = true;
+		} else if (DirtyAreas.Count() || TacticalCoord.X != LastTacticalCoord.X || TacticalCoord.Y != LastTacticalCoord.Y) {
 			render = IsToRedraw || DirtyAreas.Count() != 0 || TacPixelX != LastTacPixelX || TacPixelY != LastTacPixelY;
 		}
 	}
@@ -1116,10 +1120,10 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 		 */
 		unsigned panwidth = abs(xoffset);
 		unsigned panheight = abs(yoffset);
-		int width = TacticalDimensions.Width - panwidth; // level-2 1.001: the shared extent is computed before the start offsets
 		int height = TacticalDimensions.Height - panheight;
+		int width = TacticalDimensions.Width - panwidth;
+		int xstart = (xoffset < 0) ? -xoffset : 0;
 		int ystart = (yoffset < 0) ? -yoffset : 0;
-		int xstart = (xoffset < 0) ? panwidth : 0;
 
 		Rect sourcerect(TacticalDimensions.X + xstart, TacticalDimensions.Y + ystart, width, height);
 		Rect destrect(TacticalDimensions.X + ((xoffset <= 0) ? 0 : xoffset),

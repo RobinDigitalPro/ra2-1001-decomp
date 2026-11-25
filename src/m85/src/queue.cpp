@@ -3171,8 +3171,8 @@ int Extract_Compressed_Events(void *buf, int bufsize) // level-2: external, as i
 								if ( !DoList.Add( eventdata ) ) { // RA2: as above
 									return(-1); // RA2: as above
 								}
-								count++; // RA2: as above
 								numunits--; // RA2: as above
+								count++; // RA2: as above
 								units++; // RA2: as above
 								memcpy(&eventdata.Data.MegaMission.Whom, list++, datasize); // level-2 1.001: STEERING use the decoded target length and advance its cursor
 								if (numunits == 1) { // RA2: as above
@@ -3778,7 +3778,6 @@ static void Print_CRCs(EventClass *ev)
 
 	int i,j;
 	FILE *fp;
-	HousesType house; // level-2 1.001: the house and object pointers are declared in their loops (gibbo YR 1.001 form)
 
 	char filename[512];
 	sprintf(filename, "SYNC%01d.TXT", PlayerPtr->HeapID);
@@ -3812,8 +3811,8 @@ static void Print_CRCs(EventClass *ev)
 	Get_CPU_Type(cpu_type, mmx, NULL, 0);
 	fprintf(fp, "CPU %s, MMX %s, Vendor: %s\r\n", Get_CPU_Type_Name(), mmx ? "Yes" : "No", &VendorID); // level-2 1.001: CPU name as in Write_Sync_File
 
-	int const frame = Frame; // level-2 1.001: STEERING snapshot Frame to restore the loop reload order
-	fprintf(fp, "Frames: %d\n", frame);
+	// level-2 1.001: STEERING report Frame directly to recover the original loop reload order.
+	fprintf(fp, "Frames: %d\n", Frame);
 
 	fprintf(fp, "Average FPS: %d\n", SecondsPassed != 0 ? TotalFrames / SecondsPassed : 0);
 	int const ahead = Session.MaxMaxAhead; // level-2 1.001: STEERING snapshot MaxMaxAhead to restore the loop reload order
@@ -3857,6 +3856,7 @@ static void Print_CRCs(EventClass *ev)
 	//
 	// Houses
 	//
+	HousesType house; // level-2 1.001: STEERING declare the iterator at its first traversal.
 	for (house = HOUSE_FIRST; house < Houses.Count(); house++) {
 		GameCRC = 0;
 		HouseClass *housep = Houses[house];

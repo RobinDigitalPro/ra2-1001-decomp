@@ -2371,6 +2371,41 @@ void SidebarClass::StripClass::Draw_It(bool complete)
  *   01/19/1995 JLB : Created.                                                                 *
  *   06/26/1995 JLB : Doesn't collapse sidebar when buildables removed.                        *
  *=============================================================================================*/
+// level-2 1.001: STEERING inline the count predicate at both checks.
+template <class Strip>
+static inline bool Recalc_Has_Buildables(Strip const & strip)
+{
+	return strip.BuildableCount > 0;
+}
+
+// level-2 1.001: INFERRED target-local equivalent of Update_Column_Availability; the original expands it in Recalc.
+static inline void Recalc_Column_Availability(int index)
+{
+	if (Recalc_Has_Buildables(Map.Column[index])) {
+		Map.Update_Build_Buttons();
+	} else {
+		GadgetClass & button = Map.TabButton[index]; // level-2 1.001: STEERING
+		button.Disable();
+		int first = -1;
+		SidebarClass::StripClass const * column = Map.Column;
+		for (int i = 0; i * sizeof(*column) < sizeof(Map.Column); i++, ++column) {
+			if (Recalc_Has_Buildables(*column)) {
+				first = i;
+				break;
+			}
+		}
+		if (first == -1) {
+			Map.Update_Build_Buttons();
+			if (Map.SidebarShapes[SidebarClass::SBSHAPE_SHUTTER_BACK]) {
+				Map.ShutterStep = -1;
+				Map.ShutterFrame = (Map.SidebarShapes[SidebarClass::SBSHAPE_SHUTTER_BACK])->Get_Count();
+			}
+		} else {
+			Map.Select_Tab(first);
+		}
+	}
+}
+
 bool SidebarClass::StripClass::Recalc(void)
 {
 	int ok;
@@ -2415,7 +2450,9 @@ bool SidebarClass::StripClass::Recalc(void)
 			**	placement is dropped from the cursor.
 			*/
 			if (Buildables[index].Factory) { // level-2 1.001
-				OutList.Add(EventClass(PlayerPtr->HeapID, EventClass::ABANDON, Buildables[index].BuildableType, Buildables[index].BuildableID, tech->Naval));
+				RTTIType object_type = Buildables[index].BuildableType; // level-2 1.001: STEERING
+				int object_id = Buildables[index].BuildableID; // level-2 1.001: STEERING
+				OutList.Add(EventClass(PlayerPtr->HeapID, EventClass::ABANDON, object_type, object_id, tech->Naval));
 				if (Buildables[index].BuildableType == RTTI_BUILDINGTYPE || Buildables[index].BuildableType == RTTI_BUILDING) {
 					Map.PendingObjectPtr = NULL;
 					Map.PendingObject = NULL;
@@ -2469,38 +2506,45 @@ bool SidebarClass::StripClass::Recalc(void)
 		}
 	}
 
-	Map.Update_Column_Availability(ID); // level-2 1.001: the tab and scroll buttons follow the new contents
+	int const column_id = ID; // level-2 1.001: STEERING
+	Recalc_Column_Availability(column_id);
 
 	if (scroll) {
 		bool got_old = false;
 
 		int oldpos;
 		for (oldpos = 0; oldpos < max_visible; oldpos++) {
-			if (unshifted[oldpos] != BuildType(0, RTTI_NONE)) {
+			BuildType const & entry = unshifted[oldpos]; // level-2 1.001: STEERING
+			if (entry != BuildType(0, RTTI_NONE)) {
 				got_old = true;
 				break;
 			}
 		}
 
-		if (got_old && BuildableCount != 0) {
+		bool const can_scroll = got_old && BuildableCount != 0; // level-2 1.001: STEERING
+		if (can_scroll) {
 			bool got_new = false;
 			int newpos;
 			for (newpos = 0; newpos < BuildableCount; newpos++) {
-				if (Buildables[newpos] == unshifted[oldpos]) {
+				BuildType const & new_entry = Buildables[newpos]; // level-2 1.001: STEERING
+				if (new_entry == unshifted[oldpos]) {
 					got_new = true;
 					break;
 				}
 			}
 
 			if (got_new) {
-				TopIndex = TopIndex - (oldpos - newpos) / 2; // level-2 1.001: TopIndex counts rows of two
-				TopIndex = MAX(0, MIN(TopIndex, (BuildableCount - max_visible) / 2));
+				int const row_shift = (oldpos - newpos) / 2; // level-2 1.001: STEERING
+				TopIndex = TopIndex - row_shift; // level-2 1.001: TopIndex counts rows of two
+				int const last_row = (BuildableCount - max_visible) / 2; // level-2 1.001: STEERING
+				TopIndex = MAX(0, MIN(TopIndex, last_row));
 			} else {
 				TopIndex = 0;
 			}
 		} else {
 			TopIndex = 0;
-			Map.TabButton[ID].Disable(); // level-2 1.001: the strip is empty
+			GadgetClass & empty_tab = Map.TabButton[ID]; // level-2 1.001: STEERING
+			empty_tab.Disable(); // level-2 1.001: the strip is empty
 		}
 		Map.IsForceCompleteRedraw = true; // level-2 1.001
 	}

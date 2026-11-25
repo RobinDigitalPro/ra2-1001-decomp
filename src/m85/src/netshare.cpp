@@ -1429,11 +1429,34 @@ static inline void Populate_Scenario_List(HWND window, MultiplayerGameMode * mod
 }
 
 
-// level-2 1.001: INFERRED helper boundary from the dialog initialization and selection paths.
-static inline void Restore_Map_Selection(HWND window)
+// level-2 1.001: INFERRED the initializing caller owns the vector and passes it by reference.
+static inline void Init_Scenario_Maps(HWND window, MultiplayerGameMode * mode, DynamicVectorClass<MultiMission const *> & maps)
 {
-	if (Session.Options.ScenarioIndex != -1) Select_Scenario_Index(window, Session.Options.ScenarioIndex);
+	int count = Session.Scenarios.Count();
+	for (int i = 0; i < count; i++) {
+		MultiMission const * map = Session.Scenarios[i];
+		if (mode->IsMapAllowed(map)) {
+			maps.Add(map);
+		}
+	}
+	HWND list = GetDlgItem(window, IDC_AILEVEL_SLIDER);
+	mode->DrawTeamDropdown(list, &maps, NULL);
 }
+
+// level-2 1.001: INFERRED the initialization path scans the list inline after checking data.
+static inline void Select_Initial_Scenario_Data(HWND window, int data)
+{
+	int found = 0;
+	int count = SendDlgItemMessage(window, IDC_AILEVEL_SLIDER, LB_GETCOUNT, 0, 0);
+	for (int i = 0; i < count; ++i) {
+		if (SendDlgItemMessage(window, IDC_AILEVEL_SLIDER, LB_GETITEMDATA, i, 0) == data) {
+			found = i;
+		}
+	}
+	SendDlgItemMessage(window, IDC_AILEVEL_SLIDER, LB_SETCURSEL, found, 0);
+	SendDlgItemMessage(window, IDC_AILEVEL_SLIDER, LB_SETTOPINDEX, found, 0);
+}
+
 
 // level-2 1.001: INFERRED helper boundary from the dialog initialization and selection paths.
 static inline void Remember_Initial_Map(void)
@@ -1447,13 +1470,6 @@ static inline void Populate_Mode_Control(HWND window, MultiplayerGameMode *mode)
 {
 	HWND list = GetDlgItem(window, 1771);
 	Fill_Game_Mode_List(list, mode->MPModeIndex);
-}
-
-// level-2 1.001: INFERRED helper boundary from the dialog initialization and selection paths.
-static inline MultiplayerGameMode * Initial_Map_Mode(int index)
-{
-	MultiplayerGameMode *mode = MultiplayerGameMode::Get(index);
-	return mode ? mode : First_Game_Mode();
 }
 
 // level-2 1.001: INFERRED helper boundary from the dialog initialization and selection paths.
@@ -1561,22 +1577,21 @@ int CALLBACK Scenario_DlgProc(HWND window, UINT message, WPARAM wparam, LPARAM l
 
 		case OD_SUBCLASSED: {
 			MapListBusy = true;
-			MultiplayerGameMode * mode = Initial_Map_Mode(Session.Options.MPModeIndex);
+			MultiplayerGameMode * mode = MultiplayerGameMode::Get(Session.Options.MPModeIndex);
+			if (!mode) mode = First_Game_Mode();
 			Populate_Mode_Control(window, mode);
 			if (mode) {
 				DynamicVectorClass<MultiMission const *> maps;
-				int count = Session.Scenarios.Count();
-				for (int i = 0; i < count; i++) {
-					MultiMission const * map = Session.Scenarios[i];
-					if (mode->IsMapAllowed(map)) {
-						maps.Add(map);
-					}
-				}
-				HWND list = GetDlgItem(window, IDC_AILEVEL_SLIDER);
-				mode->DrawTeamDropdown(list, &maps, NULL);
+				Init_Scenario_Maps(window, mode, maps);
 			}
 			Enable_Random_Scenario(window, mode);
-			Restore_Map_Selection(window);
+			int index = Session.Options.ScenarioIndex;
+			if (index != -1 && index < Session.Scenarios.Count()) {
+				int data = (int)Session.Scenarios[index];
+				if (data != 0) {
+					Select_Initial_Scenario_Data(window, data);
+				}
+			}
 			Remember_Initial_Map();
 			MapListBusy = false;
 			break;

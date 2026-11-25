@@ -9,7 +9,7 @@
    "diff_bytes": 1,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -19,7 +19,7 @@
    "diff_bytes": 1,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -29,7 +29,7 @@
    "diff_bytes": 2,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -39,7 +39,7 @@
    "diff_bytes": 2,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -49,7 +49,7 @@
    "diff_bytes": 3,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -59,7 +59,7 @@
    "diff_bytes": 1,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -69,7 +69,7 @@
    "diff_bytes": 9,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -79,7 +79,7 @@
    "diff_bytes": 9,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -89,7 +89,7 @@
    "diff_bytes": 1,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -99,8 +99,18 @@
    "diff_bytes": 25,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/jobs/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
+  },
+  {
+   "rva": "0x201120",
+   "symbol": "?Spark_Behavior_AI@ParticleClass@@QAEXXZ",
+   "tu": "particle.cpp",
+   "diff_bytes": 2,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch63_target_04_*.md (batch 63, job 0d2147b6): the 2 bytes are two swapped stack offsets of two flag tests; all four flag combinations and the jump targets agree; constructor bindings repaired in batch 61",
+   "meaning": "functionally equivalent: the only difference is the stack slot order of two locals (codegen only); fix in the end phase with the complete file linked"
   }
  ],
  "not_near_equal": [

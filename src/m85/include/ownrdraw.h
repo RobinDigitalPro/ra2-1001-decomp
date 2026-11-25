@@ -311,8 +311,8 @@ extern COLORREF ODColorUnused1;
 #define OD_DRAW_CHAR_FLAG_VERTICAL_CENTER 4
 
 
-namespace OwnerDraw { extern unsigned short Red_Green_Masks[]; } // RA2: 0xA763DC, the red and green channel masks of the 16-bit pixel format (two entries; ownrdraw.cpp defines them)
-namespace OwnerDraw { extern unsigned short Blue_Mask; } // RA2: 0xA763E0, the blue channel mask
+namespace OwnerDraw { extern unsigned short Red_Mask, Green_Mask; } // RA2: 1.001 red and green channel masks at 0xA5DF30 and 0xA5DF32
+namespace OwnerDraw { extern unsigned short Blue_Mask; } // RA2: 1.001 blue channel mask at 0xA5DF34
 
 namespace OwnerDraw { // RA2: the helper belongs to OwnerDraw (ownrdraw.cpp, egos.cpp and srfcache.cpp expand it)
 
@@ -325,8 +325,8 @@ inline unsigned short __cdecl Blend_Color(unsigned short pixel, unsigned short c
 	static unsigned int pixel_alpha; // RA2: as above
 	color_alpha = alpha; // RA2: as above
 	pixel_alpha = 255 - alpha; // RA2: as above
-	unsigned short red = (((pixel & Red_Green_Masks[0]) * pixel_alpha) + ((color & Red_Green_Masks[0]) * color_alpha)) >> 8 & Red_Green_Masks[0]; // RA2: as above
-	unsigned short green = (((pixel & Red_Green_Masks[1]) * pixel_alpha) + ((color & Red_Green_Masks[1]) * color_alpha)) >> 8 & Red_Green_Masks[1]; // RA2: as above
+	unsigned short red = (((pixel & Red_Mask) * pixel_alpha) + ((color & Red_Mask) * color_alpha)) >> 8 & Red_Mask; // RA2: as above
+	unsigned short green = (((pixel & Green_Mask) * pixel_alpha) + ((color & Green_Mask) * color_alpha)) >> 8 & Green_Mask; // RA2: as above
 	unsigned short blue = (((pixel & Blue_Mask) * pixel_alpha) + ((color & Blue_Mask) * color_alpha)) >> 8; // RA2: as above
 	return((unsigned short)(red | green | blue)); // RA2: as above
 }

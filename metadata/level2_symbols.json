@@ -16978,7 +16978,7 @@
   "evidence": "function_start",
   "note": "auto-bound call target (level2_autobind.py); verified by level2_check"
  },
- "?DrawMasked@SurfaceCacheClass@@QAE_NABV?$TRect@H@@AAVSurface@@11PAX_NHH@Z": {
+ "?DrawMasked@SurfaceCacheClass@@QAE_NABV?$TRect@H@@AAVSurface@@11PAXHHH@Z": {
   "address": "0x682680",
   "evidence": "aligned_start",
   "note": "auto-bound call target (level2_autobind.py); verified by level2_check"
@@ -25298,6 +25298,36 @@
  },
  "?Update@PixelFXClass@@QAEXH@Z": {
   "address": "0x606810",
+  "evidence": "function_start",
+  "note": "auto-bound call target (level2_autobind.py); verified by level2_check"
+ },
+ "?Red_Mask@OwnerDraw@@3GA": {
+  "address": "0xa5df30",
+  "evidence": "data",
+  "note": "auto-bound data address from the original operand (level2_autobind.py --data); section verified by level2_check, consistency by conflict detection"
+ },
+ "?Green_Mask@OwnerDraw@@3GA": {
+  "address": "0xa5df32",
+  "evidence": "data",
+  "note": "auto-bound data address from the original operand (level2_autobind.py --data); section verified by level2_check, consistency by conflict detection"
+ },
+ "?IsMapAllowed@MultiplayerGameMode@@QAE_NPBVMultiMission@@@Z": {
+  "address": "0x5b3f30",
+  "evidence": "function_start",
+  "note": "auto-bound call target (level2_autobind.py); verified by level2_check"
+ },
+ "?Accept_Map_Selection@@YI_NPAUHWND__@@@Z": {
+  "address": "0x5c1280",
+  "evidence": "function_start",
+  "note": "auto-bound call target (level2_autobind.py); verified by level2_check"
+ },
+ "?Play_Dialog_Move_In@@YI_NPAUHWND__@@@Z": {
+  "address": "0x5de620",
+  "evidence": "function_start",
+  "note": "auto-bound call target (level2_autobind.py); verified by level2_check"
+ },
+ "?Fill_Game_Mode_List@@YIXPAUHWND__@@H@Z": {
+  "address": "0x5b3cf0",
   "evidence": "function_start",
   "note": "auto-bound call target (level2_autobind.py); verified by level2_check"
  }

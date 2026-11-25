@@ -944,12 +944,35 @@ struct TargetArtFile {
     CCFileClass File;
 };
 
+// level-2 1.001: INFERRED the sound traversal constructs a cursor at the playback site.
+struct TargetSoundRange {
+    TargetSoundRange(DynamicVectorClass<MSSfxEntry *> & vector, int index);
+    SoundCursor Cursor;
+};
+// level-2 1.001: STEERING retain the out-of-line constructor at the playback site.
+#pragma auto_inline(off)
+TargetSoundRange::TargetSoundRange(DynamicVectorClass<MSSfxEntry *> & vector, int index)
+    : Cursor(vector, index) {}
+#pragma auto_inline(on)
+
+// level-2 1.001: INFERRED scoped holder for a territory traversal.
+struct TargetTerritoryRange {
+    TargetTerritoryRange(DynamicVectorClass<rc_ptr<Territory> > & vector, int index);
+    TerritoryCursor Cursor;
+};
+// level-2 1.001: STEERING preserve the opening cursor constructor call.
+#pragma auto_inline(off)
+TargetTerritoryRange::TargetTerritoryRange(DynamicVectorClass<rc_ptr<Territory> > & vector, int index)
+    : Cursor(vector, index) {}
+#pragma auto_inline(on)
+
 void Selection::Show_State(rc_ptr<WorldDominationTour::State> const & state, bool animate, bool fast)
 {
     {
         // level-2 1.001: STEERING retain the opening map accessor call.
         WorldDominationTour::Map * (rc_ptr<WorldDominationTour::Map>::* get_map)() = &rc_ptr<WorldDominationTour::Map>::operator ->;
-        TerritoryCursor territories((Map.*get_map)()->Territories);
+        TargetTerritoryRange range((Map.*get_map)()->Territories, 0);
+        TerritoryCursor & territories = range.Cursor;
         for (TerritoryCursor & cursor = territories; cursor.Is_Valid(); ++cursor) {
             // level-2 1.001: STEERING retain the pending-territory accessor call.
             Territory * (rc_ptr<Territory>::* get_territory)() = &rc_ptr<Territory>::operator ->;
@@ -969,12 +992,12 @@ void Selection::Show_State(rc_ptr<WorldDominationTour::State> const & state, boo
         int owner = state->Get_Owner(id);
         if (owner != oldowner) {
             Poll_Input();
-            (*cursor).Get()->Set_State(owner, *this, !Aborted || fast);
+            (*cursor)->Set_State(owner, *this, !Aborted || fast);
         }
         if (animate && owner == 1) {
-            // level-2 1.001: STEERING - keep the map offset reference first.
-            Point2D const & offset = Map->Offset;
+            // level-2 1.001: STEERING capture the territory position before the map offset.
             Point2D const & position = (*cursor)->Target;
+            Point2D const & offset = Map->Offset;
             int x = position.X + offset.X;
             int y = position.Y + offset.Y;
             if (ZoomingTarget != NULL) {
@@ -1012,7 +1035,18 @@ void Selection::Show_State(rc_ptr<WorldDominationTour::State> const & state, boo
                         delete anim;
                     }
                 } else {
-                    Play_Sound("TargetZoom");
+                    {
+                        // level-2 1.001: STEERING expand Play_Sound here to preserve its cursor constructor call.
+                        CharStringClass name("TargetZoom");
+                        if (name != NULL) {
+                            TargetSoundRange sounds(Sounds, 0);
+                            SoundCursor & scan = sounds.Cursor;
+                            for (; scan.Is_Valid() && name == (*scan)->Name; ++scan) {}
+                            if (scan.Is_Valid()) {
+                                (*scan)->Play();
+                            }
+                        }
+                    }
                     Add_Anim(*zoomcursor);
                     Remove_Anim_Later(*zoomcursor, 300000);
                 }
