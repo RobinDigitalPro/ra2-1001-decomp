@@ -67,7 +67,7 @@
 void __fastcall Add_Audio_File_Window(HWND window); // RA2: 0x522B20
 void __fastcall Remove_Audio_File_Window(HWND window); // RA2: 0x522B80
 
-class WindowList; // RA2: as above
+namespace OwnerDraw { class WindowList; } // RA2: as above
 
 /*
 **	RA2: a text node of a control record's list (TextNode) and the list as seen from the record
@@ -386,6 +386,7 @@ extern char const *Dialog_Back_Name; // RA2: as above
 
 
 void __fastcall Inflate_Rect(Rect & rect, int amount); // RA2: 0x6F1B00 (progress.cpp)
+void __fastcall Inflate_Rect(Rect & rect, int dx, int dy); // RA2 1.001: 0x6e6c10.
 
 namespace OwnerDraw { // RA2: as above
 
@@ -3849,16 +3850,15 @@ BOOL __stdcall Init_Control_Animation(HWND window, LPARAM) // RA2: as above
     Animation(record)->LastTick = GetTickCount(); // RA2: as above
     Animation(record)->TimerInterval = Control_Animation_Loops((unsigned int)parent, window); // RA2: as above
 done: // RA2: as above
-    if (Animation(record)->TimerInterval < 1) { // RA2: as above
-        if (animated && Animation(record)->Shape) { // RA2: as above
-            Animation(record)->FrameCount = ((short const *)Animation(record)->Shape)[3]; // RA2: as above
-            Animation(record)->IsPlaying = false; // RA2: as above
+    // level-2 1.001: the positive timer arm precedes the frame-count load.
+    if (Animation(record)->TimerInterval > 0) {
+        SetTimer(window, 0, Animation(record)->TimerInterval, 0);
+        if (animated) {
+            Animation(record)->IsPlaying = true;
         }
-    } else {
-        SetTimer(window, 0, Animation(record)->TimerInterval, 0); // RA2: as above
-        if (animated) { // RA2: as above
-            Animation(record)->IsPlaying = true; // RA2: as above
-        }
+    } else if (animated && Animation(record)->Shape) {
+        Animation(record)->FrameCount = ((short const *)Animation(record)->Shape)[3];
+        Animation(record)->IsPlaying = false;
     }
     return TRUE; // RA2: as above
 }
@@ -5555,13 +5555,12 @@ bool End_Tooltip() // RA2: as above
 typedef ArrayList<HWND> ModalWindowList; // RA2: as above
 
 
-LRESULT __fastcall IME_Get_Result(); // RA2: as above
+int __fastcall IME_Get_Result(); // RA2: 1.001 winstub.cpp returns the stored IME result.
 void IME_Cancel_Composition(); // RA2: as above
 BOOL __fastcall IME_Service_Message(HWND window, UINT message, WPARAM wparam, LPARAM lparam); // RA2: as above
 namespace OwnerDraw { // RA2: as above
 void __fastcall WideToCharString(char * dest, wchar_t const * src, int count); // RA2: 0x6FA0F0
 }
-void __fastcall Rect_Shrink(Rect *rect, int x, int y); // RA2: as above
 int __fastcall Pair_Key_Hash(int *); // RA2: as above
 namespace OwnerDraw { // RA2: as above
 extern HWND Dropdown_Window; // RA2: as above
@@ -5614,7 +5613,7 @@ LRESULT __stdcall Control_Proc(HWND window, UINT message, WPARAM wparam, LPARAM 
     BOOL allow_proc = 1; // RA2: as above
 	int anim_state = 0;
 
-	static Dictionary<MessageKey, bool> ctrlmessages((unsigned int (__fastcall *)(MessageKey &))Pair_Key_Hash); // RA2: as above
+	static Dictionary<MessageKey, bool> ctrlmessages((unsigned int (__fastcall *)(MessageKey &))Product); // RA2: as above
 
 	MessageKey key; // RA2: as above
 	key.Window = (int)window; // RA2: as above
@@ -6197,8 +6196,8 @@ cleanup:
                     char class_name[128];
                     GetClassNameA(window, class_name, sizeof(class_name)); // RA2: as above
                     if (strcmp(class_name, "ComboBox") == 0) {
-                        Rect_Shrink(&source, -1, -1); // RA2: as above
-                        Rect_Shrink(&destination, -1, -1); // RA2: as above
+                        Inflate_Rect(source, -1, -1); // RA2: as above
+                        Inflate_Rect(destination, -1, -1); // RA2: as above
                     }
                     VisibleSurface->Lock();
                     AlternateSurface->Lock();
@@ -8221,13 +8220,8 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 
 		case OD_SUBCLASSED: {
 			int & heights_set = ((int *)data->Reserved_18)[1];
-			bool set_heights = !heights_set;
-			if (!set_heights) {
-				// level-2 1.001: the synchronous height query can change the font.
-				const int line_height = data->Font->LineHeight;
-				set_heights = SendMessageA(window, CB_GETITEMHEIGHT, 0, 0) != line_height + 6;
-			}
-			if (set_heights) {
+			const int saved_height = heights_set ? data->Font->LineHeight : 0;
+			if (!heights_set || SendMessageA(window, CB_GETITEMHEIGHT, 0, 0) != saved_height + 6) {
 				SendMessageA(window, CB_SETITEMHEIGHT, (WPARAM)-1, data->Font->LineHeight + 2); // level-2 1.001: as above
 				SendMessageA(window, CB_SETITEMHEIGHT, 0, data->Font->LineHeight + 6); // level-2 1.001: as above
 				heights_set = 1; // level-2 1.001: as above
@@ -8512,7 +8506,10 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			}
 			if ((int)wparam >= colors->length()) { // level-2 1.001: as above
 				int none = -1; // level-2 1.001: the default colour
-				colors->setSize(wparam + 1, none); // level-2 1.001: as above
+				int new_size = (int)(wparam + 1);
+				if (new_size >= 0) { // level-2 1.001: reject a negative size before changing the array length.
+					colors->setSize(new_size, none);
+				}
 			}
 			colors->replace((int &)lparam, wparam); // level-2 1.001: as above
 			InvalidateRect(window, 0, FALSE);
@@ -8532,7 +8529,10 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			index = MIN(index, SendMessageA(window, LB_GETCOUNT, 0, 0) - 1); // level-2 1.001: as above
 			if (index >= selections->length()) { // level-2 1.001: as above
 				int clear = 0; // level-2 1.001: as above
-				selections->setSize(index + 1, clear); // level-2 1.001: as above
+				int new_size = (int)((unsigned int)index + 1);
+				if (new_size >= 0) { // level-2 1.001: reject a negative size before changing the array length.
+					selections->setSize(new_size, clear);
+				}
 			}
 			if (index == -1) { // level-2 1.001: every row
 				for (int row = 0; row < selections->length(); row++) { // level-2 1.001: as above
@@ -8579,7 +8579,10 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			}
 			if (last >= selections->length()) { // level-2 1.001: as above
 				int clear = 0; // level-2 1.001: as above
-				selections->setSize(last + 1, clear); // level-2 1.001: as above
+				int new_size = (int)((unsigned int)last + 1);
+				if (new_size >= 0) { // level-2 1.001: reject a negative size before changing the array length.
+					selections->setSize(new_size, clear);
+				}
 			}
 			for (int row = first; row <= last; row++) { // level-2 1.001: as above
 				selections->replace((int &)wparam, row); // level-2 1.001: as above
@@ -11298,9 +11301,9 @@ int OwnerDraw::Default_Dialog_Proc(HWND window, UINT message, WPARAM wparam, LPA
     case WM_NCHITTEST: {
         HWND status = GetDlgItem(window, 0x695);
         if (status) {
-            unsigned int y = HIWORD(lparam);
             unsigned int x = LOWORD(lparam);
-            // level-2 1.001: STEERING keep the converted point live and release bounds before text construction.
+            unsigned int y = HIWORD(lparam);
+            // level-2 1.001: STEERING declare x first, keep the point live and release bounds before text construction.
             POINT local = { x, y };
             {
                 RECT bounds;

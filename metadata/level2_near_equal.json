@@ -451,6 +451,86 @@
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Combatant_Select_Command: all 26 undecided regions CODEGEN_ONLY",
    "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x5f380",
+   "symbol": "BulletClass::AI",
+   "tu": "bullet.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): BulletClass::AI: closure floating-point addition order restored (a 16,416-unit difference on a concrete input fixed); remaining regions CODEGEN_ONLY",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x12a490",
+   "symbol": "?Draw_Tile@IsometricTileTypeClass@@QBEXPAVLightConvertClass@@HAAVSurface@@HHV?$TRect@H@@HH_NH333H@Z",
+   "tu": "isotype.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Draw_Tile: persistent scanline write restored (batch 74) and tile checkerboard fixed; 4220->3483; 98 paired fixtures pass",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x1e04d0",
+   "symbol": "?Init_Control_Animation@OwnerDraw@@YGHPAUHWND__@@J@Z",
+   "tu": "ownrdraw.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Init_Control_Animation: NEAR_EQUAL_CANDIDATE (timer-tail branch ordering)",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x1f77c0",
+   "symbol": "?Standard_Dialog_Proc@@YIHPAUHWND__@@IIJ@Z",
+   "tu": "ownrdraw.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Standard_Dialog_Proc: NEAR_EQUAL_CANDIDATE (unsigned hit-test local order)",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x2ec1b0",
+   "symbol": "?Type_Select_Command@@YIXXZ",
+   "tu": "UICmnds.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Type_Select_Command: formatter call restored; NEAR_EQUAL_CANDIDATE",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x2eccf0",
+   "symbol": "?Veterancy_Nav_Command@@YIX_N@Z",
+   "tu": "UICmnds.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Veterancy_Nav_Command: 14 open regions resolved CODEGEN_ONLY",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x2ec9c0",
+   "symbol": "?Health_Nav_Command@@YIX_N@Z",
+   "tu": "UICmnds.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Health_Nav_Command: 12 open regions resolved CODEGEN_ONLY",
+   "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x133e50",
+   "symbol": "?Draw@LoadProgressManager@@QAEXXZ",
+   "tu": "ldprgmgr.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): LoadProgressManager::Draw: NEAR_EQUAL_CANDIDATE; paired execution across 116 cases passed",
+   "meaning": "functionally equivalent per region classification; byte match still open"
   }
  ],
  "not_near_equal": [

@@ -645,7 +645,10 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 		 * forever. Airburst and very high projectiles are exempt, since they
 		 * come down on their targets from above.
 		 */
-		Point3D next_offset = coord - target_coord; // level-2 1.001: STEERING keep the current and previous offsets in distinct slots
+		Point3D next_offset; // level-2 1.001: STEERING materialize the components separately so both lengths sum X and Y before Z
+		next_offset.Y = coord.Y - target_coord.Y; // level-2 1.001: STEERING retain the native square-add order
+		next_offset.X = coord.X - target_coord.X; // level-2 1.001: STEERING retain the native square-add order
+		next_offset.Z = coord.Z - target_coord.Z; // level-2 1.001: STEERING retain the native square-add order
 		Point3D previous_offset = old_coord - target_coord; // level-2 1.001: STEERING keep both distance vectors live across the length calculations
 		int delta = previous_offset.Length() - next_offset.Length(); // level-2 1.001: the 3D distances (1.001 calls TPoint3D<int>::Length 0x41b780 twice); level-2 1.001: STEERING preserve the recovered frame and branch layout
 

@@ -11826,10 +11826,10 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 			++g_SquadInfoRequests;
 			g_pChat->RequestSquadInfo(users->squadID);
 		}
-		bool is_owner = (users->flags & 1) != 0;
+		unsigned long is_owner = users->flags & 1;
 		const char *nickname = (const char *)users->name;
 		char name_buffer[64];
-		strcpy(name_buffer, nickname); // level-2 1.001: STEERING use the observed callback-local copy for the wide player name
+		strcpy(name_buffer, nickname); // level-2 1.001: STEERING keep the callback-local name snapshot for the session name
 		User entry = *users;
 		entry.next = NULL;
 		g_UserList.addTail(entry);
@@ -11860,11 +11860,11 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 			memset(&slot, 0, sizeof(slot));
 			strcpy(slot.name, nickname);
 			if (stricmp(nickname, g_NickName.get()) != 0) {
-				if (Session.Players.Count() == 1) wcscpy(Session.GameName, Narrow_To_Wide(nickname));
+				if (Session.Players.Count() == 1) wcscpy(Session.GameName, Narrow_To_Wide(name_buffer));
 				NodeNameType *node = new NodeNameType;
 				if (node) {
 					memset(node, 0, sizeof(NodeNameType));
-					WideWstring wide_name = Wstring_ToWide(name_buffer);
+					WideWstring wide_name = Wstring_ToWide(nickname);
 					wcscpy(node->Name, wide_name.get());
 					node->Address = User_To_IPX_Address(users);
 					node->Set_Country(-2);

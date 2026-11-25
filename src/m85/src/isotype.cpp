@@ -1949,7 +1949,7 @@ void IsometricTileTypeClass::Draw_Tile(LightConvertClass * drawer, int subtile, 
 														*IsoDrawData.DestPtr = (unsigned short)IsoDrawData.FogColor;
 													}
 													*IsoDrawData.DepthPtr = 0;
-													checker = checker == 0;
+													checker ^= 1;
 													++IsoDrawData.SrcPixel;
 													++IsoDrawData.DestPtr;
 													++IsoDrawData.DepthPtr;

@@ -279,27 +279,30 @@ inline Rect Name_Area(void) // level-2 1.001: STEERING construct the country rec
 /// </summary>
 inline Rect Unit_Area(void) // level-2 1.001: STEERING initialize the unit rectangle before applying screen offsets.
 {
-	Rect area(20, 90, 200, 20);
+	int x, y;
 	if (VideoModeWidth == ScreenWidths[0]) {
-		area.X = 16;
-		area.Y = 72;
+		x = 16;
+		y = 72;
+	} else {
+		x = 20;
+		y = 90;
 	}
 	if (VideoModeWidth >= ScreenWidths[1]) {
-		area.X += (VideoModeWidth - ScreenWidths[1]) / 2;
-		area.Y += (VideoModeHeight - ScreenHeights[1]) / 2;
+		x += (VideoModeWidth - ScreenWidths[1]) / 2;
+		y += (VideoModeHeight - ScreenHeights[1]) / 2;
 	}
-	return area;
+	return Rect(x, y, 200, 20);
 }
 
 /// <summary>
 /// Changes the lower case letters of a text to capitals, those of the Latin-1 letters from 0xE0 to 0xFE too.
 /// </summary>
-inline void Upper_Case(wchar_t * string) // level-2 1.001: STEERING use an index for the unit label's case conversion.
+inline void Upper_Case(wchar_t * string) // level-2 1.001: STEERING walk a character pointer for the unit label's case conversion.
 {
-	for (int i = 0; string[i]; ++i) {
-		wchar_t ch = string[i];
+	for (wchar_t *p = string; *p; ++p) {
+		wchar_t ch = *p;
 		if ((ch >= 'a' && ch <= 'z') || (ch >= 0xE0 && ch <= 0xFE)) {
-			string[i] = ch - 0x20;
+			*p = ch - 0x20;
 		}
 	}
 }

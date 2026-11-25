@@ -1292,7 +1292,9 @@ void Type_Select_Command()
     }
 
     For_Each_If(*list, Accept_Named, Select_Command_Object, names, NULL);
-    Selection_Scope_Message(buffer);
+    // level-2 1.001: STEERING Preserve the out-of-line native message formatter.
+    void (*format)(wchar_t *) = Selection_Scope_Message;
+    format(buffer);
     Show_Command_Message(buffer);
     LastCommand = 2;
     AttackMoveArmed = false;

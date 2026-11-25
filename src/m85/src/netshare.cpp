@@ -3911,17 +3911,14 @@ void __fastcall Load_Lobby_Options(HWND dialog, SessionOptionsClass * options) /
 	mode->UnfixAlliances(); // RA2: as above
 	int limit = 8; // RA2: as above
 	if (Is_Current_Channel_Tournament() && Session.Type == GAME_INTERNET) { // level-2 1.001: only a restricted channel limits the slots, and no observer slot is added
-		limit = Get_Lobby_Slot_Limit(); // RA2: as above
+		int restricted = Is_Current_Channel_Tournament() && !Is_Current_Channel_Flag_8() ? 2 : 4;
+		limit = restricted; // level-2 1.001: STEERING keep the channel limit in a temporary
 	}
 	for (int slot = 1; slot < 8; slot++) { // RA2: as above
 		int id = Get_Slot_Control_Id(slot); // RA2: as above
 		int kind = options->SlotData[slot][0]; // RA2: as above
 		if (Is_Current_Channel_Tournament()) { // level-2 1.001: no observer mode
-			if (kind == 4) { // RA2: as above
-				kind = 2; // RA2: as above
-			} else if (kind == 5) { // RA2: as above
-				kind = 2; // RA2: as above
-			} else if (kind == 6) { // RA2: as above
+			if (kind == 4 || kind == 5 || kind == 6) { // RA2: as above
 				kind = 2; // RA2: as above
 			}
 		}
@@ -3935,7 +3932,36 @@ void __fastcall Load_Lobby_Options(HWND dialog, SessionOptionsClass * options) /
 			Select_Side_Combo(dialog, side_id, options->SlotData[slot][1]); // RA2: as above
 			Set_Slot_Country(dialog, side_id); // RA2: as above
 			Select_Color_Combo(dialog, color_id, options->SlotData[slot][2]); // RA2: as above
-			Set_Slot_Color(dialog, color_id); // RA2: as above
+			{
+				int color = Color_Combo_Data(dialog, color_id, -1);
+				int player = Color_Combo_Player(color_id);
+				if (player == Session.LocalSlot) {
+					Color_Combo_Changed(dialog, color_id);
+					if (color != -2) {
+						for (int i = 0; i < 8; ++i) {
+							NodeNameType * entry = Session.Slots[i];
+							if (entry != NULL && entry != LobbyEntries[0] && entry != LobbyEntries[1] &&
+								entry != LobbyEntries[5] && entry != LobbyEntries[2] &&
+								entry != LobbyEntries[3] && entry != LobbyEntries[4] && entry->Get_Color() == color) {
+								color = -2;
+								break;
+							}
+						}
+						if (color != -2) {
+							for (int k = 0; k < 8; ++k) {
+								if (Session.Options.AISlots.Colors[k] == color) {
+									color = -2;
+									break;
+								}
+							}
+						}
+					}
+					Session.Set_Color(color, false);
+					Session.Players[0]->Set_Color(color);
+				} else {
+					Session.Options.AISlots.Colors[player] = color;
+				}
+			} // RA2: as above
 		} else {
 			Select_Side_Combo(dialog, side_id, Session.MPGameMode->DefaultCountry()); // RA2: as above
 			Select_Color_Combo(dialog, color_id, -2); // RA2: as above
