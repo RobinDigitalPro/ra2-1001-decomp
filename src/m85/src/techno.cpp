@@ -4982,8 +4982,13 @@ BulletClass * TechnoClass::Fire_At(AbstractClass * target, int which) // level-2
 		}
 	}
 
+	// level-2 1.001: STEERING stage the squared planar range before converting to flight distance.
 	Point2D delta(target_coord.X - fire_coord.X, target_coord.Y - fire_coord.Y);
-	int max_speed = weapon->Get_Speed((int)fastmath::sqrt((double)(delta.Y * delta.Y + delta.X * delta.X)));
+	int dx2 = delta.X * delta.X;
+	int dy2 = delta.Y * delta.Y;
+	int range_squared = dx2 + dy2;
+	int distance = (int)fastmath::sqrt((double)(range_squared));
+	int max_speed = weapon->Get_Speed(distance);
 
 	BulletClass * bullet = weapon->Bullet->Create_Bullet(target, this, firepower, weapon->WarheadPtr, max_speed, weapon->IsBright);
 	if (bullet != NULL) {
@@ -5055,7 +5060,12 @@ BulletClass * TechnoClass::Fire_At(AbstractClass * target, int which) // level-2
 		}
 
 		velocity.Set(0.0, 0.0, 0.0);
-		velocity.Set_Speed((double)max_speed);
+		// level-2 1.001: STEERING expose the live launch-speed scale to VC6.
+		velocity.Nonzero_Check();
+		double scale = max_speed / velocity.Speed();
+		velocity.X *= scale;
+		velocity.Y *= scale;
+		velocity.Z *= scale;
 		if (segments > 0) {
 			double offset = M_PI / segments * RadialFireSegment - M_PI_2;
 			DirType facing = PrimaryFacing.Current(); // level-2 1.001: a named facing (its temporary leaves the dir slot)

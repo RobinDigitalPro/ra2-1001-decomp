@@ -6534,6 +6534,17 @@ static DirType Rotate_Zone_Angle(unsigned int const & angle)
  * HISTORY:                                                                                    *
  *   11/04/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
+// level-2 1.001: INFERRED rotate a random quadrant direction by one facing.
+static DirType const & Rotate_Back(DirType & dir, int clear, int set)
+{
+	dir.Facing &= ~clear;
+	dir.Facing |= set;
+	DirType sector(dir);
+	sector.Snap_To_8();
+	dir.Facing = (dir.Facing & ~0xE000) | ((sector.As_Int() - 1) & 0xE000);
+	return(dir);
+}
+
 Cell HouseClass::Random_Cell_In_Zone(ZoneType zone) const
 {
 	Cell cell;
@@ -6575,10 +6586,8 @@ Cell HouseClass::Random_Cell_In_Zone(ZoneType zone) const
 
 		case ZONE_SOUTH: {
 			int distance = Random_Pick(radius, maxdist);
-			unsigned int dir = (unsigned short)Scen->RandomNumber();
-			dir &= ~(DIR_E << 8);
-			dir |= DIR_S << 8;
-			coord = Move_Coord(Center, Rotate_Zone_Angle(dir), distance);
+			DirType dir(Scen->RandomNumber);
+			coord = Move_Coord(Center, Rotate_Back(dir, DIR_E << 8, DIR_S << 8), distance);
 			break;
 		}
 
@@ -6592,7 +6601,8 @@ Cell HouseClass::Random_Cell_In_Zone(ZoneType zone) const
 			break;
 		}
 		default:
-			goto fallback;
+			coord = COORD_NONE;
+			break;
 	}
 
 	/*
@@ -6600,7 +6610,6 @@ Cell HouseClass::Random_Cell_In_Zone(ZoneType zone) const
 	**	number.
 	*/
 	if (coord == COORD_NONE /*|| !Map.In_Radar(coord.As_Cell())*/) {
-	fallback:
 		if (zone == ZONE_CORE) {
 
 			/*
@@ -6616,7 +6625,7 @@ Cell HouseClass::Random_Cell_In_Zone(ZoneType zone) const
 			cell = Random_Cell_In_Zone(ZONE_CORE);
 		}
 	} else {
-		cell = coord.As_Cell();
+		cell = Cell(coord);
 	}
 
 	/*
