@@ -491,9 +491,9 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 				int width = 0; // RA2: as above
 				int height = 0; // RA2: as above
 				BitFont::Instance->Text_Dimensions(text, &width, &height, 400); // RA2: as above
-				Rect area(point.X, point.Y, width, height); // RA2: as above
+				screen = Rect(point, width, height); // level-2 1.001: STEERING reuse the screen rectangle after its final campaign use.
 				Shade_Text_Area(text, ProgressSurface, point.X, point.Y, 400, 0, false); // RA2: as above
-				Draw_Area_Text(text, ProgressSurface, area, pixel, 0); // RA2: as above
+				Draw_Area_Text(text, ProgressSurface, screen, pixel, 0); // RA2: as above
 			}
 		}
 		return; // RA2: as above
@@ -522,15 +522,16 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 		{ // level-2 1.001: no observer test; the unit and the briefing are always drawn
 			wcscpy(unit_name, Unit_Name(side)); // RA2: the unit's name, in capitals, at the top left in black
 			Upper_Case(unit_name); // RA2: as above
-			area = Unit_Area(); // RA2: as above
-			int unit_pixel = DSurface::Build_Hicolor_Pixel(BlackColor); // RA2: as above
-			Draw_Area_Text(unit_name, ProgressSurface, area, unit_pixel, 0); // RA2: as above
+			Rect unit_area = Unit_Area(); // level-2 1.001: STEERING keep the unit rectangle local to its draw.
+			RGBClass const & unit_color = BlackColor; // level-2 1.001: STEERING preserve the unit draw's color conversion.
+			int unit_pixel = DSurface::Build_Hicolor_Pixel(unit_color); // RA2: as above
+			Draw_Area_Text(unit_name, ProgressSurface, unit_area, unit_pixel, 0); // RA2: as above
 
 			wchar_t const * brief = Briefing(side); // RA2: the country's briefing is drawn in an area of its own
-			Rect region = Get_Briefing_Area(); // level-2 1.001: STEERING -- keep the briefing rectangle local to its use.
-			point = Copy_Point((Point2D const *)&region); // RA2: as above
-			Shade_Text_Area(brief, ProgressSurface, point.X, point.Y, region.Width, 0, true); // RA2: as above
-			Draw_Area_Text(brief, ProgressSurface, region, pixel, 0); // RA2: as above
+			area = Get_Briefing_Area(); // level-2 1.001: STEERING reuse the country rectangle for the briefing.
+			point = Copy_Point((Point2D const *)&area); // RA2: as above
+			Shade_Text_Area(brief, ProgressSurface, point.X, point.Y, area.Width, 0, true); // RA2: as above
+			Draw_Area_Text(brief, ProgressSurface, area, pixel, 0); // RA2: as above
 		}
 
 		wchar_t const * loading = StringTable::LoadString("GUI:LoadingEx", NULL, "C:\\RA2\\LdPrgMgr.cpp", 714); // RA2: the word for loading

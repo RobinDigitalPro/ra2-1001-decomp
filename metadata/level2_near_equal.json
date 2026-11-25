@@ -111,6 +111,26 @@
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch63_target_04_*.md (batch 63, job 0d2147b6): the 2 bytes are two swapped stack offsets of two flag tests; all four flag combinations and the jump targets agree; constructor bindings repaired in batch 61",
    "meaning": "functionally equivalent: the only difference is the stack slot order of two locals (codegen only); fix in the end phase with the complete file linked"
+  },
+  {
+   "rva": "0x2ee430",
+   "symbol": "Read_Text_File",
+   "tu": "strtable.cpp",
+   "diff_bytes": 6,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch64_target_08_*.md (batch 64, job 58776dd1): all six residual bytes belong to one instruction scheduling swap; 14 calls, eight jump targets and the selector table exact",
+   "meaning": "functionally equivalent: one scheduling swap of independent instructions (codegen only); fix in the end phase with the complete file linked"
+  },
+  {
+   "rva": "0x220ac0",
+   "symbol": "Spread_Units_Around_Cell",
+   "tu": "queue.cpp",
+   "diff_bytes": 4,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch64g_*.md and batch60 target06 (jobs b81e4c73, 5d58f931): the 4 bytes are two independent stack reloads (EBX/start, EDI/closest) restored in swapped order at 0x220d4f; 68 builds kept the identical residue; gibbo's YR form does not transfer",
+   "meaning": "functionally equivalent: order of two independent reloads (codegen only); original bug kept (fallback-walk rejection clears an already clear flag, gibbo BUGS.md); fix codegen in the end phase with the complete file linked"
   }
  ],
  "not_near_equal": [

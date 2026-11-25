@@ -2385,10 +2385,10 @@ static inline void Recalc_Column_Availability(int index)
 		Map.Update_Build_Buttons();
 	} else {
 		GadgetClass & button = Map.TabButton[index]; // level-2 1.001: STEERING
-		button.Disable();
+		button.GadgetClass::Disable();
 		int first = -1;
 		SidebarClass::StripClass const * column = Map.Column;
-		for (int i = 0; i * sizeof(*column) < sizeof(Map.Column); i++, ++column) {
+		for (int i = 0; i * int(sizeof(*column)) < int(sizeof(Map.Column)); i++, ++column) {
 			if (Recalc_Has_Buildables(*column)) {
 				first = i;
 				break;
@@ -2544,7 +2544,7 @@ bool SidebarClass::StripClass::Recalc(void)
 		} else {
 			TopIndex = 0;
 			GadgetClass & empty_tab = Map.TabButton[ID]; // level-2 1.001: STEERING
-			empty_tab.Disable(); // level-2 1.001: the strip is empty
+			empty_tab.GadgetClass::Disable(); // level-2 1.001: the strip is empty
 		}
 		Map.IsForceCompleteRedraw = true; // level-2 1.001
 	}

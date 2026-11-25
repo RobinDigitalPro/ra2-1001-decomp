@@ -11389,6 +11389,14 @@ static inline char Lookup_Buddy_Status(Wstring const & name, unsigned int & valu
 
 BOOL CALLBACK WOL_Buddy_List_Dialog_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
 
+// level-2 1.001: ported from meastes/redalert2-decomp src/recovered/wonline.cpp @613e28e4e0 (GPL-3.0-or-later).
+static inline bool Request_Buddy_Game_List() // level-2 1.001: INFERRED buddy game list refresh
+{
+	if (Get_Channel_List(0x21, false)) return true;
+	DebugString("Buddy List Guest Get Channel List failed\n");
+	return false;
+}
+
 int __fastcall Run_Online_Menu(bool first_time) // level-2 1.001: 0x007474E0, the buddy list and its host and guest game sessions.
 {
 	g_PlayingNetGame = false;
@@ -11397,7 +11405,20 @@ int __fastcall Run_Online_Menu(bool first_time) // level-2 1.001: 0x007474E0, th
 		Online_Session_Return = 0;
 		return 0;
 	}
-	Leave_Current_Channel(0x40, true);
+	// level-2 1.001: STEERING expand the leave operation here to retain the original inline depth.
+	if (g_ChannelCount) {
+		DebugString("Leave_Channel, channel %s type %d\n", g_CurrentChannel.name, g_CurrentChannel.type);
+		g_pChat->RequestChannelLeave();
+		{
+			WideWstring title(StringTable::LoadString("WOL:LeavingChannel", NULL, "C:\\RA2\\wonline.cpp", 8207));
+			Show_Wait_Window(0x40, title, true);
+		}
+		for (int i = 0; g_ChannelCount && i < 150; i++) {
+			Sleep(100);
+			WOL_Wait_Callback();
+		}
+		Close_Wait_Window(0x40);
+	}
 	g_BuddyChannels.clear();
 	for (;;) {
 		SimpleWonlineDialogControl control;
@@ -11497,23 +11518,21 @@ int __fastcall Run_Online_Menu(bool first_time) // level-2 1.001: 0x007474E0, th
 				return 0;
 			}
 			case 5: {
-				Wstring name((char *)buddy.name);
-				bool found;
+				// level-2 1.001: STEERING keep the name temporary alive through guest cleanup.
+				Wstring const &name = Wstring((char *)buddy.name);
 				if (!Find_Channel(name, g_GameChannelList, game)) {
-					if (!Get_Channel_List(0x21, false)) {
-						DebugString("Buddy List Guest Get Channel List failed\n");
-						found = false;
-					} else {
-						found = Find_Channel(name, g_GameChannelList, game);
+					// level-2 1.001: STEERING name the refresh result to preserve later TU code generation.
+					bool refreshed = Request_Buddy_Game_List();
+					// level-2 1.001: STEERING bind the retry result for the original boolean materialization.
+					bool const & found = refreshed ? Find_Channel(name, g_GameChannelList, game) : false;
+					if (!found) {
+						DebugString("Buddy List Guest Find Channel by name failed\n");
+						goto guest_done;
 					}
+				}
+				if (!Join_Game_Channel(&game)) {
+					DebugString("Buddy List Guest Join_Game failed\n");
 				} else {
-					found = true;
-				}
-				if (!found) {
-					DebugString("Buddy List Guest Find Channel by name failed\n");
-					break;
-				}
-				if (Join_Game_Channel(&game)) {
 					int remaining = 500;
 					g_JoinLobbyNow = 0;
 					do {
@@ -11522,15 +11541,24 @@ int __fastcall Run_Online_Menu(bool first_time) // level-2 1.001: 0x007474E0, th
 							WOL_Wait_Callback();
 						}
 						Reset_Wait_Event_At(event);
-						char const *reason = NULL;
-						if (event == EV_ABORT) reason = "EV_ABORT from Buddy List Guest\n";
-						else if (event == EV_EXIT) reason = "EV_EXIT from Buddy List Guest\n";
-						else if (event == EV_ERROR) reason = "EV_ERROR from Buddy List Guest\n";
-						else if (event == EV_CHAN_JOIN_FAIL) reason = "EV_CHAN_JOIN_FAIL from Buddy List Guest\n";
-						if (reason) {
-							DebugString(reason);
+						// level-2 1.001: STEERING keep each event test and its original flag store independent.
+						if (event == EV_ABORT) {
+							DebugString("EV_ABORT from Buddy List Guest\n");
 							g_JoinLobbyNow = 1;
-						} else if (event == EV_STARTGAME) {
+						}
+						if (event == EV_EXIT) {
+							DebugString("EV_EXIT from Buddy List Guest\n");
+							g_JoinLobbyNow = 1;
+						}
+						if (event == EV_ERROR) {
+							DebugString("EV_ERROR from Buddy List Guest\n");
+							g_JoinLobbyNow = 1;
+						}
+						if (event == EV_CHAN_JOIN_FAIL) {
+							DebugString("EV_CHAN_JOIN_FAIL from Buddy List Guest\n");
+							g_JoinLobbyNow = 1;
+						}
+						if (event == EV_STARTGAME) {
 							DebugString("EV_STARTGAME from Buddy List Guest\n");
 							g_GameStartRequested = false;
 							g_pChat->RequestChannelLeave();
@@ -11539,16 +11567,15 @@ int __fastcall Run_Online_Menu(bool first_time) // level-2 1.001: 0x007474E0, th
 							g_JoinLobbyNow = 0;
 							return 1;
 						}
-						if (remaining-- <= -1) {
+						if (remaining-- < 0) {
 							DebugString("Timeout from Buddy List Guest\n");
 							break;
 						}
 					} while (!g_JoinLobbyNow);
 					g_JoinLobbyNow = 0;
 					DebugString("Exit from BuddyList Guest\n");
-				} else {
-					DebugString("Buddy List Guest Join_Game failed\n");
 				}
+			guest_done: // level-2 1.001: STEERING share the name destructor with the failed retry.
 				break;
 			}
 			}
@@ -11874,11 +11901,12 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 		rc_ptr<PlayerProfile> profile;
 		if (options.Is_Bit1_Clear()) profile = PlayerProfile::Load(g_NickName);
 		else profile = g_PlayerProfile.Get();
-		if (profile.Get()) {
-			Session.Set_Side(profile->Country, false);
-			Session.Set_Color(profile->Color, false);
+		PlayerProfile *active_profile = profile.Get();
+		if (active_profile) {
+			Session.Set_Side(active_profile->Country, false);
+			Session.Set_Color(active_profile->Color, false);
 			char reply[64];
-			sprintf(reply, "R%d,%d", profile->Country, profile->Color);
+			sprintf(reply, "R%d,%d", active_profile->Country, active_profile->Color);
 			User host;
 			if (g_UserList.getHead(host)) {
 				g_pChat->RequestPrivateGameOptions(&host, reply);

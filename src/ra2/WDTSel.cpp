@@ -984,11 +984,12 @@ void Selection::Show_State(rc_ptr<WorldDominationTour::State> const & state, boo
     }
     DynamicVectorClass<MSAnim *> zooms;
     DynamicVectorClass<MSAnim *> targets;
-    TerritoryCursor territories(Map->Territories);
+    TerritoryCursor territories(Map.Get()->Territories, 0); // level-2 1.001: STEERING use the raw map pointer for the second traversal.
     for (TerritoryCursor & cursor = territories; cursor.Is_Valid(); ++cursor) {
         rc_ptr<Territory> const & current = *cursor;
+        WorldDominationTour::State * previous = State.Get(); // level-2 1.001: STEERING capture the previous state before the territory ID.
         int id = current->ID;
-        int oldowner = State->Get_Owner(id);
+        int oldowner = previous->Get_Owner(id);
         int owner = state->Get_Owner(id);
         if (owner != oldowner) {
             Poll_Input();
@@ -996,7 +997,7 @@ void Selection::Show_State(rc_ptr<WorldDominationTour::State> const & state, boo
         }
         if (animate && owner == 1) {
             // level-2 1.001: STEERING capture the territory position before the map offset.
-            Point2D const & position = (*cursor)->Target;
+            Point2D const & position = (*cursor).Get()->Target;
             Point2D const & offset = Map->Offset;
             int x = position.X + offset.X;
             int y = position.Y + offset.Y;

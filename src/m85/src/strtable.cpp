@@ -446,6 +446,38 @@ static inline bool Is_ASCII_Letter(char c)
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
+// level-2 1.001: STEERING expand white-space collapse at this reader without changing its other caller.
+static __forceinline void Collapse_Text_Line(wchar_t * string)
+{
+	wchar_t * in = string;
+	wchar_t previous = 0;
+	int line_start = 1;
+	wchar_t * out = string;
+	for (wchar_t c = *in++; c != 0; c = *in++) {
+		if (c == ' ') {
+			if (previous == c || line_start) {
+				continue;
+			}
+		} else if (c == '\n' || c == '\t') {
+			if (previous == ' ') {
+				out--;
+			}
+			*out = c;
+			line_start = 1;
+			previous = c;
+			out++;
+			continue;
+		}
+		*out++ = c;
+		previous = c;
+		line_start = 0;
+	}
+	if (previous == ' ') {
+		out--;
+	}
+	*out = 0;
+}
+
 // level-2 1.001: Convert_String adapted from meastes/redalert2-decomp, src/recovered/uicmnds2.cpp (1.006).
 static void Convert_String(wchar_t *wide, char *text)
 {
@@ -454,8 +486,8 @@ static void Convert_String(wchar_t *wide, char *text)
 		char *run = 0;
 		char *reversed = ReversedText;
 		char *next = text;
-		char c;
-		while ((c = *next++) != 0) {
+		char first = *next++; // level-2 1.001: STEERING keep the first byte live separately from the loop byte.
+		for (char c = first; c != 0; c = *next++) {
 			if (Is_ASCII_Letter(c)) {
 				if (run == 0) {
 					run = reversed;
@@ -560,7 +592,7 @@ int __fastcall Read_Text_File(void) // RA2: 0x006F9790
 				TextLine[line_length + 1] = 0; // RA2: as above
 				Read_Text_Entry(TextFile, &TextLine[1], TextBuffer, LabelBuffer, 0x1000); // RA2: as above
 				Convert_String(CSFWideText, TextBuffer);
-				Collapse_White_Space(CSFWideText); // RA2: as above
+				Collapse_Text_Line(CSFWideText); // RA2: as above
 				int wide_length = wcslen(CSFWideText) + 1;
 				StringValues[string_index + count] = (wchar_t *)::operator new(wide_length * sizeof(wchar_t)); // RA2: as above
 				wcscpy(StringValues[string_index + count], CSFWideText); // RA2: as above

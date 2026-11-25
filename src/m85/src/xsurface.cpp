@@ -992,12 +992,12 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 	int bottom_offset = pitch * bottom;
 	int top_offset = pitch * top;
 	int xleft = point.X;
-	short * bottom_right = &buffer[bottom_offset + point.X];
+	int xright = point.X;
 	short * top_left = &buffer[top_offset + point.X];
 	// level-2 1.001: STEERING - initialize the second top cursor independently.
 	short * top_right = &buffer[point.X + top_offset];
-	int xright = point.X;
 	short * bottom_left = &buffer[bottom_offset + point.X];
+	short * bottom_right = &buffer[bottom_offset + point.X];
 
 	while (true) {
 		decision += rady_squared + xterm;
