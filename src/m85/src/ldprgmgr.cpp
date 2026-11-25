@@ -524,7 +524,7 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 			Upper_Case(unit_name); // RA2: as above
 			Rect unit_area = Unit_Area(); // level-2 1.001: STEERING keep the unit rectangle local to its draw.
 			RGBClass const & unit_color = BlackColor; // level-2 1.001: STEERING preserve the unit draw's color conversion.
-			int unit_pixel = DSurface::Build_Hicolor_Pixel(unit_color); // RA2: as above
+			unsigned short unit_pixel = DSurface::Build_Hicolor_Pixel(unit_color); // RA2: as above
 			Draw_Area_Text(unit_name, ProgressSurface, unit_area, unit_pixel, 0); // RA2: as above
 
 			wchar_t const * brief = Briefing(side); // RA2: the country's briefing is drawn in an area of its own

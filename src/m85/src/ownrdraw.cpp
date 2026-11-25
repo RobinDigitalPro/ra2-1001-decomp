@@ -5624,8 +5624,8 @@ LRESULT __stdcall Control_Proc(HWND window, UINT message, WPARAM wparam, LPARAM 
 	Get_Display_Rect(window, &display_rect);
 	RECT window_rect;
 	GetWindowRect(window, &window_rect);
-	int offset_y = window_rect.top - display_rect.top;
 	int offset_x = window_rect.left - display_rect.left;
+	int offset_y = window_rect.top - display_rect.top;
 
 
 	static ArrayList<HWND> hwndarray;
@@ -5993,8 +5993,8 @@ LRESULT __stdcall Control_Proc(HWND window, UINT message, WPARAM wparam, LPARAM 
 				tooltip_rect.top = ODTooltip.bounds.Y;
 				tooltip_rect.bottom = ODTooltip.bounds.Height + ODTooltip.bounds.Y + 1;
 				if (num_rect_updates == 1) {
-					RECT intersect;
-					if (IntersectRect(&intersect, &disp_rect, &tooltip_rect)) {
+					RECT &tooltip_intersection = intersect; // level-2 1.001: STEERING
+					if (IntersectRect(&tooltip_intersection, &disp_rect, &tooltip_rect)) {
 						if (ODTooltip.isActive && ODTooltip.isHidden != 1 && ODTooltip.background != 0) { // RA2: as above
 							Rect drect = ODTooltip.bounds;
 							Rect srect(0, 0, ODTooltip.bounds.Width, ODTooltip.bounds.Height);
@@ -8638,11 +8638,35 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 				int height = SendMessageA(window, LB_GETITEMHEIGHT, 0, 0); // level-2 1.001: as above
 				int count = SendMessageA(window, LB_GETCOUNT, 0, 0); // level-2 1.001: as above
 				row = y / height + record->Position; // level-2 1.001: as above
-				if (row < 0 || row > count - 1) { // level-2 1.001: as above
+				if (row < 0) { // level-2 1.001: STEERING separate the two row bounds for VC6 branch layout.
+					return(LB_ERR);
+				}
+				if (row > count - 1) {
 					return(LB_ERR);
 				}
 			}
 			return(row);
+		}
+
+		case LB_DELETESTRING: { // level-2 1.001: STEERING position the delete handler before column insertion.
+			ArrayList<int> * colors = List_Row_Colors(record); // level-2 1.001: as above
+			if (colors && colors->length() > (int)wparam) { // level-2 1.001: as above
+				colors->remove(wparam); // level-2 1.001: as above
+			}
+			ArrayList<int> * selections = List_Selections(record); // level-2 1.001: as above
+			if (selections && selections->length() > (int)wparam) { // level-2 1.001: as above
+				selections->remove(wparam); // level-2 1.001: as above
+			}
+			ArrayList<ColumnData> * columns = List_Columns(record); // level-2 1.001: as above
+			if (columns) { // level-2 1.001: as above
+				ColumnData * column = 0; // level-2 1.001: as above
+				for (int index = 0; index < columns->length(); index++) { // level-2 1.001: as above
+					columns->getPointer(&column, index); // level-2 1.001: as above
+					ArrayList<CellData> &cells = column->cells; // level-2 1.001: STEERING name the cell array used for deletion.
+					cells.remove(wparam); // level-2 1.001: as above
+				}
+			}
+			break;
 		}
 
 		case OD_ADDCOLUMN: {
@@ -8670,26 +8694,6 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			int top = SendMessageA(record->ScrollBar, SBM_GETPOS, 0, 0); // level-2 1.001: as above
 			if (top != SendMessageA(window, LB_GETTOPINDEX, 0, 0)) { // level-2 1.001: as above
 				SendMessageA(window, LB_SETTOPINDEX, top, 0); // level-2 1.001: as above
-			}
-			break;
-		}
-
-		case LB_DELETESTRING: {
-			ArrayList<int> * colors = List_Row_Colors(record); // level-2 1.001: as above
-			if (colors && colors->length() > (int)wparam) { // level-2 1.001: as above
-				colors->remove(wparam); // level-2 1.001: as above
-			}
-			ArrayList<int> * selections = List_Selections(record); // level-2 1.001: as above
-			if (selections && selections->length() > (int)wparam) { // level-2 1.001: as above
-				selections->remove(wparam); // level-2 1.001: as above
-			}
-			ArrayList<ColumnData> * columns = List_Columns(record); // level-2 1.001: as above
-			if (columns) { // level-2 1.001: as above
-				ColumnData * column = 0; // level-2 1.001: as above
-				for (int index = 0; index < columns->length(); index++) { // level-2 1.001: as above
-					columns->getPointer(&column, index); // level-2 1.001: as above
-					column->cells.remove(wparam); // level-2 1.001: as above
-				}
 			}
 			break;
 		}

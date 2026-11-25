@@ -11903,7 +11903,7 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 		else profile = g_PlayerProfile.Get();
 		PlayerProfile *active_profile = profile.Get();
 		if (active_profile) {
-			Session.Set_Side(active_profile->Country, false);
+			Session.Set_Side(profile->Country, false); // level-2 1.001: STEERING reload the owned profile for the first setter
 			Session.Set_Color(active_profile->Color, false);
 			char reply[64];
 			sprintf(reply, "R%d,%d", active_profile->Country, active_profile->Color);

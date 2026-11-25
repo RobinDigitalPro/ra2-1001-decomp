@@ -984,23 +984,27 @@ void Selection::Show_State(rc_ptr<WorldDominationTour::State> const & state, boo
     }
     DynamicVectorClass<MSAnim *> zooms;
     DynamicVectorClass<MSAnim *> targets;
-    TerritoryCursor territories(Map.Get()->Territories, 0); // level-2 1.001: STEERING use the raw map pointer for the second traversal.
+    // level-2 1.001: STEERING retain the second cursor constructor call and its frame slot.
+    TargetTerritoryRange region(Map.Get()->Territories, 0);
+    TerritoryCursor & territories = region.Cursor;
     for (TerritoryCursor & cursor = territories; cursor.Is_Valid(); ++cursor) {
-        rc_ptr<Territory> const & current = *cursor;
+        rc_ptr<Territory> & current = *cursor;
         WorldDominationTour::State * previous = State.Get(); // level-2 1.001: STEERING capture the previous state before the territory ID.
         int id = current->ID;
         int oldowner = previous->Get_Owner(id);
         int owner = state->Get_Owner(id);
         if (owner != oldowner) {
             Poll_Input();
-            (*cursor)->Set_State(owner, *this, !Aborted || fast);
+            // level-2 1.001: STEERING access the territory through its member to align the following artwork block.
+            Territory * (rc_ptr<Territory>::* receiver)() = &rc_ptr<Territory>::operator ->;
+            ((*cursor).*receiver)()->Set_State(owner, *this, !Aborted || fast);
         }
         if (animate && owner == 1) {
-            // level-2 1.001: STEERING capture the territory position before the map offset.
-            Point2D const & position = (*cursor).Get()->Target;
-            Point2D const & offset = Map->Offset;
-            int x = position.X + offset.X;
-            int y = position.Y + offset.Y;
+            // level-2 1.001: STEERING capture the territory pointer before the map offset.
+            Territory * location = (*cursor).Get();
+            Point2D const & offset = Map.Get()->Offset;
+            int x = location->Target.X + offset.X;
+            int y = location->Target.Y + offset.Y;
             if (ZoomingTarget != NULL) {
                 CCFileClass file(*ZoomingTarget);
                 if (file.Is_Available()) {

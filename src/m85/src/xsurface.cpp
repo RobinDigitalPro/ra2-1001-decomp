@@ -960,6 +960,7 @@ bool XSurface::Fill_Rect_Trans(Rect const & rect, RGBClass const & color, unsign
 /// <returns>bool; Was the ellipse drawn?</returns>
 bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, int color)
 {
+	Point2D pixel; // level-2 1.001: STEERING - use X for the right flat-arc coordinate.
 	int pitch = Stride() >> 1;
 
 	/*
@@ -992,7 +993,7 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 	int bottom_offset = pitch * bottom;
 	int top_offset = pitch * top;
 	int xleft = point.X;
-	int xright = point.X;
+	pixel.X = point.X;
 	short * top_left = &buffer[top_offset + point.X];
 	// level-2 1.001: STEERING - initialize the second top cursor independently.
 	short * top_right = &buffer[point.X + top_offset];
@@ -1013,7 +1014,7 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 		}
 		xterm += 2 * rady_squared;
 
-		xright++;
+		pixel.X++;
 		xleft--;
 
 		bottom_right++;
@@ -1025,7 +1026,7 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 			break;
 		}
 		int ypos = y + point.Y;
-		if (xright >= cliprect.X && xright < cliprect.X + cliprect.Width && ypos >= cliprect.Y && ypos < cliprect.Y + cliprect.Height) {
+		if (pixel.X >= cliprect.X && pixel.X < cliprect.X + cliprect.Width && ypos >= cliprect.Y && ypos < cliprect.Y + cliprect.Height) {
 			*bottom_right = color;
 		}
 		ypos = point.Y - y;
@@ -1033,7 +1034,7 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 			*top_left = color;
 		}
 		ypos = point.Y - y;
-		if (xright >= cliprect.X && xright < cliprect.X + cliprect.Width && ypos >= cliprect.Y && ypos < cliprect.Y + cliprect.Height) {
+		if (pixel.X >= cliprect.X && pixel.X < cliprect.X + cliprect.Width && ypos >= cliprect.Y && ypos < cliprect.Y + cliprect.Height) {
 			*top_right = color;
 		}
 		ypos = point.Y + y;
@@ -1045,9 +1046,7 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 	/*
 	 * Plot the right and left points of the ellipse if they are visible.
 	 */
-	Point2D pixel;
-
-	xright = point.X + radx;
+	int xright = point.X + radx;
 	if (xright >= cliprect.X && xright < cliprect.X + cliprect.Width && point.Y >= cliprect.Y && point.Y < cliprect.Y + cliprect.Height) {
 		pixel.X = xright;
 		pixel.Y = point.Y;
@@ -1093,12 +1092,12 @@ bool XSurface::Draw_Ellipse(Point2D point, int radx, int rady, Rect cliprect, in
 			bottom_left++;
 		}
 		yterm += 2 * radx_squared;
-		offset.Y++;
 
 		bottom_right += pitch;
 		top_left -= pitch;
 		top_right -= pitch;
 		bottom_left += pitch;
+		offset.Y++; // level-2 1.001: STEERING - update the row with its four cursors.
 
 		if (yterm > xterm) {
 			break;

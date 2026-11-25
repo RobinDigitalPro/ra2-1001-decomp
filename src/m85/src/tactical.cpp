@@ -1146,9 +1146,9 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 				 * Swap the composite and tile surfaces so the freshly-panned image becomes the
 				 * render target.
 				 */
-				Surface * oldcomp = CompositeSurface;
-				CompositeSurface = TileSurface;
-				TileSurface = oldcomp;
+				Surface * panned = TileSurface;
+				TileSurface = CompositeSurface;
+				CompositeSurface = panned;
 				surface = CompositeSurface; // level-2 1.001: the swapped surface is written back into the argument
 				LogicalSurface = CompositeSurface;
 			}
@@ -1189,14 +1189,15 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 			Rect leftclip = Intersect(leftstrip, TacticalRect);
 			Rect rightclip = Intersect(rightstrip, TacticalRect);
 
+			int exposed_width = TacticalRect.Width - panwidth;
 			Rect topstrip;
 			Rect bottomstrip;
 			if (scrolled_left) {
-				topstrip = Rect(TacticalRect.X + panwidth, TacticalRect.Y, TacticalRect.Width - panwidth, panheight); // level-2 1.001: one branch per direction
-				bottomstrip = Rect(TacticalRect.X + panwidth, TacticalRect.Y + TacticalRect.Height - panheight, TacticalRect.Width - panwidth, panheight);
+				topstrip = Rect(TacticalRect.X + panwidth, TacticalRect.Y, exposed_width, panheight); // level-2 1.001: one branch per direction
+				bottomstrip = Rect(TacticalRect.X + panwidth, TacticalRect.Y + TacticalRect.Height - panheight, exposed_width, panheight);
 			} else if (scrolled_right) {
-				topstrip = Rect(TacticalRect.X, TacticalRect.Y, TacticalRect.Width - panwidth, panheight);
-				bottomstrip = Rect(TacticalRect.X, TacticalRect.Y + TacticalRect.Height - panheight, TacticalRect.Width - panwidth, panheight);
+				topstrip = Rect(TacticalRect.X, TacticalRect.Y, exposed_width, panheight);
+				bottomstrip = Rect(TacticalRect.X, TacticalRect.Y + TacticalRect.Height - panheight, exposed_width, panheight);
 			} else {
 				topstrip = Rect(TacticalRect.X, TacticalRect.Y, TacticalRect.Width, panheight);
 				bottomstrip = Rect(TacticalRect.X, TacticalRect.Y + TacticalRect.Height - panheight, TacticalRect.Width, panheight);
@@ -1209,12 +1210,12 @@ void Tactical::Render(Surface * surface, bool fullredraw, int drawpass)
 					TacticalRect.Width - panwidth, TacticalRect.Height - panheight);
 
 			Rect xpanrect(0, 0, 0, 0);
-			Rect ypanrect(0, 0, 0, 0);
 			if (scrolled_left) {
 				xpanrect = leftclip;
 			} else if (scrolled_right) {
 				xpanrect = rightclip;
 			}
+			Rect ypanrect(0, 0, 0, 0);
 			if (scrolled_up) {
 				ypanrect = topclip;
 			} else if (scrolled_down) {
