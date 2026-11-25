@@ -15,7 +15,7 @@ Our target binary is the GAME.EXE of an **old repack of Red Alert 2 1.001**, not
 | Byte-identical functions (claims) | 17,795 |
 | Share of `.text` reproduced (including identified library code) | 95.46 % |
 | Share of `.text` from our own source | 93.00 % |
-| Functionally equivalent near misses (codegen-only residue, `metadata/level2_near_equal.json`) | 59 |
+| Functionally equivalent near misses (codegen-only residue, `metadata/level2_near_equal.json`) | 60 |
 | Matched with a documented repack patch (`metadata/level2_repack_patches.json`) | 2 |
 | Identical empty bodies placed by source order (`metadata/level2_order_placed.json`) | 6 |
 | Share of `.text` including the near-equal functions | 99.15 % |

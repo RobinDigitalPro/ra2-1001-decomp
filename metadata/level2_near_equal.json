@@ -591,6 +591,16 @@
    "verdict": "CODEGEN_ONLY",
    "evidence": "batch 77 (job f415f739): Net2DecodeGameopt: all 176 regions statically equivalent (Session+0x14 and decoding fixes integrated)",
    "meaning": "functionally equivalent per region classification; byte match still open"
+  },
+  {
+   "rva": "0x1ecc60",
+   "symbol": "?Combo_Proc@OwnerDraw@@YGJPAUHWND__@@IIJ@Z",
+   "tu": "ownrdraw.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY",
+   "evidence": "batch 78 (job c5baf10a) separate proposal integrated 2026-11-25 23:21Z: the last brush transition (titles of 254/255 UTF-16 units) reproduced, 0 of 164,480 model differences; Combo_Drop_Proc stays exact (7184/7184) and all 238 ownrdraw claims pass; compiler-generated symbol identities to recheck at the final link",
+   "meaning": "functionally equivalent per region classification and model test; byte match still open"
   }
  ],
  "not_near_equal": [

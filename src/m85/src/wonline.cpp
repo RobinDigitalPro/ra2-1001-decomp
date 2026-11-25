@@ -11903,7 +11903,7 @@ STDMETHODIMP CChatEventSink::OnUserList(HRESULT result, Channel *channel, User *
 		PlayerProfile *active_profile = profile.Get();
 		if (active_profile) {
 			Session.Set_Side(profile->Country, false);
-			Session.Set_Color(profile->Color, false);
+			Session.Set_Color(active_profile->Color, false);
 			char reply[64];
 			sprintf(reply, "R%d,%d", profile->Country, profile->Color);
 			User host;
