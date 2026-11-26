@@ -50656,6 +50656,12 @@
   "name": "dynamic initializer (GAMECONST.H static)"
  },
  {
+  "rva": "0x190670",
+  "tu": "src/m85/src/missile.cpp",
+  "symbol": "?Projectile_Motion@@YIHAAVCoord@@AAV?$TVelocity3D@N@@ABV1@ABVDirType@@_N444@Z",
+  "name": "Projectile_Motion"
+ },
+ {
   "rva": "0x190eb0",
   "tu": "src/m85/src/missile.cpp",
   "symbol": "??HDirType@@QBE?AV0@ABV0@@Z",

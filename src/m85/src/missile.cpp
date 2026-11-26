@@ -24,6 +24,47 @@
 #include "geometry.h" // RA2: this module holds its own copy of the geometry constants (initialized after MissileRect, from 0x005936A0)
 
 
+namespace {
+	// level-2 1.001: STEERING initialize the homing velocity snapshot from its planar base and height.
+	struct MotionVector : public TVelocity2D<double>
+	{
+		MotionVector(const TVelocity2D<double> & planar, double z)
+			: TVelocity2D<double>(planar), Z(z) {}
+
+		double Z;
+	};
+
+	// level-2 1.001: STEERING give the speed return its own magnitude expansion.
+	struct MotionMagnitude
+	{
+		explicit MotionMagnitude(const TVelocity3D<double> & velocity) : Velocity(velocity) {}
+
+		double Magnitude() const
+		{
+			return fastmath::sqrt((Velocity.X * Velocity.X) + (Velocity.Y * Velocity.Y) + (Velocity.Z * Velocity.Z));
+		}
+
+		const TVelocity3D<double> & Velocity;
+	};
+
+	// level-2 1.001: STEERING name the turn difference at the yaw and low-altitude pitch sites.
+	inline bool Motion_Turn(DirType & current, const DirType & towards, const DirType & by)
+	{
+		if (current.Is_Complete_Turn(towards, by)) {
+			current.Facing = towards.Facing;
+			return true;
+		}
+
+		DirType difference(towards - current);
+		if (difference.Facing < 0) {
+			current -= by;
+		} else {
+			current += by;
+		}
+		return false;
+	}
+}
+
 /// <summary>
 /// Handles one frame of guided missile flight.
 /// This routine is used by the bullet logic to fly a homing projectile. It advances the
@@ -43,20 +84,19 @@
 /// <returns>Returns with the distance still to be covered, with the vertical component
 /// discounted. A projectile with nothing to home on returns its own speed.</returns>
 // level-2 1.001: body adopted from gibbo101/ra2-decomp src/missile.cpp @94adbad041a96d176a6e5758da3916aa9b60980a
-// (GPL-3.0-or-later, YR 1.001). The function-level `DirType desired_pitch;` gives 1.001's 0x8c frame (b29).
-// level-2 1.001: 51 bytes differ at two instruction-scheduling sites (batch 46).
+// (GPL-3.0-or-later, YR 1.001). The matched function retains 1.001's 0x8c frame.
+// level-2 1.001: Projectile_Motion matches the original 2,101 code bytes.
 int Projectile_Motion(Coord & coord, TVelocity3D<double> & velocity, Coord const & target_coord, DirType const & rot, bool aircraft, bool airburst, bool veryhigh, bool level)
 {
-	DirType desired_pitch;
 	if (target_coord == COORD_NONE) {
-		desired_pitch = velocity.Get_Pitch();
+		DirType desired_pitch = velocity.Get_Pitch();
 		desired_pitch.Turn(DirType(DIR_NE), rot);
 		velocity.Set_Pitch(desired_pitch);
 		TVelocity3D<double> frame_velocity(velocity);
 		coord = coord + Point3D(frame_velocity.X, frame_velocity.Y, frame_velocity.Z);
-		return(velocity.Speed());
+		return MotionMagnitude(velocity).Magnitude();
 	} else {
-		TVelocity3D<double> frame_velocity(velocity);
+		MotionVector frame_velocity(velocity, velocity.Z);
 		coord = coord + Point3D(frame_velocity.X, frame_velocity.Y, frame_velocity.Z);
 		int target_distance = coord.Distance_To(target_coord);
 		int horizontal_distance = Point2D(coord).Distance_To(Point2D(target_coord));
@@ -68,10 +108,10 @@ int Projectile_Motion(Coord & coord, TVelocity3D<double> & velocity, Coord const
 		target_direction = TVelocity3D<double>(dir); // level-2 1.001: STEERING keep the measured copy-constructor expansion.
 
 		DirType desired_yaw = velocity.Get_Yaw();
-		desired_yaw.Turn(target_direction.Get_Yaw(), rot);
+		Motion_Turn(desired_yaw, target_direction.Get_Yaw(), rot);
 		velocity.Set_Yaw(desired_yaw);
 
-		desired_pitch = velocity.Get_Pitch();
+		DirType desired_pitch = velocity.Get_Pitch();
 
 		if (!aircraft && (airburst || horizontal_distance > ((veryhigh ? 6 : 3) * CELL_LEPTON)) && rot.As_Dir256() > 1) {
 			TVelocity3D<double> lookahead_velocity(velocity);
@@ -98,7 +138,7 @@ int Projectile_Motion(Coord & coord, TVelocity3D<double> & velocity, Coord const
 				}
 
 				if (height_delta < -(LEVEL_LEPTON_H / 2)) {
-					desired_pitch.Turn(DirType(DIR_NE), rot / 2);
+					Motion_Turn(desired_pitch, DirType(DIR_NE), rot / 2);
 				} else if (height_delta > LEVEL_LEPTON_H / 2) {
 					desired_pitch.Turn(DirType(Dir256(DIR_E + DIR_STEP_32)), rot / 2);
 				} else {
