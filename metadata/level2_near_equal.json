@@ -326,10 +326,10 @@
    "rva": "0x292ef0",
    "symbol": "?Place@SuperClass@@QAEXABVCell@@_N@Z",
    "tu": "super.cpp",
-   "diff_bytes": 78,
+   "diff_bytes": 0,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 18 undecided regions CODEGEN_ONLY for gameplay; two constants with equal values live in distinct physical storage (binding detail for the end phase)",
+   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 18 undecided regions CODEGEN_ONLY for gameplay; two constants with equal values live in distinct physical storage (binding detail for the end phase) | 2026-11-26 (Codex's own job f7dcf95d, collected by collect_c1): 0 differing bytes over 4,336, all 194 relocations preserved; integrated as source. NOT claimed: it reads super.cpp's OWN copies of the header constants BRIDGE_LEPTON_HEIGHT (0xaa52e0) and CELL_NONE (0xaa5270), while the symbol map has one global address per name (0x824800, 0x8247b8) used by other TUs; needs per-TU data bindings in level2_check (C-item).",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
@@ -601,6 +601,16 @@
    "verdict": "CODEGEN_ONLY",
    "evidence": "batch 78 (job c5baf10a) separate proposal integrated 2026-11-25 23:21Z: the last brush transition (titles of 254/255 UTF-16 units) reproduced, 0 of 164,480 model differences; Combo_Drop_Proc stays exact (7184/7184) and all 238 ownrdraw claims pass; compiler-generated symbol identities to recheck at the final link",
    "meaning": "functionally equivalent per region classification and model test; byte match still open"
+  },
+  {
+   "rva": "0x34e040",
+   "symbol": "CChatEventSink::OnUserList",
+   "tu": "wonline.cpp",
+   "diff_bytes": null,
+   "status": "NEAR_EQUAL",
+   "verdict": "CODEGEN_ONLY_EXCEPT_DOCUMENTED_EXCEPTIONAL_PATHS",
+   "evidence": "batches 72-78 (job c5baf10a last): all normal-path regions CODEGEN_ONLY; 7 exceptional-path regions (list-size bound, failed allocation, missing profile, exhausted cursor with a one-user list) depend on the defunct WOL chat provider's contracts and cannot be decided statically",
+   "meaning": "accepted as functionally equal by the user on 2026-11-26 ('Accept as functional equal'); the 7 exceptional paths are documented differences for the rework phase"
   }
  ],
  "not_near_equal": [

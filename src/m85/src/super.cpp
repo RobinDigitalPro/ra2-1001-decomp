@@ -457,6 +457,11 @@ bool SuperClass::Can_Place() // RA2: is not const (0x0069D820)
 }
 
 
+static inline Cell Adjacent_Coordinate(Cell const &first, Cell const &second)
+{
+	return first + second;
+}
+
 /// <summary>
 /// Unleashes the super weapon upon the cell specified.
 /// This routine is called once the target has been chosen, either by the player
@@ -468,7 +473,7 @@ bool SuperClass::Can_Place() // RA2: is not const (0x0069D820)
 /// <param name="cell">The cell that was designated as the target.</param>
 /// <param name="player">Is this for a player owned super weapon? If so, then the
 /// targeting cursor gets cleared.</param>
-void SuperClass::Place(Cell const &cell, bool player) // RA2: does each weapon type's effect here; not a byte match yet (123 bytes: esi/edi roles and the X operand order of the Cell additions), see the report (0x0069D850)
+void SuperClass::Place(Cell const &cell, bool player)
 {
 	switch (Class->Type) {
 	case SUPER_CHRONO_SPHERE: // RA2: as above
@@ -507,7 +512,7 @@ void SuperClass::Place(Cell const &cell, bool player) // RA2: does each weapon t
 		for (int index = 0; index < 9; index++) { // RA2: as above
 			Cell const *offset = &CellAndNeighbors[index]; // RA2: as above
 			ObjectClass *object; // RA2: as above
-			if (Map[*offset + ChronoMapCoords].IsUnderBridge) { // RA2: as above
+			if (Map[Adjacent_Coordinate(*offset, ChronoMapCoords)].IsUnderBridge) { // RA2: as above
 				object = Map[ChronoMapCoords + *offset].Cell_Bridge_Occupier(); // RA2: as above
 			} else {
 				object = Map[*offset + ChronoMapCoords].Cell_Occupier(); // RA2: as above
@@ -687,8 +692,11 @@ void SuperClass::Place(Cell const &cell, bool player) // RA2: does each weapon t
 				CellClass *target = &Map[coord]; // RA2: as above
 				Coord sound = coord; // RA2: as above
 				Coord launch(sound.X, sound.Y, sound.Z + 20000); // RA2: as above
-				BulletTypeClass const * btype = payload->Bullet; // level-2 1.001: a named local; 1.001 loads the bullet type before the strength argument
-				BulletClass * bullet = btype->Create_Bullet(target, NULL, payload->Attack, payload->WarheadPtr, payload->MaxSpeed, false); // RA2: as above
+				BulletTypeClass const * const btype = payload->Bullet;
+				MPHType const speed = payload->MaxSpeed;
+				WarheadTypeClass const * const warhead = payload->WarheadPtr;
+				int const &strength = payload->Attack;
+				BulletClass * bullet = btype->Create_Bullet(target, NULL, strength, warhead, speed, false); // RA2: as above
 				bullet->Set_Weapon_Type(payload); // RA2: as above
 				Create_Attached_Anim(House, target, bullet, "PSIWARN"); // RA2: the bullet comes before the name
 				if (bullet != 0) { // RA2: as above
@@ -697,9 +705,9 @@ void SuperClass::Place(Cell const &cell, bool player) // RA2: does each weapon t
 					y *= fastmath::cos(1.5707483884323126); // RA2: as above
 					y *= -100.0; // RA2: as above
 					// level-2 1.001: builds X/Y through a 2D temporary first and computes Z afterwards (no Z initialisation store);
-					// this form reproduces that order exactly, the original wording is unknown (see the note at the function head)
-					TVelocity3D<double> velocity; // RA2: as above
-					(TVelocity2D<double> &)velocity = TVelocity2D<double>(fastmath::cos(1.5707483884323126) * fastmath::cos(1.5707483884323126) * -100.0, y);
+					TVelocity3D<double> velocity;
+					TVelocity2D<double> &planarVelocity = velocity;
+					planarVelocity = TVelocity2D<double>(fastmath::cos(1.5707483884323126) * fastmath::cos(1.5707483884323126) * -100.0, y);
 					velocity.Z = fastmath::sin(1.5707483884323126) * -100.0;
 					bullet->Unlimbo(launch, velocity); // RA2: as above
 					if (!MuteSWLaunches) { // RA2: as above
