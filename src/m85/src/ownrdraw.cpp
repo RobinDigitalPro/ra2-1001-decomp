@@ -7939,6 +7939,9 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 	GetWindowRect(window, &window_rect);
 	WinData * data = Get_Record(window); // level-2 1.001: no null check on the record
 
+	if (message - WM_DESTROY > 0x4e8U - WM_DESTROY) { // level-2 1.001: STEERING Forward the unhandled message range.
+		goto forward_combo_message; // level-2 1.001: STEERING Share the measured return or forwarding path.
+	}
 	switch (message) {
 		case WM_DESTROY:
 			SendMessageA(window, CB_SHOWDROPDOWN, FALSE, 0); // level-2 1.001: as above
@@ -7950,7 +7953,7 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 					break;
 				}
 				SendMessageA(GetParent(window), message, MAKEWPARAM(GetDlgCtrlID(window), CBN_EDITCHANGE), (LPARAM)window); // level-2 1.001: as above
-				return(result);
+				goto combo_return; // level-2 1.001: STEERING Preserve the shared result exit.
 			}
 			break;
 
@@ -7969,17 +7972,23 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 		case LB_SETITEMDATA: {
 			result = CallWindowProcA(proc, window, CB_GETITEMDATA, wparam, 0); // level-2 1.001: as above
 			if (result == CB_ERR) { // level-2 1.001: as above
-				return(result);
+				goto combo_return; // level-2 1.001: STEERING Preserve the shared result exit.
 			}
 			if (!result) { // level-2 1.001: as above
-				return(CB_ERR);
+				result = CB_ERR; // level-2 1.001: STEERING Carry the original value to the shared exit.
+				goto combo_return; // level-2 1.001: STEERING Preserve the shared result exit.
 			}
 			TextNode * node = (TextNode *)result; // level-2 1.001: as above
-			if (message == CB_GETITEMDATA || message == LB_GETITEMDATA) { // level-2 1.001: as above
-				return(node->Reserved_04); // level-2 1.001: as above
+			if (message == CB_GETITEMDATA) { // level-2 1.001: STEERING Give each condition its own return path.
+				result = node->Reserved_04; // level-2 1.001: STEERING Carry the original value to the shared exit.
+				goto combo_return; // level-2 1.001: STEERING Preserve the shared result exit.
+			}
+			if (message == LB_GETITEMDATA) { // level-2 1.001: STEERING Give each condition its own return path.
+				result = node->Reserved_04; // level-2 1.001: STEERING Carry the original value to the shared exit.
+				goto combo_return; // level-2 1.001: STEERING Preserve the shared result exit.
 			}
 			node->Reserved_04 = lparam; // level-2 1.001: as above
-			return(result);
+			goto combo_return; // level-2 1.001: STEERING Preserve the shared result exit.
 		}
 
 		case CB_GETCURSEL:
@@ -8117,8 +8126,11 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 			if (!found) { // level-2 1.001: as above
 				return(CB_ERR);
 			}
-			if (message == 0x4ba || message == 0x4c0) { // level-2 1.001: the select variants
-				return(CallWindowProcA(Combo_Proc, window, CB_SETCURSEL, result, 0)); // level-2 1.001: as above
+			if (message == 0x4ba) { // level-2 1.001: STEERING Give each condition its own return path.
+				return(CallWindowProcA(Combo_Proc, window, CB_SETCURSEL, result, 0)); // level-2 1.001: STEERING Give each condition its own return path.
+			}
+			if (message == 0x4c0) { // level-2 1.001: STEERING Give each condition its own return path.
+				return(CallWindowProcA(Combo_Proc, window, CB_SETCURSEL, result, 0)); // level-2 1.001: STEERING Give each condition its own return path.
 			}
 			return(result);
 		}
@@ -8292,10 +8304,10 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 			GetWindowRect(window, &paint_rect);
 			RECT drop_rect;
 			SendMessageA(window, CB_GETDROPPEDCONTROLRECT, 0, (LPARAM)&drop_rect); // level-2 1.001: as above
-			int width = display.right - display.left; // level-2 1.001: as above
-			int height = display.bottom - display.top; // level-2 1.001: as above
-			drop_rect.top += height + 1; // level-2 1.001: as above
-			drop_rect.bottom -= height + 1; // level-2 1.001: as above
+			int height = display.bottom - display.top; // level-2 1.001: STEERING Order the measured dimensions around the drop-rectangle adjustment.
+			drop_rect.top += height + 1; // level-2 1.001: STEERING Order the measured dimensions around the drop-rectangle adjustment.
+			drop_rect.bottom -= height + 1; // level-2 1.001: STEERING Order the measured dimensions around the drop-rectangle adjustment.
+			int width = display.right - display.left; // level-2 1.001: STEERING Order the measured dimensions around the drop-rectangle adjustment.
 			Rect rect(display.left, display.top, width, 24); // level-2 1.001: the closed box
 			Rect destination = rect;
 			destination.X = destination.Y = 0;
@@ -8310,7 +8322,8 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 			Get_Display_Rect(parent, &parent_display); // level-2 1.001: as above
 			Rect source = destination; // level-2 1.001: as above
 			if (parent_data && parent_data->Back) { // level-2 1.001: as above
-				source = Offset_Rect(source, display.left - parent_display.left, display.top - parent_display.top); // level-2 1.001: INFERRED, the TU helper Offset_Rect (one more inline site after CB_SHOWDROPDOWN; raw diff 5251 -> 5211)
+				source.X += display.left - parent_display.left; // level-2 1.001: STEERING Expand the inferred Offset_Rect adjustment.
+				source.Y += display.top - parent_display.top; // level-2 1.001: STEERING Expand the inferred Offset_Rect adjustment.
 			}
 
 			if (!data->Back) { // level-2 1.001: as above
@@ -8386,11 +8399,13 @@ LRESULT __stdcall Combo_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lp
 	**	(pass_on is still the constant true there), so the test and the CallWindowProc block sit
 	**	right after CB_SETCURSEL, its only real predecessor, as in 1.001.
 	*/
+forward_combo_message: // level-2 1.001: STEERING Share the measured return or forwarding path.
 	if (pass_on) { // level-2 1.001: as above
 		WNDPROC previous = 0; // level-2 1.001: as above
 		Window_Proc_Table.getValue(window, previous); // level-2 1.001: as above
 		result = CallWindowProcA(previous, window, message, wparam, lparam); // level-2 1.001: as above
 	}
+combo_return: // level-2 1.001: STEERING Share the measured return or forwarding path.
 	return(result); // level-2 1.001: as above
 }
 
