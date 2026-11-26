@@ -1187,8 +1187,10 @@ void MapClass::Set_Map_Dimensions(Rect const & rect, bool reset_cells, int cell_
 		}
 	}
 
-	int cellcount; *(volatile int*)&cellcount = 0;
+	int cellcount;
+
 	if (!reset_cells) {
+		cellcount = 0;
 		cells = (CellClass *) new char[sizeof(CellClass) * w * h];//new CellClass[w * h];
 		cells_base = cells;
 		Reset_Iterator();
