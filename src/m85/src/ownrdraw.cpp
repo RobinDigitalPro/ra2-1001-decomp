@@ -8658,6 +8658,15 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			return(row);
 		}
 
+		case WM_VSCROLL: { // level-2 1.001: STEERING place scroll forwarding next to the list deletion handler for VC6 block placement.
+			pass_on = false; // level-2 1.001: as above
+			int top = SendMessageA(record->ScrollBar, SBM_GETPOS, 0, 0); // level-2 1.001: as above
+			if (top != SendMessageA(window, LB_GETTOPINDEX, 0, 0)) { // level-2 1.001: as above
+				SendMessageA(window, LB_SETTOPINDEX, top, 0); // level-2 1.001: as above
+			}
+			break;
+		}
+
 		case LB_DELETESTRING: { // level-2 1.001: STEERING position the delete handler before column insertion.
 			ArrayList<int> * colors = List_Row_Colors(record); // level-2 1.001: as above
 			if (colors && colors->length() > (int)wparam) { // level-2 1.001: as above
@@ -8697,15 +8706,6 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			added.width = wparam; // level-2 1.001: as above
 			columns->addTail(added); // level-2 1.001: as above
 			return(lparam);
-		}
-
-		case WM_VSCROLL: {
-			pass_on = false; // level-2 1.001: as above
-			int top = SendMessageA(record->ScrollBar, SBM_GETPOS, 0, 0); // level-2 1.001: as above
-			if (top != SendMessageA(window, LB_GETTOPINDEX, 0, 0)) { // level-2 1.001: as above
-				SendMessageA(window, LB_SETTOPINDEX, top, 0); // level-2 1.001: as above
-			}
-			break;
 		}
 
 		case WM_DELETEITEM: {
@@ -9086,6 +9086,22 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			return(0);
 		}
 
+		case LB_SETCURSEL: { // level-2 1.001: STEERING keep selection and cell text exits adjacent for VC6 block placement.
+			int index = wparam; // level-2 1.001: as above
+			if (index >= -1 && index < SendMessageA(window, LB_GETCOUNT, 0, 0)) { // level-2 1.001: as above
+				if (List_Current(record) != -1) { // level-2 1.001: as above
+					SendMessageA(window, LB_SETSEL, FALSE, List_Current(record)); // level-2 1.001: as above
+				}
+				List_Current(record) = index; // level-2 1.001: as above
+				if (index != -1) { // level-2 1.001: as above
+					SendMessageA(window, LB_SETSEL, TRUE, index); // level-2 1.001: as above
+				}
+			}
+			Notify_Parent(window, LBN_SELCHANGE); // level-2 1.001: as above
+			InvalidateRect(window, 0, FALSE);
+			return(0);
+		}
+
 		case 0x4c7:
 		case 0x4c8:
 			wide = 0; // level-2 1.001: narrow text
@@ -9192,22 +9208,6 @@ LRESULT __stdcall List_Proc(HWND window, UINT message, WPARAM wparam, LPARAM lpa
 			}
 			Notify_Parent(window, LBN_SELCHANGE); // level-2 1.001: as above
 			break;
-		}
-
-		case LB_SETCURSEL: {
-			int index = wparam; // level-2 1.001: as above
-			if (index >= -1 && index < SendMessageA(window, LB_GETCOUNT, 0, 0)) { // level-2 1.001: as above
-				if (List_Current(record) != -1) { // level-2 1.001: as above
-					SendMessageA(window, LB_SETSEL, FALSE, List_Current(record)); // level-2 1.001: as above
-				}
-				List_Current(record) = index; // level-2 1.001: as above
-				if (index != -1) { // level-2 1.001: as above
-					SendMessageA(window, LB_SETSEL, TRUE, index); // level-2 1.001: as above
-				}
-			}
-			Notify_Parent(window, LBN_SELCHANGE); // level-2 1.001: as above
-			InvalidateRect(window, 0, FALSE);
-			return(0);
 		}
 
 		case 0x4b5:
