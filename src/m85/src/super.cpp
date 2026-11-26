@@ -457,6 +457,7 @@ bool SuperClass::Can_Place() // RA2: is not const (0x0069D820)
 }
 
 
+// level-2 1.001: STEERING Adjacent_Coordinate is a one-line inline wrapper around Cell addition; it reproduces the original order of the chrono-cell computation in SuperClass::Place (Codex job f7dcf95d, 2026-11-26).
 static inline Cell Adjacent_Coordinate(Cell const &first, Cell const &second)
 {
 	return first + second;
