@@ -25330,5 +25330,10 @@
   "address": "0x5b3cf0",
   "evidence": "function_start",
   "note": "auto-bound call target (level2_autobind.py); verified by level2_check"
+ },
+ "?CurrentSuperWeaponType@@3W4SuperWeaponType@@A": {
+  "address": "0x81b9d4",
+  "evidence": "data",
+  "note": "auto-bound data address from the original operand (level2_autobind.py --data); section verified by level2_check, consistency by conflict detection"
  }
 }

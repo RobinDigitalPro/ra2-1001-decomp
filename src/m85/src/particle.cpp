@@ -457,7 +457,7 @@ void ParticleClass::Smoke_Behavior_AI(void)
 
 // level-2 1.001: INFERRED spark-only specialization of the shared ballistic step.
 // level-2 1.001: STEERING isolate spark stack allocation while retaining the shared gas implementation.
-inline bool Spark_Ballistic_Step(Vector3 & position, Vector3 & velocity, double gravity, double elasticity)
+static inline bool Spark_Ballistic_Step(Vector3 & position, Vector3 & velocity, double gravity, double elasticity, bool & blocked)
 {
 	velocity.Z -= gravity;
 	Coord old_coord(position.X, position.Y, position.Z);
@@ -482,20 +482,19 @@ inline bool Spark_Ballistic_Step(Vector3 & position, Vector3 & velocity, double 
 		}
 	}
 
-	bool blocked = false;
-	// level-2 1.001: STEERING keep the bridge crossing flags live in this order.
-	if (!end_under_bridge && !start_under_bridge) {
+	blocked = false;
+	// level-2 1.001: STEERING test the descending crossing before the ascending crossing.
+	if (!start_under_bridge && !end_under_bridge) {
 		if (position.Z >= (double)height_gl && position.Z - 150.0f < (double)height_gl) {
 			BuildingClass * building = cellptr->Cell_Building();
-			if (building || cellptr->Has_Wall_Or_Gate()) {
-				blocked = true;
+			// level-2 1.001: STEERING preserve the obstruction result through both building checks.
+			blocked = building || cellptr->Has_Wall_Or_Gate();
+			if (blocked) {
 				if (building) {
 					if (building->Class->IsLaserFence && building->LaserFenceFrame >= 8) {
 						blocked = false;
 					}
-					if (building->Considered_Vehicle()) {
-						blocked = false;
-					}
+					blocked = building->Considered_Vehicle() ? false : blocked;
 				}
 			}
 		}
@@ -539,7 +538,9 @@ void ParticleClass::Spark_Behavior_AI(void)
 	MovementDirection.Z -= Rule->Gravity;
 	Vector3 velocity(MovementDirection.X, MovementDirection.Y, MovementDirection.Z);
 	Vector3 position(coord.X, coord.Y, coord.Z);
-	if (Spark_Ballistic_Step(position, velocity, Rule->Gravity, 1.0)) { // level-2 1.001: spark specialization
+	// level-2 1.001: STEERING keep the obstruction result in caller-owned storage.
+	bool blocked;
+	if (Spark_Ballistic_Step(position, velocity, Rule->Gravity, 1.0, blocked)) { // level-2 1.001: spark specialization
 		IsToDie = true;
 	}
 

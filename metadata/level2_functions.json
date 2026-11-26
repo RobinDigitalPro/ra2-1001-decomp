@@ -63214,6 +63214,12 @@
   "name": "?Smoke_Behavior_AI@ParticleClass@@QAEXXZ"
  },
  {
+  "rva": "0x201120",
+  "tu": "src/m85/src/particle.cpp",
+  "symbol": "?Spark_Behavior_AI@ParticleClass@@QAEXXZ",
+  "name": "ParticleClass::Spark_Behavior_AI"
+ },
+ {
   "rva": "0x201550",
   "tu": "src/m85/src/particle.cpp",
   "symbol": "?Fire_Behavior_AI@ParticleClass@@QAEXXZ",
