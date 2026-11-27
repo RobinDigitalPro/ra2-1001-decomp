@@ -886,7 +886,7 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 				/*
 				**	Certain projectiles lose strength when they travel.
 				*/
-				if (Class->IsDegenerate && Strength > 5) {
+				if (Strength > 5 && Class->IsDegenerate) { // level-2 1.001: STEERING test strength first in the maintenance path
 					Strength--;
 				}
 

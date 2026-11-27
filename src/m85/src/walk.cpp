@@ -303,8 +303,10 @@ void WalkLocomotionClass::Movement_AI(bool first_pass)
 					LinkedTo->Clear_Occupy_Bit(LinkedTo->Get_Coord());
 
 					TubeClass * tube_ptr = Tubes[tube];
-					Cell cell = tube_ptr->Exit;
-					HeadToCoord = Coord(cell, 0);
+					// level-2 1.001: STEERING Separate the exit projection from the working cell.
+					Cell exit_cell = tube_ptr->Exit;
+					Cell cell;
+					HeadToCoord = Coord(exit_cell, 0);
 
 					memcpy(&LinkedTo->Path[0], &LinkedTo->Path[1], sizeof(LinkedTo->Path[0]) * (ARRAY_SIZE(LinkedTo->Path) - 1));
 					LinkedTo->Path[ARRAY_SIZE(LinkedTo->Path) - 1] = FACING_NONE;
