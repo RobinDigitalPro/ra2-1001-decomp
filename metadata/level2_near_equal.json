@@ -29,7 +29,7 @@
    "diff_bytes": 3,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7); 2026-11-28 Claude agent own11: two operand-order residues (+0x4a2 add ecx,eax vs ours add eax,ecx; +0x68e [edx+edi] vs [edi+edx]); the 1.006 binary has OUR order at both sites, so this is 1.001-specific; count probes, CPU flags, ~14 rewrites flat: tie",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7); 2026-11-28 Claude agent own11: two operand-order residues (+0x4a2 add ecx,eax vs ours add eax,ecx; +0x68e [edx+edi] vs [edi+edx]); the 1.006 binary has OUR order at both sites, so this is 1.001-specific; count probes, CPU flags, ~14 rewrites flat: tie; 2026-11-28 Claude agent c2study: COUNT-TYPE, not an order tie: C2.DLL sorts commutative operands by a rank key (low 16 bits hash symbol IDs; only the function's own initialized locals move it); both 1.001 forms appear together at K=78..86 dead locals: end phase (kind 2) (docs/level2/lessons/C2_RULES_20261128.md)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -79,7 +79,7 @@
    "diff_bytes": 4,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch64g_*.md and batch60 target06 (jobs b81e4c73, 5d58f931): the 4 bytes are two independent stack reloads (EBX/start, EDI/closest) restored in swapped order at 0x220d4f; 68 builds kept the identical residue; gibbo's YR form does not transfer; 2026-11-28 Claude agent own11: meastes historical-final exact 1.006 body is statement for statement ours; 1.006 differs from 1.001 only by this reload order; 13 variants flat; four spellings broke Print_CRCs (kept exact); 2026-11-28 Claude agent gp2: flat under probes at three positions, 14 renames, 5 declaration orders, /G4 /G5 /GB and ~40 natural variants; at all three sites 1.001 orders the swapped moves by ascending register number (C2.DLL analysis is the remaining route)",
+   "evidence": "docs/level2/batch_reports/batch64g_*.md and batch60 target06 (jobs b81e4c73, 5d58f931): the 4 bytes are two independent stack reloads (EBX/start, EDI/closest) restored in swapped order at 0x220d4f; 68 builds kept the identical residue; gibbo's YR form does not transfer; 2026-11-28 Claude agent own11: meastes historical-final exact 1.006 body is statement for statement ours; 1.006 differs from 1.001 only by this reload order; 13 variants flat; four spellings broke Print_CRCs (kept exact); 2026-11-28 Claude agent gp2: flat under probes at three positions, 14 renames, 5 declaration orders, /G4 /G5 /GB and ~40 natural variants; at all three sites 1.001 orders the swapped moves by ascending register number (C2.DLL analysis is the remaining route); 2026-11-28 Claude agent c2study: \"ascending register order\" is not a 1.001 rule (GAME.EXE: 741 ascending, 452 descending, 133 mixed reload groups); reload order follows split history (flips only when a value is used in an earlier split loop); C2.DLL routine not identified",
    "meaning": "functionally equivalent: order of two independent reloads (codegen only); original bug kept (fallback-walk rejection clears an already clear flag, gibbo BUGS.md); fix codegen in the end phase with the complete file linked"
   },
   {
