@@ -11,6 +11,7 @@
  * disclaimers apply; see LICENSE.md.
  ******************************************************************************/
 
+#define RA2_DYNVEC_USER_ASSIGN // level-2 1.001: per-TU vector.h form (user DynamicVectorClass::operator=, no BASECLASS typedef); Read_RMG_INI 0x176750 needs it
 #include "always.h"
 
 #include "mapgen.h"
@@ -4620,7 +4621,7 @@ inline double Sample_Truncated_Normal_Inline(double mean, double scale, double l
 /// Reads the random map generator's settings from RMG.INI's General section: the tiberium limits, the level light
 /// and theater ambient light lists, the vegetation limits, the tree count and the buildings that light ore patches.
 /// </summary>
-void MapGeneratorClass::Read_RMG_INI(void) // RA2: not in TibSun, at 0x579960; near miss, exact size: the exe expands the second Get_IntList assignment inline (copying three fields) where this build still calls DynamicVectorClass<int>::operator= for it, so the exe keeps the second and third list address in registers
+void MapGeneratorClass::Read_RMG_INI(void) // RA2: not in TibSun, at 0x579960; level-2 1.001: matches with the RA2_DYNVEC_USER_ASSIGN vector.h form (inline choices of operator= and the temporaries' Clear) and direct scalar assignments (gp8)
 {
 	static char const * section = "General"; // RA2: the section name is a static pointer (0x7E0BE4), read for every key
 	CCFileClass file("RMG.INI"); // RA2: as above
@@ -4635,10 +4636,8 @@ void MapGeneratorClass::Read_RMG_INI(void) // RA2: not in TibSun, at 0x579960; n
 	TemperateAmbientLight.Clear(); // RA2: as above
 	SnowAmbientLight.Clear(); // RA2: as above
 
-	int minimum = ini->Get_Int(section, "RMGMinimumTiberium", RMGMinimumTiberium); // RA2: as above; level-2 1.001: typed locals (1.001 then inlines TypeList::operator= here)
-	RMGMinimumTiberium = minimum; // RA2: as above
-	int maximum = ini->Get_Int(section, "RMGMaximumTiberium", RMGMaximumTiberium); // RA2: as above
-	RMGMaximumTiberium = maximum; // RA2: as above
+	RMGMinimumTiberium = ini->Get_Int(section, "RMGMinimumTiberium", RMGMinimumTiberium); // RA2: as above
+	RMGMaximumTiberium = ini->Get_Int(section, "RMGMaximumTiberium", RMGMaximumTiberium); // RA2: as above
 	RMGLevelLightSettings = ini->Get_IntList(section, "RMGLevelLightSettings", RMGLevelLightSettings); // RA2: as above
 	RMGVegetationMinimums = ini->Get_IntList(section, "RMGVegetationMinimums", RMGVegetationMinimums); // RA2: as above
 	RMGVegetationMaximums = ini->Get_IntList(section, "RMGVegetationMaximums", RMGVegetationMaximums); // RA2: as above
@@ -4650,8 +4649,7 @@ void MapGeneratorClass::Read_RMG_INI(void) // RA2: not in TibSun, at 0x579960; n
 	SnowAmbientRed = ini->Get_IntList(section, "SnowAmbientRed", SnowAmbientRed); // RA2: as above
 	SnowAmbientGreen = ini->Get_IntList(section, "SnowAmbientGreen", SnowAmbientGreen); // RA2: as above
 	SnowAmbientBlue = ini->Get_IntList(section, "SnowAmbientBlue", SnowAmbientBlue); // RA2: as above
-	int trees = ini->Get_Int(section, "MaxTrees", MaxTrees); // RA2: as above; level-2 1.001: typed local
-	MaxTrees = trees; // RA2: as above
+	MaxTrees = ini->Get_Int(section, "MaxTrees", MaxTrees); // RA2: as above
 
 	TemperateOrePatchLamps = TGet_TypeList<BuildingTypeClass>(*ini, section, "TemperateOrePatchLamps", TemperateOrePatchLamps); // RA2: the lamp lists are read with the generic type-list reader (a 128 byte buffer inside), not by hand
 	SnowOrePatchLamps = TGet_TypeList<BuildingTypeClass>(*ini, section, "SnowOrePatchLamps", SnowOrePatchLamps); // RA2: as above

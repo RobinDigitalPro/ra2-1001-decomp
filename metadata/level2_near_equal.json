@@ -103,16 +103,6 @@
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {
-   "rva": "0x176750",
-   "symbol": "?Read_RMG_INI@MapGeneratorClass@@QAEXXZ",
-   "tu": "mapgen.cpp",
-   "diff_bytes": 97,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
-   "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
-  },
-  {
    "rva": "0x323340",
    "symbol": "?Show_State@Selection@WorldDominationTour@@QAEXABV?$rc_ptr@VState@WorldDominationTour@@@@_N1@Z",
    "tu": "WDTSel.cpp",
@@ -159,7 +149,7 @@
    "diff_bytes": 590,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "batch 72 classification + batch 73 (job 35f8261f): all 18 undecided regions resolved as code generation; all 415 function bodies and relocation targets reproduced; 2026-11-28 Claude agent own7: ~575 of 590 bytes from one point in the cell-restore bitfield copy (the 2-byte-shorter xor step: 1.001 at word 0x140 bit 16, ours at 0x12c bit 1) plus the cellcount = 0 store position; *c = *cptr witness matches up to +0xde7 but scores 1515; K=0..70 flat; 2026-11-28 Claude agent gp5: COUNT-TYPE (end phase): each link's 2-/3-operand form is the commutative sort of `src ^ prev` (GUIDE L76); target state save none / restore [49], P restore [29]; >950 full-TU variants never reach it (restore runs start only at links 28-35); the ~15-byte cellcount residue is a coupled edi/ebp colouring tie",
+   "evidence": "batch 72 classification + batch 73 (job 35f8261f): all 18 undecided regions resolved as code generation; all 415 function bodies and relocation targets reproduced; 2026-11-28 Claude agent own7: ~575 of 590 bytes from one point in the cell-restore bitfield copy (the 2-byte-shorter xor step: 1.001 at word 0x140 bit 16, ours at 0x12c bit 1) plus the cellcount = 0 store position; *c = *cptr witness matches up to +0xde7 but scores 1515; K=0..70 flat; 2026-11-28 Claude agent gp5: COUNT-TYPE (end phase): each link's 2-/3-operand form is the commutative sort of `src ^ prev` (GUIDE L76); target state save none / restore [49], P restore [29]; >950 full-TU variants never reach it (restore runs start only at links 28-35); the ~15-byte cellcount residue is a coupled edi/ebp colouring tie; 2026-11-28 Claude agent sm3: 590 = 17 entry bytes (cellcount store after `test al,al`; `cmp esi,edi` vs `test esi,esi`) + 482 (2-byte shift between restore link 29 and 1.001 link 49) + 91 (register rotation links 49-54); all other reachable link states cost more (1515-1891), so [29] is the cheapest; `cellcount = 0;` in both if and else hoists the store (entry matches except 3 bytes) but recolours (2810): end-phase starting point sm3/else_base.cpp",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

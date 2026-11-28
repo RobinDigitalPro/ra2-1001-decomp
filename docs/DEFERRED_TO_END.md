@@ -229,3 +229,5 @@ The techtype.h Unused2 member, the script.h Detach override and the faithful que
 - The bitfield-copy links' 2-/3-operand forms are the commutative operand sort (GUIDE L76): target restore state [49], P [29]; >950 natural variants never reach it. End phase: count anchor chosen with the rank-key rule (lessons/C2_RULES_20261128.md); the cellcount edi/ebp tie with L78 (lessons/C2_RULES_2_20261128.md).
 
 ## UPDATE 2026-11-28: MapRegionClass::Split_Region 0x16bd10 is MATCHED (Claude agent gp7); remove it from the end-phase list.
+
+## UPDATE 2026-11-28: MapGeneratorClass::Read_RMG_INI 0x176750 is MATCHED (Claude agent gp8); remove it from the end-phase list. Set_Map_Dimensions (sm3): restore link [29] is already the cheapest reachable state; the 573 count-type bytes need the end-phase anchor; starting point for the entry 17 bytes: sm3/else_base.cpp.

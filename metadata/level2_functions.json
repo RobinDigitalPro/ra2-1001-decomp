@@ -48844,6 +48844,12 @@
   "name": "?Sample_Truncated_Normal@@YINNNNN@Z"
  },
  {
+  "rva": "0x176750",
+  "tu": "src/m85/src/mapgen.cpp",
+  "symbol": "?Read_RMG_INI@MapGeneratorClass@@QAEXXZ",
+  "name": "MapGeneratorClass::Read_RMG_INI"
+ },
+ {
   "rva": "0x176ec0",
   "tu": "src/m85/src/mapgen.cpp",
   "symbol": "?Generate_Random_Map@MapGeneratorClass@@QAEX_NPAUHWND__@@@Z",

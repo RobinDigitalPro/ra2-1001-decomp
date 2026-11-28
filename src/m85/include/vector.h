@@ -479,12 +479,21 @@ bool VectorClass<T>::Resize(int newsize, T const * array)
 template<class T>
 class DynamicVectorClass : public VectorClass<T>
 {
+#ifndef RA2_DYNVEC_USER_ASSIGN
 		typedef VectorClass<T> BASECLASS;
+#endif
 	public:
-		using BASECLASS::Length;
+		using VectorClass<T>::Length;
 
 		DynamicVectorClass(unsigned size=0, T const * array=0);
-		DynamicVectorClass(NoInitClass const & x) : BASECLASS(x) {}
+		DynamicVectorClass(NoInitClass const & x) : VectorClass<T>(x) {}
+#ifdef RA2_DYNVEC_USER_ASSIGN
+		// level-2 1.001: per-TU header form (kind 1, like RA2_VECTOR_UNSIGNED_INDEX): TUs that define RA2_DYNVEC_USER_ASSIGN see a
+		// user copy assignment and no BASECLASS typedef (the RA1 VECTOR.H spelling VectorClass<T>::); same results as the implicit
+		// assignment. mapgen.cpp needs it: Read_RMG_INI 0x176750 gets 1.001's inline choices (op= at sites 2-11, Clear at 9 and 11) and
+		// Split_Region 0x16bd10 keeps its loop-2 latch reload order only without the typedef (gp8).
+		DynamicVectorClass & operator=(DynamicVectorClass const & that) {VectorClass<T>::operator=(that); ActiveCount = that.ActiveCount; GrowthStep = that.GrowthStep; return(*this);}
+#endif
 
 		// Stubbed equality operators so you can have dynamic vectors of dynamic vectors
 		bool operator== (const DynamicVectorClass &src)	{ return false; }
@@ -494,7 +503,7 @@ class DynamicVectorClass : public VectorClass<T>
 		virtual bool Resize(int newsize, T const * array=0) override;
 
 		// Resets and frees the vector array.
-		virtual void Clear(void) override {ActiveCount = 0;BASECLASS::Clear();};
+		virtual void Clear(void) override {ActiveCount = 0;VectorClass<T>::Clear();};
 
 		// retains the memory but zeros the active count
 		void Reset_Active(void)		{ ActiveCount = 0; }
@@ -541,7 +550,7 @@ class DynamicVectorClass : public VectorClass<T>
 		// Fetch current growth step rate.
 		int Growth_Step(void) {return(GrowthStep);};
 
-		virtual int ID(T const * ptr) override {return(BASECLASS::ID(ptr));};
+		virtual int ID(T const * ptr) override {return(VectorClass<T>::ID(ptr));};
 		virtual int ID(T const & ptr) override;
 
 		// Uninitialized Add - does everything an Add does, except copying an
@@ -553,8 +562,8 @@ class DynamicVectorClass : public VectorClass<T>
 
 	protected:
 
-		using BASECLASS::IsAllocated;
-		using BASECLASS::VectorMax;
+		using VectorClass<T>::IsAllocated;
+		using VectorClass<T>::VectorMax;
 
 		/*
 		**	This is a count of the number of active objects in this
@@ -595,7 +604,7 @@ class DynamicVectorClass : public VectorClass<T>
  *=============================================================================================*/
 template<class T>
 DynamicVectorClass<T>::DynamicVectorClass(unsigned size, T const * array)
-	: BASECLASS(size, array)
+	: VectorClass<T>(size, array)
 {
 	GrowthStep = 10;
 	ActiveCount = 0;
@@ -624,7 +633,7 @@ DynamicVectorClass<T>::DynamicVectorClass(unsigned size, T const * array)
 template<class T>
 bool DynamicVectorClass<T>::Resize(int newsize, T const * array)
 {
-	if (BASECLASS::Resize(newsize, array)) {
+	if (VectorClass<T>::Resize(newsize, array)) {
 		if (Length() < ActiveCount) ActiveCount = Length();
 		return(true);
 	}
