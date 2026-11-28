@@ -6,7 +6,7 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 
 | # | Function | RVA | Size | Diff |
 |---:|---|---|---:|---:|
-| 1 | Dropship_Screen | 0xa68a0 | 10797 | 4026 |
+| 1 | Dropship_Screen | 0xa68a0 | 10797 | 5 |
 | 2 | BuildingClass::Exit_Object | 0x402b0 | 6515 | 10 |
 | 3 | BulletClass::AI | 0x5f380 | 6382 | 1939 |
 | 4 | TechnoClass::Fire_At | 0x2bfe50 | 6002 | 2869 |
@@ -23,8 +23,6 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 15 | HouseClass::Random_Cell_In_Zone | 0xebf50 | 1276 | 664 |
 | 16 | ParticleSystemClass::Smoke_AI | 0x203750 | 1240 | 625 |
 | 17 | Psychic_Detector_Covers_Techno | 0x38570 | 865 | ? |
-| 18 | MultiplayerGameMode::Fill_Game_Mode_List | 0x1b3cf0 | 331 | 218 |
-| 19 | MultiplayerGameMode::Fill_Game_Mode_Combo | 0x1b3bc0 | 304 | 173 |
 | 20 | SyncState::SyncState | 0x21ad30 | 69 | 0 |
 | 21 | SyncState::~SyncState | 0x21ad80 | 18 | 0 |
 

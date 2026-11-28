@@ -56674,6 +56674,18 @@
   "name": "?Get@MultiplayerGameMode@@SIPAV1@H@Z"
  },
  {
+  "rva": "0x1b3bc0",
+  "tu": "src/ra2/Multiplayer.cpp",
+  "symbol": "?Fill_Game_Mode_Combo@MultiplayerGameMode@@SIXPAUHWND__@@H@Z",
+  "name": "MultiplayerGameMode::Fill_Game_Mode_Combo"
+ },
+ {
+  "rva": "0x1b3cf0",
+  "tu": "src/ra2/Multiplayer.cpp",
+  "symbol": "?Fill_Game_Mode_List@MultiplayerGameMode@@SIXPAUHWND__@@H@Z",
+  "name": "MultiplayerGameMode::Fill_Game_Mode_List"
+ },
+ {
   "rva": "0x1b3e40",
   "tu": "src/ra2/Multiplayer.cpp",
   "symbol": "?Assign_Teams@MultiplayerGameMode@@UAE_NXZ",

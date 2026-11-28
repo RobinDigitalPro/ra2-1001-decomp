@@ -15,13 +15,14 @@
 // block 0x1b61e0 belong to the next file (MultiplayerTeam, 0x1b63b0).
 //
 // Open (see W/analysis/level2/agents/Multiplayer.claims.json): Game_Mode_From_ID,
-// Fill_Game_Mode_Combo/List, Read_Game_Modes and Create_Units differ only in how far VC6 inlined
+// Read_Game_Modes and Create_Units differ only in how far VC6 inlined
 // the static-initialisation (VectorClass constructor) or VectorClass::Clear; Create_Starting_Forces
 // differs in register allocation of its first loop.
 #include "GAMECONST.H"
 #include <windows.h>
 #include <stddef.h>
 #include <string.h>
+#include <new.h>
 #include "ABSTRACT.H"
 
 // ---- local declarations (to be moved to headers by the integrator) ----
@@ -34,7 +35,7 @@ public:
     {
         if (size) {
             if (array) {
-                Vector = (T *)array;
+                Vector = new((void*)array) T[size];     // placement form as in VECTOR.H (m85 vector.h)
             } else {
                 Vector = new T[size];
                 IsAllocated = true;
@@ -909,6 +910,20 @@ MultiplayerGameMode * MultiplayerGameMode::Game_Mode_From_ID(int id)
     return NULL;
 }
 
+// level-2 1.001: STEERING Game_Mode_Name/Game_Mode_ID are one-line inline accessors (form of the matched
+// YR twins in gibbo101 multiplayer.cpp). Together with the placement-new VectorClass constructor they use
+// enough of VC6's inline budget that both Game_Modes() initialisations in Fill_Game_Mode_Combo/List call the
+// out-of-line VectorClass constructor, as in 1.001; each accessor alone is not enough.
+static inline WideStringClass & Game_Mode_Name(MultiplayerGameMode & mode)
+{
+    return mode.Name;
+}
+
+static inline int Game_Mode_ID(MultiplayerGameMode const & mode)
+{
+    return mode.ID;
+}
+
 void MultiplayerGameMode::Fill_Game_Mode_Combo(HWND combo, int selected)
 {
     Reset_Combo_Box(combo);
@@ -916,8 +931,8 @@ void MultiplayerGameMode::Fill_Game_Mode_Combo(HWND combo, int selected)
     for (int index = 0; index < Game_Mode_Count(); index++) {
         MultiplayerGameMode * mode = Game_Modes()[index];
         if (!skirmish || mode->Is_Skirmish_Allowed()) {
-            int item = SendMessageA(combo, CB_ADDSTRING, 0, (LPARAM)(wchar_t *)mode->Name);
-            if (mode->ID == selected) {
+            int item = SendMessageA(combo, CB_ADDSTRING, 0, (LPARAM)(wchar_t *)Game_Mode_Name(*mode));
+            if (Game_Mode_ID(*mode) == selected) {
                 SendMessageA(combo, CB_SETCURSEL, item, 0);
             }
             SendMessageA(combo, CB_SETITEMDATA, item, (LPARAM)mode);
@@ -935,8 +950,8 @@ void MultiplayerGameMode::Fill_Game_Mode_List(HWND list, int selected)
             continue;
         }
         if (!skirmish || mode->Is_Skirmish_Allowed()) {
-            int item = SendMessageA(list, CB_ADD_WIDE_STRING, 0, (LPARAM)(wchar_t *)mode->Name);
-            if (mode->ID == selected) {
+            int item = SendMessageA(list, CB_ADD_WIDE_STRING, 0, (LPARAM)(wchar_t *)Game_Mode_Name(*mode));
+            if (Game_Mode_ID(*mode) == selected) {
                 SendMessageA(list, LB_SETCURSEL, item, 0);
             }
             SendMessageA(list, LB_SETITEMDATA, item, (LPARAM)mode);

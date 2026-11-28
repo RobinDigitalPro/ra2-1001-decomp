@@ -243,26 +243,6 @@
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {
-   "rva": "0x1b3cf0",
-   "symbol": "MultiplayerGameMode::Fill_Game_Mode_List",
-   "tu": "Multiplayer.cpp",
-   "diff_bytes": 218,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
-   "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
-  },
-  {
-   "rva": "0x1b3bc0",
-   "symbol": "MultiplayerGameMode::Fill_Game_Mode_Combo",
-   "tu": "Multiplayer.cpp",
-   "diff_bytes": 173,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
-   "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
-  },
-  {
    "rva": "0x145970",
    "symbol": "?Set_Map_Dimensions@MapClass@@UAEXABV?$TRect@H@@_NH1@Z",
    "tu": "map.cpp",
@@ -376,10 +356,10 @@
    "rva": "0xa68a0",
    "symbol": "?Dropship_Screen@@YIXXZ",
    "tu": "dropship.cpp",
-   "diff_bytes": null,
+   "diff_bytes": 5,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Dropship_Screen: inline loadout commit restored; all 334 undecided regions CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Dropship_Screen: inline loadout commit restored; all 334 undecided regions CODEGEN_ONLY; 2026-11-28 Claude agent drop1: 4026 -> 5 bytes (docs/level2/batch_reports/claude_drop1_REPORT.md); residue: commuted base/index operands (+0x1171, +0x11c6, +0x2444) and ecx/eax in the remove loop (+0x1508), codegen-only",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
