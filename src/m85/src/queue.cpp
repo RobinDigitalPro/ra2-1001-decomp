@@ -3650,6 +3650,8 @@ void __fastcall Spread_Units_Around_Cell(int start, int count) // RA2: 0x0062929
 	}
 	DynamicVectorClass<ObjectClass *> list;
 	int i;
+	ObjectClass *closest = NULL; // level-2 1.001: STEERING declared and cleared before the first loop (split history: the
+	                             // early definition makes 0x220d4f reload start before closest, as 1.001 does; Claude gp4)
 	for (i = start; i < start + count; i++) {
 		TechnoClass *techno = ((TargetClass *)&MegaMissionQueue[i].Data.MegaMission.Whom)->As_Techno();
 		bool foot = false;
@@ -3662,7 +3664,7 @@ void __fastcall Spread_Units_Around_Cell(int start, int count) // RA2: 0x0062929
 	}
 	if (list.Count() > 0) {
 		Coord center = Vector_Center(list);
-		ObjectClass *closest = Vector_Closest_Object(list, center);
+		closest = Vector_Closest_Object(list, center);
 		IndexClass<int, ObjectClass *> index;
 		for (i = 0; i < list.Count(); i++) {
 			int key = Spread_Distance(list[i]->Center_Coord(), closest->Position) * 1000 + i;

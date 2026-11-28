@@ -67510,6 +67510,12 @@
   "name": "?Update_Event_Destination@@YIXHHVTargetClass@@ABV1@@Z"
  },
  {
+  "rva": "0x220ac0",
+  "tu": "src/m85/src/queue.cpp",
+  "symbol": "?Spread_Units_Around_Cell@@YIXHH@Z",
+  "name": "Spread_Units_Around_Cell"
+ },
+ {
   "rva": "0x2216b0",
   "tu": "src/m85/src/queue.cpp",
   "symbol": "?Clean_DoList@@YIXPAVConnManClass@@@Z",
