@@ -193,3 +193,7 @@ The techtype.h Unused2 member, the script.h Detach override and the faithful que
 ## BulletClass::AI 0x5f380 (2026-11-28, Claude agent bullet1)
 - Register-weight tie, non-count: every form reproducing 1.001's X/Y hold across __ftol (+0x1043) moves bridge_height from EDI to EBX in the ballistic step; count probes flat. Retry with a real-use source search once the full TU and headers are final.
 - Header candidate: `TVelocity3D(BASECLASS const & planar, T z) : BASECLASS(planar), Z(z) {}` in velocity.h (gibbo has it) would remove the `double z` steering line; deferred because of V10 (count effect on Print_CRCs/WinMain).
+
+## Do_MISSION_MISSILE 0x480f0 and BulletClass::AI 0x5f380 (2026-11-28, Claude agent own4)
+- Do_MISSION_MISSILE: 10 bytes, one warhead load scheduled after a push instead of before the shift; flat across deep d1 (739 sources) and own4 (56 specs incl. L58/L59). Codegen-only tie from the surrounding block (a micro TU schedules it naturally). End phase, with the full file linked.
+- BulletClass::AI: register-weight tie with two witnesses: (a) `int x = (int)position.X; ...; coord = Coord(x, y, z);` after the impact block fixes +0x1043 but flips bridge_height/mask to EBX/EDI (2447 bytes); (b) the same conversion before the impact/forced stores keeps EDI but misorders those stores (isd 117). Untried lever: the 1.001 Ballistic_Move inline level as a whole (L50). End phase.
