@@ -82241,6 +82241,12 @@
   "name": "Tactical::Draw_Tile_Shadows(Rect const &, Rect const &)"
  },
  {
+  "rva": "0x29dba0",
+  "tu": "src/m85/src/tactical.cpp",
+  "symbol": "?Draw_Tiles@Tactical@@QAEXABVCell@@ABV?$TRect@H@@@Z",
+  "name": "Tactical::Draw_Tiles"
+ },
+ {
   "rva": "0x29dee0",
   "tu": "src/m85/src/tactical.cpp",
   "symbol": "?Draw_Tile_Shadows@Tactical@@QAEXHABV?$TRect@H@@@Z",

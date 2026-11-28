@@ -2564,7 +2564,7 @@ void Tactical::Draw_Tiles(Cell const & cell, Rect const & cliprect)
 	CellClass * basecell = &Map[cell];
 
 	Point2D screen; // level-2 1.001: the view pixel through Coord_To_Pixel (0x29dba0 calls Coord_To_Pixel_Absolute out of line inside it)
-	Coord coord = Coord_Whole(Coord(cell));
+	Coord coord = Coord_Whole(Tile_Center(cell)); // level-2 1.001: Tile_Center, not Coord(cell): the other form costs 737 bytes (frame and inline depth)
 	Coord_To_Pixel(coord, screen);
 	if (basecell->Height < 2) {
 		Point2D pixel(screen.X - ISO_TILE_PIXEL_W / 2, screen.Y); // level-2 1.001: block scoped; it shares its slot with the column step (0x30) and the return temporary sits at 0x38
@@ -2573,76 +2573,80 @@ void Tactical::Draw_Tiles(Cell const & cell, Rect const & cliprect)
 
 	int x = cell.X;
 	int y = cell.Y;
-	for (int level = 0; level < 24; level += 2) {
+
+	/*
+	 * Scan three cells across each diagonal of the redraw area, two height levels per row.
+	 * Form after gibbo101/ra2-decomp cb43f5 (YR 1.001, GAMEMD 0x006D7F20): the level is derived from the
+	 * row counter, and each column branch reads the height itself.
+	 */
+	for (int row = 0; row < 12; ++row) {
+		int level = row * 2;
 		for (int col = 0; col < 3; col++) {
 			int cx = x + ((col + 1) >> 1);
 			int cy = y - (col >> 1) + 1;
 			if (Map.In_Radar(Cell(cx, cy))) {
 				CellClass * cellptr = &Map[Cell(cx, cy)];
 				bool draw = false;
-				int height = cellptr->Height;
-				bool overlap = false;
-
+				int height;
 				if (col != 1) {
+					height = cellptr->Height;
 					if (height == level + 1) {
 						draw = true;
-						overlap = true;
 					}
-				} else if (height > level && height < level + 4) {
-					draw = true;
-					overlap = true;
-				}
-
-				int elevation = cellptr->Elevation;
-				if (elevation > 0 && !draw) {
-					int diff = height - level; // level-2 1.001: 0x29dba0 tests height - level (col 0/2) and height - level + 1 (col 1)
-					if (col != 1) {
-						// level-2 1.001: STEERING spell out the height interval in levels.
-						if (height < level && elevation >= level - height) {
-							draw = true;
-						} else {
-							draw = overlap;
-						}
-					} else if (diff + 1 > 0) {
-						draw = overlap;
-					} else {
+				} else {
+					height = cellptr->Height;
+					if (height > level && height < level + 4) {
 						draw = true;
-						if (elevation + diff + 1 <= 0) {
-							draw = overlap;
+					}
+				}
+
+				/*
+				 * Raised (elevated) cells further down the diagonal can still reach up into this level.
+				 */
+				if (cellptr->Elevation > 0 && draw == false) {
+					int diff = height - level;
+					if (col != 1) {
+						if (diff < 0 && cellptr->Elevation + diff >= 0) {
+							draw = true;
+						}
+					} else if (diff + 1 <= 0) {
+						if (cellptr->Elevation + diff + 1 > 0) {
+							draw = true;
 						}
 					}
 				}
 
-				if (height == level) {
-					if (!draw) {
-
-						/*
-						 * Same height and not already flagged for redraw: the tile only needs
-						 * redrawing if its iso tile carries extra (overhanging) image data.
-						 */
-						int subtile = cellptr->SubTile;
-						int ittype = cellptr->ITType;
-						if (ittype == ISOTILE_NONE || ittype == ISOTILE_NONE_LEGACY) {
-							continue;
-						}
-						IsometricTileTypeClass * type = IsometricTileTypes[ittype];
-						if (type == NULL) {
-							continue;
-						}
-						IsoTileSet const * set = (IsoTileSet const *)type->Get_Image_Data();
-						if (set == NULL) {
-							continue;
-						}
-						int last = set->Tile_Count() - 1; // level-2 1.001: the tile count is read once
-						if (subtile >= last) {
-							subtile = last;
-						}
-						IsoTileRecord const * record = set->Fetch_Record_Pointer_Unsafe(subtile);
-						if (record == NULL || !record->IsHasExtraData) {
-							continue;
-						}
+				/*
+				 * Same height and not already flagged for redraw: the tile only needs
+				 * redrawing if its iso tile carries extra (overhanging) image data.
+				 */
+				if (height == level && !draw) {
+					int subtile = cellptr->SubTile;
+					int ittype = cellptr->ITType;
+					if (ittype == ISOTILE_NONE || ittype == ISOTILE_NONE_LEGACY) {
+						continue;
 					}
-				} else if (!draw) {
+					IsometricTileTypeClass * type = IsometricTileTypes[ittype];
+					if (type == NULL) {
+						continue;
+					}
+					IsoTileSet const * set = (IsoTileSet const *)type->Get_Image_Data();
+					if (set == NULL) {
+						continue;
+					}
+					if (subtile >= set->Tile_Count() - 1) {
+						subtile = set->Tile_Count() - 1;
+					}
+					IsoTileRecord const * record = set->Fetch_Record_Pointer_Unsafe(subtile);
+					if (record == NULL) {
+						continue;
+					}
+					if (!record->IsHasExtraData) {
+						continue;
+					}
+					draw = true;
+				}
+				if (!draw) {
 					continue;
 				}
 

@@ -61,7 +61,6 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 27 | SurfaceCacheClass::CachePCX | 0x281d00 | render | 1046 | 9 |
 | 28 | OwnerDraw::Init_Control_Animation | 0x1e04d0 | UI/network/platform | 1021 | 687 |
 | 29 | Tactical::Draw_Radial_Indicators | 0x2a1a70 | render | 893 | 250 |
-| 30 | Tactical::Draw_Tiles | 0x29dba0 | render | 824 | 363 |
 | 31 | Combatant_Select_Command | 0x2ebb60 | UI/network/platform | 718 | 521 |
 | 32 | Type_Select_Command | 0x2ec1b0 | UI/network/platform | 669 | 638 |
 | 33 | Veterancy_Nav_Command | 0x2eccf0 | UI/network/platform | 618 | 313 |

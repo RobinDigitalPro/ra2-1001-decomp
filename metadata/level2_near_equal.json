@@ -213,16 +213,6 @@
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {
-   "rva": "0x29dba0",
-   "symbol": "?Draw_Tiles@Tactical@@QAEXABVCell@@ABV?$TRect@H@@@Z",
-   "tu": "tactical.cpp",
-   "diff_bytes": 363,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
-   "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
-  },
-  {
    "rva": "0x1fc6b0",
    "symbol": "SchemeLibrary::Set_Mode",
    "tu": "palette.cpp",
