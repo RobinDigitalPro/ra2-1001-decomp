@@ -14,7 +14,7 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 9 | Spread_Units_Around_Cell | 0x220ac0 | 3048 | 4 |
 | 10 | BuildingClass::Do_MISSION_MISSILE | 0x480f0 | 3036 | 10 |
 | 12 | MapGeneratorClass::Read_RMG_INI | 0x176750 | 1897 | 97 |
-| 14 | Extract_Compressed_Events | 0x21fa40 | 1455 | 580 |
+| 14 | Extract_Compressed_Events | 0x21fa40 | 1455 | 6 |
 | 15 | HouseClass::Random_Cell_In_Zone | 0xebf50 | 1276 | 664 |
 | 20 | SyncState::SyncState | 0x21ad30 | 69 | 0 |
 | 21 | SyncState::~SyncState | 0x21ad80 | 18 | 0 |

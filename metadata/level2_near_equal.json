@@ -199,7 +199,7 @@
    "diff_bytes": 590,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "batch 72 classification + batch 73 (job 35f8261f): all 18 undecided regions resolved as code generation; all 415 function bodies and relocation targets reproduced",
+   "evidence": "batch 72 classification + batch 73 (job 35f8261f): all 18 undecided regions resolved as code generation; all 415 function bodies and relocation targets reproduced; 2026-11-28 Claude agent own7: ~575 of 590 bytes from one point in the cell-restore bitfield copy (the 2-byte-shorter xor step: 1.001 at word 0x140 bit 16, ours at 0x12c bit 1) plus the cellcount = 0 store position; *c = *cptr witness matches up to +0xde7 but scores 1515; K=0..70 flat",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
@@ -216,10 +216,10 @@
    "rva": "0x21fa40",
    "symbol": "?Extract_Compressed_Events@@YIHPAXH@Z",
    "tu": "queue.cpp",
-   "diff_bytes": 595,
+   "diff_bytes": 6,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 94 regions CODEGEN_ONLY after operand-binding checks",
+   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 94 regions CODEGEN_ONLY after operand-binding checks; 2026-11-28 Claude agent own7: 595 -> 6 bytes (meastes 8ec3839 same-size body: while-loops with stepped cursors and one index; SavedUnitCounts flat [8 * 8]); residue: two independent stores in opposite order (+0x2b1/+0x2b5), codegen only, ~300 forms and K=0..100 flat",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
