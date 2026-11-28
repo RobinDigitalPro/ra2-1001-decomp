@@ -380,11 +380,9 @@ BOOL CALLBACK Main_Options_Dialog_Proc(HWND window, UINT message, WPARAM wparam,
 			char const * name; // RA2: as above; level-2 1.001: one label tail after the slider chain, as in gibbo101 src/mainopt.cpp FUN_0055FDB0 (YR 1.001, @719fcc7)
 			HWND text = NULL; // RA2: as above
 			if (control == GetDlgItem(window, IDC_DETAIL_LEVEL_SLIDER)) { // RA2: as above
-				int index = 2;
-				if (!position) {
-					index = 0;
-				}
-				name = DetailLabels[index]; // RA2: as above
+				int detail = position; // level-2 1.001: the 0/2 detail index as in gibbo101 src/mainopt.cpp FUN_0055FDB0 (YR 1.001, @719fcc7)
+				if (position) detail = 2;
+				name = DetailLabels[detail]; // RA2: as above
 				text = GetDlgItem(window, IDC_DETAIL_LEVEL_LABEL); // RA2: as above
 			} else if (control == GetDlgItem(window, IDC_DIFFICULTY_SLIDER)) { // RA2: as above
 				name = DifficultyLabels[position]; // RA2: as above
@@ -406,7 +404,8 @@ BOOL CALLBACK Main_Options_Dialog_Proc(HWND window, UINT message, WPARAM wparam,
 				}
 			}
 			if (text) { // RA2: as above
-				SendMessage(text, OD_SETTEXTW, 0, (LPARAM)StringTable::LoadString(name, NULL, RA2_SOURCE, 540)); // level-2 1.001: line 540
+				wchar_t const * string = StringTable::LoadString(name, NULL, RA2_SOURCE, 540); // level-2 1.001: line 540; the text is named first, as in gibbo101 FUN_0055FDB0
+				SendMessage(text, OD_SETTEXTW, 0, (LPARAM)string); // RA2: as above
 			}
 			return(0);
 		}

@@ -45928,6 +45928,12 @@
   "name": "Main_Options_Dialog"
  },
  {
+  "rva": "0x13fc70",
+  "tu": "src/m85/src/mainopt.cpp",
+  "symbol": "?Main_Options_Dialog_Proc@@YGHPAUHWND__@@IIJ@Z",
+  "name": "Main_Options_Dialog_Proc"
+ },
+ {
   "rva": "0x140440",
   "tu": "src/m85/src/mainopt.cpp",
   "symbol": "?IPX_Options_Proc@@YGHPAUHWND__@@IIJ@Z",

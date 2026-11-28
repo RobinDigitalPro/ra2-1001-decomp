@@ -34,7 +34,6 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 10 | Tactical::Render | 0x299be0 | render | 3288 | 1860 |
 | 12 | Run_Online_Menu | 0x3474e0 | UI/network/platform | 2539 | 25 |
 | 13 | Create_Game_Channel | 0x339df0 | UI/network/platform | 2181 | 3 |
-| 14 | Main_Options_Dialog_Proc | 0x13fc70 | UI/network/platform | 1996 | 9 |
 | 15 | CChatEventSink::OnUserList | 0x34e040 | UI/network/platform | 1989 | 1345 |
 | 16 | OwnerDraw::Adjust_Control_Position | 0x1e1760 | UI/network/platform | 1919 | 1 |
 | 17 | SidebarClass::StripClass::Recalc | 0x275a60 | UI/network/platform | 1762 | 184 |

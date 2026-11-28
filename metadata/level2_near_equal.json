@@ -43,16 +43,6 @@
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
-   "rva": "0x13fc70",
-   "symbol": "?Main_Options_Dialog_Proc@@YGHPAUHWND__@@IIJ@Z",
-   "tu": "mainopt.cpp",
-   "diff_bytes": 9,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
-   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
-  },
-  {
    "rva": "0x281d00",
    "symbol": "?CachePCX@SurfaceCacheClass@@QAE_NPBDHH@Z",
    "tu": "srfcache.cpp",
@@ -79,7 +69,7 @@
    "diff_bytes": 6,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch64_target_08_*.md (batch 64, job 58776dd1): all six residual bytes belong to one instruction scheduling swap; 14 calls, eight jump targets and the selector table exact",
+   "evidence": "docs/level2/batch_reports/batch64_target_08_*.md (batch 64, job 58776dd1): all six residual bytes belong to one instruction scheduling swap; 14 calls, eight jump targets and the selector table exact; 2026-11-28 Claude agent mst3: one `mov bl,al` scheduling swap; ~40 forms flat; meastes while form costs 240",
    "meaning": "functionally equivalent: one scheduling swap of independent instructions (codegen only); fix in the end phase with the complete file linked"
   },
   {
@@ -104,12 +94,12 @@
   },
   {
    "rva": "0x299be0",
-   "symbol": "?Render@Tactical@@QAEXAAVSurface@@_NH@Z",
+   "symbol": "?Render@Tactical@@QAEXPAVSurface@@_NH@Z",
    "tu": "tactical.cpp",
    "diff_bytes": 1868,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
+   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions); 2026-11-28 Claude agent mst3: symbol corrected (PAV, not AAV); meastes shapes match 1.001 instruction for instruction (instruction distance 408 -> 264) but bytes rise to 2347-2382 because of one register choice (1.001 keeps `surface` in ebx and `planning` in memory; ours puts planning in bl); witness edit sets claude_agents/mst3/work/v_r6.json and v_r10.json",
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {
@@ -119,7 +109,7 @@
    "diff_bytes": 25,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
+   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions); 2026-11-28 Claude agent mst3: one frame-order swap (title at +0x14 vs control at +0x14 in 1.001); helper/temporary/name/scope/gauge variants flat",
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {
