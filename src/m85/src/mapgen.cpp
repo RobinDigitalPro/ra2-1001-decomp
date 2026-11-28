@@ -895,7 +895,7 @@ int MapRegionClass::CellData::Get_Region(Cell const &cell)
 	if (RMGCellData == NULL) {
 		return(-1);
 	}
-	return(MapRegionClass::Get_Cell_Data(cell).RegionID);
+	return(RMGCellData[cell.X + cell.Y * (int)MapCellStride].RegionID);
 }
 
 
@@ -1079,22 +1079,23 @@ void MapRegionClass::Increase_Height(char cell_height)
 /// <returns>bool; Was the region split?</returns>
 bool MapRegionClass::Split_Region(void)
 {
-	int i, j;
+	int i;
+	int j;
+	MapRegionClass * region = NULL; // level-2 1.001: STEERING dead initial store; with the continue in loop 3 it gives 1.001's loop-2 latch reload order (this before i)
 
 	if (Unsplittable) {
 		return(false);
 	}
 
-	int heap_size = (2 * CellCount) + 10;
-	CellNode * nodes = new CellNode[heap_size];
+	CellNode * nodes = new CellNode[(2 * CellCount) + 10];
 	PriorityQueueClass<CellNode> * queue = new PriorityQueueClass<CellNode>((2 * CellCount) + 10);
 	queue->Clear();
 
 	CellData::Reset_Spreads(false);
 
 	int spread_count = 0;
-	for (i = Cells.Count() - 1; i >= 0; i--) {
-		MapRegionClass::Get_Cell_Data(Cells[i]).RegionID = -2;
+	for (int a = Cells.Count() - 1; a >= 0; a--) {
+		MapRegionClass::Get_Cell_Data(Cells[a]).RegionID = -2;
 	}
 
 	unsigned int target_count = Pick_Random_UInt(CellCount / 8, CellCount / 3);
@@ -1120,13 +1121,13 @@ bool MapRegionClass::Split_Region(void)
 		int cell_index = node->Element.X + MapCellStride * node->Element.Y;
 		CellNode * newnode = &nodes[node_count];
 
-		for (FacingType dir = FACING_FIRST; dir < FACING_COUNT; dir = (FacingType)(dir + FACING_90)) {
-			Cell ncell = Adjacent_Cell(node->Element, dir);
+		for (j = FACING_FIRST; j < FACING_COUNT; j += FACING_90) {
+			Cell ncell = Adjacent_Cell(node->Element, (FacingType)j);
 			if (My_In_Radar(ncell)) {
 				if (CellData::Get_Region(ncell) == -2 && CellData::Get_Spread(ncell) != -3 && Map[ncell].Is_Tile_Clear()) {
 					newnode->Element = ncell;
 					newnode->Score = Get_Angle_Score(seed, ncell, dist);
-					MapRegionClass::Get_Cell_Data(cell_index + AStarFacingToOffset[dir]).SpreadID = -3;
+					MapRegionClass::Get_Cell_Data(cell_index + AStarFacingToOffset[j]).SpreadID = -3;
 					node_count++;
 					queue->Insert(*newnode++);
 				}
@@ -1171,11 +1172,11 @@ bool MapRegionClass::Split_Region(void)
 
 			while (open.Count() != 0) {
 				int index = open.Count() - 1;
-				Cell c = open[open.Count() - 1]; // level-2 1.001: STEERING read the tail directly and keep index for deletion
+				Cell c = open[index];
 				open.Delete_Index(index);
 
-				for (int m = 0; m < FACING_COUNT; m++) {
-					Cell ncell = Adjacent_Cell(c, (FacingType)m);
+				for (j = 0; j < FACING_COUNT; j++) {
+					Cell ncell = Adjacent_Cell(c, (FacingType)j);
 					if (My_In_Radar(ncell)) {
 						CellData & ndata = MapRegionClass::Get_Cell_Data(ncell);
 						if (ndata.RegionID == old_id) {
@@ -1191,7 +1192,7 @@ bool MapRegionClass::Split_Region(void)
 	}
 
 	for (i = new_regions.Count() - 1; i >= 0; i--) {
-		MapRegionClass * region = new_regions[i];
+		region = new_regions[i];
 		if (region->Discardable) {
 			continue;
 		}
@@ -1218,20 +1219,20 @@ bool MapRegionClass::Split_Region(void)
 		delete cells;
 
 		MapRegionClass * merge_target = NULL;
-		int min_height = -1;
-		int max_height = -1;
 		int merge_height = -1;
 		int max_count = -1;
+		int min_height = -1;
+		int max_height = -1;
 
 		for (j = 0; j < MapRegionClass::TotalCount; j++) {
 			if (adjacent[j]) {
-				MapRegionClass * other = MapRegionClass::From_ID(j); // level-2 1.001: the lookup is From_ID (inlined), not a written-out loop
+				MapRegionClass * other = MapRegionClass::From_ID(j);
 
 				if (!other->Discardable) {
 					if (other->CellCount > max_count && !other->ContainsWater) {
 						max_count = other->CellCount;
-						merge_height = other->CellHeight;
 						merge_target = other;
+						merge_height = other->CellHeight;
 					}
 
 					if (min_height == -1) {
@@ -1269,7 +1270,7 @@ bool MapRegionClass::Split_Region(void)
 			}
 		}
 
-		if (RandomMapGen.SeedData.MapType == 3 || RandomMapGen.SeedData.MapType == 4) { // level-2 1.001: on these map types a zero height is not offered (0x56C9E9)
+		if (Is_Inland_Or_Mountain_Map(RandomMapGen.SeedData.MapType)) {
 			for (j = heights.Count() - 1; j >= 0; j--) {
 				if (heights[j] == 0) {
 					heights.Delete_Index(j);
@@ -1281,8 +1282,7 @@ bool MapRegionClass::Split_Region(void)
 
 		if (region->CellCount > 100) {
 			int old_height = region->CellHeight;
-			unsigned int max_index = (unsigned int)heights.Count() - 1;
-			unsigned int index = Pick_Random_UInt(0, max_index);
+			unsigned int index = Pick_Random_UInt(0, (unsigned int)heights.Count() - 1); // level-2 1.001: STEERING no max_index local (one statement less keeps ~MapRegionClass out of line in the last loop)
 
 			region->CellHeight = heights[index];
 			int height_diff = region->CellHeight - old_height;
@@ -1291,24 +1291,26 @@ bool MapRegionClass::Split_Region(void)
 			if (merge_target != NULL) {
 				int old_height = region->CellHeight;
 				region->CellHeight = merge_height;
-				region->Increase_Height(region->CellHeight - old_height); // level-2 1.001: as above
+				int height_diff = region->CellHeight - old_height;
+				region->Increase_Height(height_diff);
 
-				for (int j = region->Cells.Count() - 1; j >= 0; j--) {
-					Cell const & c = region->Cells[j];
+				for (j = region->Cells.Count() - 1; j >= 0; j--) {
+					Cell c = region->Cells[j];
 					merge_target->Cells.Add(c);
 					merge_target->CellCount++;
 					MapRegionClass::Get_Cell_Data(c).RegionID = merge_target->ID;
 				}
 
 				region->Discardable = true;
+				continue; // level-2 1.001: STEERING redundant continue; VC6 then keeps i and this in memory through this loop (1.001 head reload, latch and slots)
 			}
 		}
 	}
 
 	for (i = MapRegionClass::MapRegions.Count() - 1; i >= 0; i--) {
-		MapRegionClass * region = MapRegionClass::MapRegions[i];
+		region = MapRegionClass::MapRegions[i];
 		if (region != this && region->Discardable) {
-			delete region;
+			delete MapRegionClass::MapRegions[i];
 		}
 	}
 
@@ -7226,8 +7228,9 @@ DynamicVectorClass<Cell> *MapGeneratorClass::Build_Region_Border_Cell_List(int i
 
 
 // level-2 1.001: INFERRED from the out-of-line deleting destructor at 0x57f754.
-static inline void Delete_Water_Queue(PriorityQueueClass<CellNode> * queue)
+static inline void Delete_Water_Queue(CellNode * nodes, PriorityQueueClass<CellNode> * queue)
 {
+	delete[] nodes;
 	delete queue;
 }
 
@@ -7314,7 +7317,7 @@ bool MapGeneratorClass::Grow_Water_Region(int region_id, float spread_scale, Rec
 			if (My_In_Radar(newcell)) {
 				if (MapRegionClass::CellData::Get_Region(newcell) == 0 &&
 					MapRegionClass::Get_Cell_Data(newcell).SpreadID != region_id &&
-					bounds.Is_Point_Within(Point2D(newcell.X, newcell.Y)) &&
+					newcell.X >= bounds.X && newcell.X < bounds.X + bounds.Width && newcell.Y >= bounds.Y && newcell.Y < bounds.Y + bounds.Height &&
 					Map[newcell].Is_Tile_Clear()) {
 					nodes[marker_index].Element = newcell;
 					nodes[marker_index].Score = Get_Angle_Score(origin, newcell, angle);
@@ -7336,13 +7339,16 @@ bool MapGeneratorClass::Grow_Water_Region(int region_id, float spread_scale, Rec
 	if (claim_frontier) {
 		for (CellNode * remaining = queue->Extract_Min(); remaining != NULL && result_flag; remaining = queue->Extract_Min()) {
 
-			Claim_Water_Cell(remaining->Element, region_id, result_flag);
+			if (MapRegionClass::CellData::Get_Region(remaining->Element) == 0) {
+				MapRegionClass::Get_Cell_Data(remaining->Element).RegionID = region_id;
+			} else if (MapRegionClass::CellData::Get_Region(remaining->Element) != region_id) {
+				result_flag = false;
+			}
 
 		}
 	}
 
-	delete[] nodes;
-	Delete_Water_Queue(queue);
+	Delete_Water_Queue(nodes, queue);
 
 	return(result_flag);
 }

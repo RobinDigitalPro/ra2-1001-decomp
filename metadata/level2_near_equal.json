@@ -159,7 +159,7 @@
    "diff_bytes": 590,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "batch 72 classification + batch 73 (job 35f8261f): all 18 undecided regions resolved as code generation; all 415 function bodies and relocation targets reproduced; 2026-11-28 Claude agent own7: ~575 of 590 bytes from one point in the cell-restore bitfield copy (the 2-byte-shorter xor step: 1.001 at word 0x140 bit 16, ours at 0x12c bit 1) plus the cellcount = 0 store position; *c = *cptr witness matches up to +0xde7 but scores 1515; K=0..70 flat",
+   "evidence": "batch 72 classification + batch 73 (job 35f8261f): all 18 undecided regions resolved as code generation; all 415 function bodies and relocation targets reproduced; 2026-11-28 Claude agent own7: ~575 of 590 bytes from one point in the cell-restore bitfield copy (the 2-byte-shorter xor step: 1.001 at word 0x140 bit 16, ours at 0x12c bit 1) plus the cellcount = 0 store position; *c = *cptr witness matches up to +0xde7 but scores 1515; K=0..70 flat; 2026-11-28 Claude agent gp5: COUNT-TYPE (end phase): each link's 2-/3-operand form is the commutative sort of `src ^ prev` (GUIDE L76); target state save none / restore [49], P restore [29]; >950 full-TU variants never reach it (restore runs start only at links 28-35); the ~15-byte cellcount residue is a coupled edi/ebp colouring tie",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
@@ -180,16 +180,6 @@
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 94 regions CODEGEN_ONLY after operand-binding checks; 2026-11-28 Claude agent own7: 595 -> 6 bytes (meastes 8ec3839 same-size body: while-loops with stepped cursors and one index; SavedUnitCounts flat [8 * 8]); residue: two independent stores in opposite order (+0x2b1/+0x2b5), codegen only, ~300 forms and K=0..100 flat; 2026-11-28 Claude agent gp2: flat under probes at three positions, 14 renames, 5 declaration orders, /G4 /G5 /GB and ~40 natural variants; at all three sites 1.001 orders the swapped moves by ascending register number (C2.DLL analysis is the remaining route); 2026-11-28 Claude agent gp4: the end-of-loop stores follow the source order of the loop's assignments; forms that move numunits-- before the Whom assignment also re-schedule the Whom store; ~50 forms flat: scheduler tie, not a reload tie",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
-   "rva": "0x16bd10",
-   "symbol": "?Split_Region@MapRegionClass@@QAE_NXZ",
-   "tu": "mapgen.cpp",
-   "diff_bytes": null,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Split_Region: all 295 regions CODEGEN_ONLY",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

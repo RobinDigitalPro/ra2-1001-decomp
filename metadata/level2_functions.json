@@ -48466,6 +48466,12 @@
   "name": "?Increase_Height@MapRegionClass@@QAEXD@Z"
  },
  {
+  "rva": "0x16bd10",
+  "tu": "src/m85/src/mapgen.cpp",
+  "symbol": "?Split_Region@MapRegionClass@@QAE_NXZ",
+  "name": "MapRegionClass::Split_Region"
+ },
+ {
   "rva": "0x16ccc0",
   "tu": "src/m85/src/mapgen.cpp",
   "symbol": "?Build_Border_Cell_List2@MapRegionClass@@QAEPAV?$DynamicVectorClass@VCell@@@@XZ",

@@ -25380,5 +25380,10 @@
   "address": "0x4d1e00",
   "evidence": "function_start",
   "note": "m85 netshare.cpp name for the claimed ?Color_Changed@@YIXPAUHWND__@@H@Z in src/ra2/GDlgSupp.cpp (same address; call target of the matched Load_Lobby_Options, Claude agent mst4 2026-11-28)"
+ },
+ "?AStarFacingToOffset@@3PAHA": {
+  "address": "0x834b78",
+  "evidence": "data",
+  "note": "auto-bound data address from the original operand (level2_autobind.py --data); section verified by level2_check, consistency by conflict detection"
  }
 }

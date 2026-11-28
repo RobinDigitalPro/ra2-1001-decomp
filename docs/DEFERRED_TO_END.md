@@ -224,3 +224,8 @@ The techtype.h Unused2 member, the script.h Detach override and the faithful que
 - Do_MISSION_MISSILE: the warhead load takes 1.001's position when any one real value goes away (yaw live past Create_Bullet, speed's memory home, the discarded Get_Height_GL call); one extra live int puts it back. 24 velocity.h forms did not help. BulletClass::AI +0x218: the same scheduler effect in reverse. End phase.
 
 ## UPDATE 2026-11-28: Spread_Units_Around_Cell 0x220ac0 is MATCHED (Claude agent gp4, early `closest = NULL` initialisation); remove it from the end-phase list. Extract_Compressed_Events stays (scheduler tie).
+
+## MapClass::Set_Map_Dimensions 0x145970 (2026-11-28, Claude agent gp5): COUNT-TYPE
+- The bitfield-copy links' 2-/3-operand forms are the commutative operand sort (GUIDE L76): target restore state [49], P [29]; >950 natural variants never reach it. End phase: count anchor chosen with the rank-key rule (lessons/C2_RULES_20261128.md); the cellcount edi/ebp tie with L78 (lessons/C2_RULES_2_20261128.md).
+
+## UPDATE 2026-11-28: MapRegionClass::Split_Region 0x16bd10 is MATCHED (Claude agent gp7); remove it from the end-phase list.

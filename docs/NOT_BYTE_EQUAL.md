@@ -10,7 +10,6 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 2 | BuildingClass::Exit_Object | 0x402b0 | 6515 | 10 |
 | 3 | BulletClass::AI | 0x5f380 | 6382 | 1939 |
 | 5 | MapClass::Set_Map_Dimensions | 0x145970 | 5335 | 590 |
-| 8 | MapRegionClass::Split_Region | 0x16bd10 | 4012 | 1354 |
 | 10 | BuildingClass::Do_MISSION_MISSILE | 0x480f0 | 3036 | 10 |
 | 12 | MapGeneratorClass::Read_RMG_INI | 0x176750 | 1897 | 97 |
 | 14 | Extract_Compressed_Events | 0x21fa40 | 1455 | 6 |
