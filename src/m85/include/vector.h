@@ -78,8 +78,15 @@ class VectorClass
 		VectorClass(VectorClass<T> const &);		// Copy constructor.
 		virtual ~VectorClass(void);
 
+#ifdef RA2_VECTOR_UNSIGNED_INDEX
+		// level-2 1.001: STEERING per-TU header form (kind 1): TUs that define RA2_VECTOR_UNSIGNED_INDEX see the unsigned index
+		// (meastes 1.006 holdout switch, same name; src/ra2/VECTOR.H uses it throughout). Same results for every valid index.
+		T & operator[](unsigned index) {return(Vector[index]);};
+		T const & operator[](unsigned index) const {return(Vector[index]);};
+#else
 		T & operator[](int index) {return(Vector[index]);};
 		T const & operator[](int index) const {return(Vector[index]);};
+#endif
 
 		VectorClass<T> & operator =(VectorClass<T> const &); // Assignment operator.
 

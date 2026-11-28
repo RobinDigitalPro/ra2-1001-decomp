@@ -86,10 +86,10 @@
    "rva": "0x31f440",
    "symbol": "?WDT_Write_Map_Ini@@YIXABVWstring@@0@Z",
    "tu": "wdtmap.cpp",
-   "diff_bytes": 1,
+   "diff_bytes": 0,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7); 2026-11-28 Claude agent hdr1: bytes exact with the per-TU RA2_VECTOR_UNSIGNED_INDEX switch; claim blocked by two unverified bindings: the original calls ?Clear@?$VectorClass@V?$TRect@H@@@@UAEXXZ at 0x58b490 (a copy in another TU) while this TU claims its own copy at 0x720110, and the TU-local VectorCursor operator= copy at 0x71fb10 (per-TU COMDAT copies, same checker C-item as SuperClass::Place)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -336,10 +336,10 @@
    "rva": "0xa68a0",
    "symbol": "?Dropship_Screen@@YIXXZ",
    "tu": "dropship.cpp",
-   "diff_bytes": 5,
+   "diff_bytes": 2,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Dropship_Screen: inline loadout commit restored; all 334 undecided regions CODEGEN_ONLY; 2026-11-28 Claude agent drop1: 4026 -> 5 bytes (docs/level2/batch_reports/claude_drop1_REPORT.md); residue: commuted base/index operands (+0x1171, +0x11c6, +0x2444) and ecx/eax in the remove loop (+0x1508), codegen-only",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Dropship_Screen: inline loadout commit restored; all 334 undecided regions CODEGEN_ONLY; 2026-11-28 Claude agent drop1: 4026 -> 5 bytes (docs/level2/batch_reports/claude_drop1_REPORT.md); residue: commuted base/index operands (+0x1171, +0x11c6, +0x2444) and ecx/eax in the remove loop (+0x1508), codegen-only; 2026-11-28 Claude agent hdr1: 5 -> 2 bytes with the per-TU RA2_VECTOR_UNSIGNED_INDEX switch, six fragile count locals removed; residue: base/index swap in the scroll loop (+0x1173, +0x11c8)",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

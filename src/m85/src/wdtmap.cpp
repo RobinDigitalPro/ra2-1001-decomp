@@ -7,6 +7,7 @@
  * See LICENSE.md for applicable additional terms and warranty disclaimers.
  ******************************************************************************/
 
+#define RA2_VECTOR_UNSIGNED_INDEX // level-2 1.001: STEERING per-TU header form (kind 1): this TU uses the unsigned VectorClass index (vector.h); WDT_Write_Map_Ini 0x31f440 1 -> 0
 #include "always.h"
 
 #include "ccfile.h" // RA2: the click map is read through the game's file system

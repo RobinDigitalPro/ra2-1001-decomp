@@ -7,6 +7,7 @@
  * See LICENSE.md for applicable additional terms and warranty disclaimers.
  ******************************************************************************/
 
+#define RA2_VECTOR_UNSIGNED_INDEX // level-2 1.001: STEERING per-TU header form (kind 1): this TU uses the unsigned VectorClass index (vector.h); Dropship_Screen 0xa68a0 5 -> 2 without the six former count locals
 #include "always.h"
 
 #include "dropship.h"
@@ -378,8 +379,7 @@ void Dropship_Screen(void)
 	DynamicVectorClass<TechnoTypeClass *> candidates;
 	int type_count = InfantryTypes.Count() + UnitTypes.Count();
 
-	int house = HouseTypes.ID(PlayerPtr->Class); // level-2 1.001: STEERING named house index; one of six count units before the first CrossDissolveEffect that give the last_surface Get_Data result in edx (add edx,ebp at +0x16ec, Dropship_Screen 0xa68a0)
-	unsigned int ownable_mask = 1 << house;
+	unsigned int ownable_mask = 1 << HouseTypes.ID(PlayerPtr->Class);
 
 	if (Scen->AllowableUnits.Count() > 0) {
 		for (i = 0; i < Scen->AllowableUnits.Count(); ++i) {
@@ -406,8 +406,7 @@ void Dropship_Screen(void)
 			if (techtype->Level == -1) {
 				continue;
 			}
-			int cost = techtype->Raw_Cost(); // level-2 1.001: STEERING named cost; one of six count units before the first CrossDissolveEffect that give the last_surface Get_Data result in edx (add edx,ebp at +0x16ec, Dropship_Screen 0xa68a0)
-			if (cost <= _minimum_cost) {
+			if (techtype->Raw_Cost() <= _minimum_cost) {
 				continue;
 			}
 			if ((techtype->Ownable & ownable_mask) == 0) {
@@ -420,10 +419,8 @@ void Dropship_Screen(void)
 
 	int cameo_top = 0;
 	bool can_scroll_up = false;
-	int slot_count = dropship_count * SLOT_PER_DROPSHIP; // level-2 1.001: STEERING named slot count; one of six count units before the first CrossDissolveEffect that give the last_surface Get_Data result in edx (add edx,ebp at +0x16ec, Dropship_Screen 0xa68a0)
-	int button_count = _cameo_count + 2 + slot_count;
-	int candidate_count = candidates.Count(); // level-2 1.001: STEERING named candidate count; one of six count units before the first CrossDissolveEffect that give the last_surface Get_Data result in edx (add edx,ebp at +0x16ec, Dropship_Screen 0xa68a0)
-	bool can_scroll_down = candidate_count > _cameo_count;
+	int button_count = _cameo_count + 2 + dropship_count * SLOT_PER_DROPSHIP;
+	bool can_scroll_down = candidates.Count() > _cameo_count;
 	ShapeButtonClass **buttons = new ShapeButtonClass *[button_count];
 	ToggleClass *button_list = NULL;
 
@@ -521,9 +518,8 @@ void Dropship_Screen(void)
 
 			for (i = 0; i < button_count; ++i) {
 				int usage_index = -1;
-				int candidate_index = cameo_top + i; // level-2 1.001: STEERING named candidate index (as in the scroll loop); one of six count units before the first CrossDissolveEffect that give the last_surface Get_Data result in edx (add edx,ebp at +0x16ec, Dropship_Screen 0xa68a0)
-				if (candidate_index < candidates.Count()) {
-					usage_index = DropshipLoadoutClass::Get_Allowable_Index(candidates[candidate_index]);
+				if (i + cameo_top < candidates.Count()) {
+					usage_index = DropshipLoadoutClass::Get_Allowable_Index(candidates[cameo_top + i]);
 				}
 
 				if (i >= _cameo_count || usage_index == -1 || Scen->AllowableUnitCounts[usage_index] < Scen->AllowableUnitMaximums[usage_index]) {
@@ -543,8 +539,7 @@ void Dropship_Screen(void)
 			last_input_time = ::timeGetTime();
 
 			if (input <= _cameo_count && selected_count < dropship_count * SLOT_PER_DROPSHIP) {
-				int cameo_index = input - 1; // level-2 1.001: STEERING named cameo index; one of six count units before the first CrossDissolveEffect that give the last_surface Get_Data result in edx (add edx,ebp at +0x16ec, Dropship_Screen 0xa68a0)
-				int candidate_index = cameo_top + cameo_index;
+				int candidate_index = cameo_top + input - 1;
 				if (candidate_index >= 0 && candidate_index < candidates.Count()) {
 					TechnoTypeClass *techtype = candidates[cameo_top + input - 1];
 

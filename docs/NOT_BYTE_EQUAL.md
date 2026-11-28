@@ -6,7 +6,7 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 
 | # | Function | RVA | Size | Diff |
 |---:|---|---|---:|---:|
-| 1 | Dropship_Screen | 0xa68a0 | 10797 | 5 |
+| 1 | Dropship_Screen | 0xa68a0 | 10797 | 2 |
 | 2 | BuildingClass::Exit_Object | 0x402b0 | 6515 | 10 |
 | 3 | BulletClass::AI | 0x5f380 | 6382 | 1939 |
 | 5 | MapClass::Set_Map_Dimensions | 0x145970 | 5335 | 590 |
@@ -45,7 +45,7 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 15 | CChatEventSink::OnUserList | 0x34e040 | UI/network/platform | 1989 | 1345 |
 | 16 | OwnerDraw::Adjust_Control_Position | 0x1e1760 | UI/network/platform | 1919 | 1 |
 | 17 | SidebarClass::StripClass::Recalc | 0x275a60 | UI/network/platform | 1762 | 184 |
-| 18 | WDT_Write_Map_Ini | 0x31f440 | UI/network/platform | 1652 | 1 |
+| 18 | WDT_Write_Map_Ini | 0x31f440 | UI/network/platform | 1652 | 0 (bindings open) |
 | 19 | WorldDominationTour::Selection::Show_State | 0x323340 | UI/network/platform | 1531 | 12 |
 | 20 | XSurface::Draw_Ellipse | 0x360000 | render | 1478 | 1198 |
 | 21 | Read_Text_File | 0x2ee430 | UI/network/platform | 1469 | 6 |
