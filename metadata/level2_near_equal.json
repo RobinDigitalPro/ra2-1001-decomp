@@ -226,10 +226,10 @@
    "rva": "0x5f380",
    "symbol": "BulletClass::AI",
    "tu": "bullet.cpp",
-   "diff_bytes": 1939,
+   "diff_bytes": 695,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): BulletClass::AI: closure floating-point addition order restored (a 16,416-unit difference on a concrete input fixed); remaining regions CODEGEN_ONLY; 2026-11-28 Claude agent bullet1: 4760 -> 1939 bytes, isd 16, call list equal (docs/level2/batch_reports/claude_bullet1_REPORT.md); residue: register-weight tie across __ftol (+0x1043) and an early max_speed store (+0x218), not count-type",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): BulletClass::AI: closure floating-point addition order restored (a 16,416-unit difference on a concrete input fixed); remaining regions CODEGEN_ONLY; 2026-11-28 Claude agent bullet1: 4760 -> 1939 bytes, isd 16, call list equal (docs/level2/batch_reports/claude_bullet1_REPORT.md); residue: register-weight tie across __ftol (+0x1043) and an early max_speed store (+0x218), not count-type; 2026-11-28 Claude agent sm1: 1939 -> 695 bytes, POSITIONAL gain (isd 16 -> 66): a named `bool under_bridge = cellptr->IsUnderBridge;` makes VC6 test the bits with shr/test instead of a shared 0x100 mask; that step is 4 bytes longer and cancels the -4 at +0x1043, so 0x1080 onward aligns; stores, 115 calls and 359 x87 ops equal and in order; one Vector3 slot moves (+0x40 -> +0x38). Next: pair the planar `TPoint2D<int> & planar = coord;` hold (1946, isd 21) with a natural hold of Y",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
