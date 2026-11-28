@@ -502,22 +502,14 @@ void WalkLocomotionClass::Movement_AI(bool first_pass)
 			LinkedTo->Per_Cell_Process(PCP_END);
 
 			if (LinkedTo->IsActive && !LinkedTo->IsInLimbo && !LinkedTo->IsFalling) { // level-2 1.001: no NULL test of LinkedTo
-				if (DestinationCoord == COORD_NONE) {
+				if (DestinationCoord == COORD_NONE
+					|| (LinkedTo->Destination_Coord().As_Cell() == DestinationCoord.As_Cell()
+						&& abs(LinkedTo->Destination_Coord().Z - DestinationCoord.Z) < 2 * LEVEL_LEPTON_H)) {
 					LinkedTo->Assign_Destination(NULL);
 					LinkedTo->Set_Speed(0.0);
 					HeadToCoord = COORD_NONE;
 					Stop_Moving();
 					IsReallyMoving = false;
-				} else {
-					if (LinkedTo->Destination_Coord().As_Cell() == DestinationCoord.As_Cell()) {
-						if (abs(LinkedTo->Destination_Coord().Z - DestinationCoord.Z) < 2 * LEVEL_LEPTON_H) {
-							LinkedTo->Assign_Destination(NULL);
-							LinkedTo->Set_Speed(0.0);
-							HeadToCoord = COORD_NONE;
-							Stop_Moving();
-							IsReallyMoving = false;
-						}
-					}
 				}
 
 				LinkedTo->Mark(MARK_DOWN);
