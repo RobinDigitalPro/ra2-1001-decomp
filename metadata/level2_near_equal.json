@@ -29,7 +29,7 @@
    "diff_bytes": 3,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7); 2026-11-28 Claude agent own11: two operand-order residues (+0x4a2 add ecx,eax vs ours add eax,ecx; +0x68e [edx+edi] vs [edi+edx]); the 1.006 binary has OUR order at both sites, so this is 1.001-specific; count probes, CPU flags, ~14 rewrites flat: tie",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -79,7 +79,7 @@
    "diff_bytes": 4,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch64g_*.md and batch60 target06 (jobs b81e4c73, 5d58f931): the 4 bytes are two independent stack reloads (EBX/start, EDI/closest) restored in swapped order at 0x220d4f; 68 builds kept the identical residue; gibbo's YR form does not transfer",
+   "evidence": "docs/level2/batch_reports/batch64g_*.md and batch60 target06 (jobs b81e4c73, 5d58f931): the 4 bytes are two independent stack reloads (EBX/start, EDI/closest) restored in swapped order at 0x220d4f; 68 builds kept the identical residue; gibbo's YR form does not transfer; 2026-11-28 Claude agent own11: meastes historical-final exact 1.006 body is statement for statement ours; 1.006 differs from 1.001 only by this reload order; 13 variants flat; four spellings broke Print_CRCs (kept exact)",
    "meaning": "functionally equivalent: order of two independent reloads (codegen only); original bug kept (fallback-walk rejection clears an already clear flag, gibbo BUGS.md); fix codegen in the end phase with the complete file linked"
   },
   {
@@ -160,16 +160,6 @@
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions); 2026-11-28 Claude agent gib5: 1.001 keeps 0 in ebx (zero-register tie); unchanged at 250",
-   "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
-  },
-  {
-   "rva": "0xd18c0",
-   "symbol": "?Fill_Color_List@@YIXPAUHWND__@@H@Z",
-   "tu": "GDlgSupp.cpp",
-   "diff_bytes": 128,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {

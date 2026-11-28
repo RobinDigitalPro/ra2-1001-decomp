@@ -210,3 +210,6 @@ The techtype.h Unused2 member, the script.h Detach override and the faithful que
 
 ## MapRegionClass::Split_Region 0x16bd10 (2026-11-28, Claude agents own5, own9, own10)
 - Register-allocation tie: 1.001 does not keep i (eax) or this (ebx) in registers through loop 3 (an 8-byte `jmp; mov eax,[i]` head, latch reload of i, late reload of ebx); ours keeps both across the continue edge. Nothing inside loop 3 moves it (~130 compiles: loop spellings, declaration order/scope, per-loop counters, region locals, 75 own9 knobs, gauges); only cutting the `remaining` loop shifted it, so the cause is elsewhere in the function; the slot pairing also differs (1.001 pairs i with node). Best witness own10/result/mapgen_split_witness (1389 bytes, right size 4016, call list and frame). Next: slot pairing and the loop-1 swap at +0x41a; corpus of ~35 jmp-over-reload heads in claimed mapgen.cpp functions (own10/scanhead.py).
+
+## Create_Game_Channel 0x339df0 and Spread_Units_Around_Cell 0x220ac0 (2026-11-28, Claude agent own11)
+- Both are 1.001-specific operand/reload-order ties: the 1.006 binary (and meastes' exact 1.006 body for Spread_Units) has OUR order. Count probes, flags and rewrites flat. End phase with the full file linked.

@@ -358,7 +358,8 @@ void Fill_Color_List(HWND dialog, int id)
     for (int color = 0; color < MAX_COLORS; color++) {
         bool mine = (PlayerColors[color].Owner == slot);
         if (mine || PlayerColors[color].Owner == -1) {
-            index = SendMessageA(list, WM_CB_ADD_WIDE_STRING, 0, (LPARAM)PlayerColors[color].Abbrev);
+            wchar_t const * name = PlayerColors[color].Abbrev; // level-2 1.001: STEERING named Abbrev local (same value, read once before the add); it lowers the walk pointer's weight so VC6 gives it EBX and index/slot EBP as in 1.001 (128 -> 0 bytes)
+            index = SendMessageA(list, WM_CB_ADD_WIDE_STRING, 0, (LPARAM)name);
             SendMessageA(list, WM_CB_SET_ITEM_COLOR, index, PlayerColors[color].RGB);
             SendMessageA(list, CB_SETITEMDATA, index, color);
             if (mine) {

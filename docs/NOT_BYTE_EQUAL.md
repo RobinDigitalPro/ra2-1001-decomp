@@ -47,6 +47,5 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 27 | SurfaceCacheClass::CachePCX | 0x281d00 | render | 1046 | 9 |
 | 28 | OwnerDraw::Init_Control_Animation | 0x1e04d0 | UI/network/platform | 1021 | 687 |
 | 29 | Tactical::Draw_Radial_Indicators | 0x2a1a70 | render | 893 | 250 |
-| 38 | Fill_Color_List | 0xd18c0 | UI/network/platform | 437 | 128 |
 
 Plus, parked for the end phase (code ready or count effect): InfantryClass 0x1089d0, UnitClass::Deploy/Undeploy 0x2f3270/0x2f3280, SyncState ctor/dtor 0x21ad30/0x21ad80 (in the list above), and SuperClass::Place 0x292ef0 (0 bytes, claim waits for per-TU constant bindings).

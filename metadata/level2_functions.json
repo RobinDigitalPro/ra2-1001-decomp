@@ -28359,6 +28359,12 @@
   "name": "Is_Color_Taken"
  },
  {
+  "rva": "0xd18c0",
+  "tu": "src/ra2/GDlgSupp.cpp",
+  "symbol": "?Fill_Color_List@@YIXPAUHWND__@@H@Z",
+  "name": "Fill_Color_List"
+ },
+ {
   "rva": "0xd1a80",
   "tu": "src/ra2/GDlgSupp.cpp",
   "symbol": "?Fill_All_Color_Lists@@YIXPAUHWND__@@@Z",
