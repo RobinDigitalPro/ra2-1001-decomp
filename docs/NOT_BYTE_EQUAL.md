@@ -46,7 +46,7 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 16 | OwnerDraw::Adjust_Control_Position | 0x1e1760 | UI/network/platform | 1919 | 1 |
 | 17 | SidebarClass::StripClass::Recalc | 0x275a60 | UI/network/platform | 1762 | 184 |
 | 18 | WDT_Write_Map_Ini | 0x31f440 | UI/network/platform | 1652 | 1 |
-| 19 | WorldDominationTour::Selection::Show_State | 0x323340 | UI/network/platform | 1531 | 183 |
+| 19 | WorldDominationTour::Selection::Show_State | 0x323340 | UI/network/platform | 1531 | 12 |
 | 20 | XSurface::Draw_Ellipse | 0x360000 | render | 1478 | 1198 |
 | 21 | Read_Text_File | 0x2ee430 | UI/network/platform | 1469 | 6 |
 | 22 | Standard_Dialog_Proc | 0x1f77c0 | UI/network/platform | 1450 | 707 |

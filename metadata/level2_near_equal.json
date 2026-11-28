@@ -166,10 +166,10 @@
    "rva": "0x323340",
    "symbol": "?Show_State@Selection@WorldDominationTour@@QAEXABV?$rc_ptr@VState@WorldDominationTour@@@@_N1@Z",
    "tu": "WDTSel.cpp",
-   "diff_bytes": 183,
+   "diff_bytes": 12,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
+   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions); 2026-11-28 Claude agent meastes1: 183 -> 12 bytes (meastes 1.006 entry-test form; docs/level2/batch_reports/claude_meastes1_REPORT.md); residue two codegen-only register ties (+0xf5, +0x1b7)",
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {

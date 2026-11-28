@@ -1037,7 +1037,7 @@ void Selection::Show_State(rc_ptr<WorldDominationTour::State> const & state, boo
                 anim->Set_End_Frame(TargetDividingFrame - 1);
                 anim->Set_Start_Frame(0);
                 anim->Set_Frame(0);
-                (*cursor)->Set_Pending((int)anim);
+                Target_Territory(cursor, &*cursor)->Set_Pending((int)anim); // level-2 1.001: STEERING resolve the pending slot through Target_Territory (folded element load, as at the other two sites).
                 targets.Add(anim);
             }
         }
@@ -1045,10 +1045,9 @@ void Selection::Show_State(rc_ptr<WorldDominationTour::State> const & state, boo
 
     AnimCursor zoom_iterator(zooms); // level-2 1.001: STEERING keep the playback zoom cursor alive across both loop tests.
     AnimCursor & zoomcursor = zoom_iterator; // level-2 1.001: STEERING use the cursor reference for playback virtual dispatch.
-    bool (AnimCursor::* target_valid)() const = &AnimCursor::Is_Valid; // level-2 1.001: STEERING preserve the entry-test call through the virtual member.
     AnimCursor target_iterator(targets); // level-2 1.001: STEERING share the target cursor between entry and continuation.
     AnimCursor & target = target_iterator; // level-2 1.001: STEERING use reference dispatch for the continuation test.
-    if ((target.*target_valid)()) { // level-2 1.001: STEERING split the initial validity call from continuation.
+    if (target.Is_Valid()) { // level-2 1.001: STEERING entry test through the cursor reference: VC6 folds the freshly stored vptr into call [vtable+4] (meastes 1.006 form, no member pointer).
         do {
             Poll_Input();
             if (zoomcursor.Is_Valid()) {
