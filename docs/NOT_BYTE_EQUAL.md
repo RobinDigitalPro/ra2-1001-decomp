@@ -30,7 +30,7 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 5 | DSurface::Draw_Depth_Antialiased_Line | 0xac360 | render | 6064 | 6 |
 | 6 | Net2DecodeGameopt | 0x1beaf0 | UI/network/platform | 5591 | 509 |
 | 7 | Send_Statistics_Packet | 0x28e3f0 | UI/network/platform | 5051 | 2 (kind-3 read removed) |
-| 8 | LoadProgressManager::Draw | 0x133e50 | UI/network/platform | 3848 | 1665 |
+| 8 | LoadProgressManager::Draw | 0x133e50 | UI/network/platform | 3848 | 1238 |
 | 10 | Tactical::Render | 0x299be0 | render | 3288 | 1860 |
 | 12 | Run_Online_Menu | 0x3474e0 | UI/network/platform | 2539 | 25 |
 | 13 | Create_Game_Channel | 0x339df0 | UI/network/platform | 2181 | 3 |

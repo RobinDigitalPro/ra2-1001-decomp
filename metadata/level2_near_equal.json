@@ -149,7 +149,7 @@
    "diff_bytes": 132,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions); 2026-11-28 Claude agent gib5: 1.001 inlines Build_Hicolor_Pixel(255,0,255); every form tried calls it out of line (124 bytes)",
+   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions); 2026-11-28 Claude agent gib5: 1.001 inlines Build_Hicolor_Pixel(255,0,255); every form tried calls it out of line (124 bytes); 2026-11-28 Claude agent ldp2: no form gives 1.001's inline combination (Flag_Size and the Rect constructor out of line, the magenta pixel inline); closest witnesses 154/156 bytes",
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {
@@ -286,10 +286,10 @@
    "rva": "0x133e50",
    "symbol": "?Draw@LoadProgressManager@@QAEXXZ",
    "tu": "ldprgmgr.cpp",
-   "diff_bytes": null,
+   "diff_bytes": 1238,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): LoadProgressManager::Draw: NEAR_EQUAL_CANDIDATE; paired execution across 116 cases passed; 2026-11-28 Claude agent wdt2: candidate (claude_agents/wdt2/result/ldprgmgr_candidate, 4 edits removing steering) gives 1.001's call list and byte-exact helpers but 1884 bytes (frame 0x1180 vs 0x1184 shifts lengths): kept as witness; next step stack-slot packing",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): LoadProgressManager::Draw: NEAR_EQUAL_CANDIDATE; paired execution across 116 cases passed; 2026-11-28 Claude agent wdt2: candidate (claude_agents/wdt2/result/ldprgmgr_candidate, 4 edits removing steering) gives 1.001's call list and byte-exact helpers but 1884 bytes (frame 0x1180 vs 0x1184 shifts lengths): kept as witness; next step stack-slot packing; 2026-11-28 Claude agent ldp2: 1671 -> 1238 bytes (the missing 4-byte local is a spilled BitFont *: `BitFont * font = BitFont::Instance;` first in Draw_Area_Text gives frame 0x1184; `area = Unit_Area();`); witness ldp2/result/witnesses/ldprgmgr_b1_rd198.cpp (1286 bytes, 198 aligned lines)",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

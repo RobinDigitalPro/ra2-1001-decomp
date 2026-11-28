@@ -491,9 +491,10 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 				int width = 0; // RA2: as above
 				int height = 0; // RA2: as above
 				BitFont::Instance->Text_Dimensions(text, &width, &height, 400); // RA2: as above
-				screen = Rect(point, width, height); // level-2 1.001: STEERING reuse the screen rectangle after its final campaign use.
+				Rect text_area; // RA2: the area the briefing takes
+				text_area = Rect(point, width, height); // RA2: as above
 				Shade_Text_Area(text, ProgressSurface, point.X, point.Y, 400, 0, false); // RA2: as above
-				Draw_Area_Text(text, ProgressSurface, screen, pixel, 0); // RA2: as above
+				Draw_Area_Text(text, ProgressSurface, text_area, pixel, 0); // RA2: as above
 			}
 		}
 		return; // RA2: as above
@@ -521,19 +522,12 @@ void LoadProgressManager::Draw(void) // RA2: 0x00535BF0
 		{ // level-2 1.001: no observer test; the unit and the briefing are always drawn
 			wcscpy(unit_name, Unit_Name(side)); // RA2: the unit's name, in capitals, at the top left in black
 			Upper_Case(unit_name); // RA2: as above
-			Rect unit_area = Unit_Area(); // level-2 1.001: STEERING keep the unit rectangle local to its draw.
-			RGBClass const & unit_color = BlackColor; // level-2 1.001: STEERING preserve the unit draw's color conversion.
-			int unit_pixel = DSurface::Build_Hicolor_Pixel(unit_color); // level-2 1.001: STEERING keep the packed color full-width until decoding.
-			RECT rect = { unit_area.X, unit_area.Y, unit_area.X + unit_area.Width, unit_area.Y + unit_area.Height }; // level-2 1.001: STEERING expand the unit label draw at its call site.
-			RGBClass rgb = DSurface::Deconstruct_Hicolor_Pixel(static_cast<unsigned short>(unit_pixel)); // level-2 1.001: STEERING recover the label color from the surface pixel.
-			Draw_Text_In_Rect_Ex(ProgressSurface, unit_name, &rect, BitFont::Instance,
-				rgb.Get_Red() | (rgb.Get_Green() << 8) | (rgb.Get_Blue() << 16),
-				0, 12, 0, 0, 0); // level-2 1.001: STEERING draw the unit label through the underlying font API.
+			area = Unit_Area(); // RA2: the unit's name reuses the area (1.001 stores it into the country rectangle's slot)
+			Draw_Area_Text(unit_name, ProgressSurface, area, DSurface::Build_Hicolor_Pixel(BlackColor), 0); // RA2: as above
 
 			wchar_t const * brief = Briefing(side); // RA2: the country's briefing is drawn in an area of its own
-			area = Get_Briefing_Area(); // level-2 1.001: STEERING reuse the country rectangle for the briefing.
-			Point2D const briefing_origin(area.X, area.Y); // level-2 1.001: STEERING give the point copy a coordinate object at the briefing call.
-			point = Copy_Point(&briefing_origin); // level-2 1.001: STEERING preserve the point-return call and its result lifetime.
+			area = Get_Briefing_Area(); // RA2: as above
+			point = Copy_Point((Point2D const *)&area); // RA2: as above
 			Shade_Text_Area(brief, ProgressSurface, point.X, point.Y, area.Width, 0, true); // RA2: as above
 			Draw_Area_Text(brief, ProgressSurface, area, pixel, 0); // RA2: as above
 		}
@@ -610,13 +604,14 @@ void __fastcall Shade_Text_Area(wchar_t const * text, Surface * surface, int x, 
 /// </summary>
 void __fastcall Draw_Area_Text(wchar_t const * text, Surface * surface, Rect const & area, unsigned short color, int flags) // RA2: 0x00536D30
 {
+	BitFont * font = BitFont::Instance; // level-2 1.001: STEERING read the game font before the colour conversion (1.001 keeps it across the out-of-line RGB call in Draw's inlined copies: frame 0x1184).
 	RECT rect; // RA2: the area as a window rectangle
 	rect.left = area.X; // RA2: as above
 	rect.top = area.Y; // RA2: as above
 	rect.right = area.X + area.Width; // RA2: as above
 	rect.bottom = area.Y + area.Height; // RA2: as above
 	RGBClass rgb = DSurface::Deconstruct_Hicolor_Pixel(color); // RA2: the drawing function takes a 24 bit color
-	Draw_Text_In_Rect_Ex(surface, text, &rect, BitFont::Instance, rgb.Get_Red() | (rgb.Get_Green() << 8) | (rgb.Get_Blue() << 16), flags, 12, 0, 0, 0); // RA2: as above
+	Draw_Text_In_Rect_Ex(surface, text, &rect, font, rgb.Get_Red() | (rgb.Get_Green() << 8) | (rgb.Get_Blue() << 16), flags, 12, 0, 0, 0); // RA2: as above
 }
 
 /// <summary>
