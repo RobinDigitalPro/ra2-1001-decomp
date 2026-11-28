@@ -186,10 +186,10 @@
    "rva": "0xebf50",
    "symbol": "?Random_Cell_In_Zone@HouseClass@@QBE?AVCell@@W4ZoneType@@@Z",
    "tu": "house.cpp",
-   "diff_bytes": null,
+   "diff_bytes": 244,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Random_Cell_In_Zone: all 41 undecided regions CODEGEN_ONLY; switch ordinals and all gameplay actions agree; SOUTH/WEST entries 13/8 bytes shifted; 2026-11-28 Claude agent gib3: the 1.001 code writes DirType::Facing and then reads/writes Raw whose high half is never written; reproducing that needs an uninitialised read (kind 3, rejected); a scratch dir.Raw form made all four cases exact, 197 bytes left in default-arm jump threading. Stays NEAR_EQUAL",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Random_Cell_In_Zone: all 41 undecided regions CODEGEN_ONLY; switch ordinals and all gameplay actions agree; SOUTH/WEST entries 13/8 bytes shifted; 2026-11-28 Claude agent gib3: the 1.001 code writes DirType::Facing and then reads/writes Raw whose high half is never written; reproducing that needs an uninitialised read (kind 3, rejected); a scratch dir.Raw form made all four cases exact, 197 bytes left in default-arm jump threading. Stays NEAR_EQUAL; 2026-11-28 Claude agent sm2: 664 -> 244 bytes with DEFINED behaviour (Zone_Direction writes dir.Raw then dir.Facing; Rotate_Back forces the quadrant in a copy; full-dword masks; default arm sets a `none` flag); eqcheck.py: all 65536 low words per zone with four upper halves, 0 mismatches; left ~35 bytes per case (needs the uninitialised read, kind 3) + 90-byte tail (coord X/Y registers swapped; the else Cell(int,int) stays inline)",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

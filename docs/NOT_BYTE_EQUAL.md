@@ -13,7 +13,7 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 10 | BuildingClass::Do_MISSION_MISSILE | 0x480f0 | 3036 | 10 |
 | 12 | MapGeneratorClass::Read_RMG_INI | 0x176750 | 1897 | 97 |
 | 14 | Extract_Compressed_Events | 0x21fa40 | 1455 | 6 |
-| 15 | HouseClass::Random_Cell_In_Zone | 0xebf50 | 1276 | 664 |
+| 15 | HouseClass::Random_Cell_In_Zone | 0xebf50 | 1276 | 244 |
 
 ## Other code (UI, network, render, platform), largest first
 
