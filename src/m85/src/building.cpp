@@ -3195,7 +3195,6 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 	*/
 	AircraftClass * air = NULL;
 	if (base->Fetch_RTTI() == RTTI_AIRCRAFT) air = (AircraftClass *)base;
-	Cell cell;
 	Cell exitcell;
 
 	switch (base->Fetch_RTTI()) {
@@ -3214,30 +3213,28 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 					 */
 					Cell edge = Cell(Map.LocalRect.X, -Map.LocalRect.X) + Cell(1, Map.PlayRect.Width) + Cell(Map.LocalRect.Y, Map.LocalRect.Y);
 
-					Cell diff = Center_Coord().As_Cell() - edge; // level-2 1.001: STEERING keep the aircraft edge difference by value to recover the original ground-case stack slots.
+					Cell diff; // level-2 1.001: gibbo101 YR 1.001 form (declared, then assigned)
+					diff = Center_Coord().As_Cell() - edge;
 					if (diff.X - diff.Y > Map.LocalRect.Width) {
 						edge = edge - Cell(1, 0) + Cell(Map.LocalRect.Width, -Map.LocalRect.Width);
 						exitcell = edge;
 						int random = Random_Pick(0, Map.LocalRect.Height);
-						exitcell.X += random;
-						exitcell.Y += random;
+						exitcell += Cell(random, random); // level-2 1.001: gibbo101 YR form
 					} else {
 						edge = edge - Cell(1, 0);
 						exitcell = edge;
 						int random = Random_Pick(0, Map.LocalRect.Height);
-						exitcell.X += random;
-						exitcell.Y += random;
+						exitcell += Cell(random, random);
 					}
 
 					ScenarioInit++;
 					if (air->Unlimbo(Coord(exitcell, 0), DIR_N)) {
-						AbstractClass * target = ArchiveTarget;
-						if (target != NULL) {
-							air->Assign_Destination(target);
+						if (ArchiveTarget != NULL) { // level-2 1.001: read directly, as in gibbo101's YR form
+							air->Assign_Destination(ArchiveTarget);
 						} else {
-							cell = air->Nearby_Location(this);
-							if (cell != CELL_NONE) {
-								air->Assign_Destination(&Map[cell]);
+							Cell nearby = air->Nearby_Location(this); // level-2 1.001: block-local; shares the original's 0x1C slot
+							if (nearby != CELL_NONE) {
+								air->Assign_Destination(&Map[nearby]);
 							} else {
 								air->Assign_Destination(NULL);
 							}
@@ -3368,67 +3365,7 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 						return(2);
 					}
 
-				} else if (Class->ToBuild != RTTI_INFANTRYTYPE && !Class->IsHospital && !Class->IsArmory && !Class->Cloning) {
-
-					exitcell = Find_Exit_Cell(base);
-					if (exitcell == CELL_NONE) {
-						return(0);
-					}
-
-					Coord const & exitcellcoord = Coord(exitcell, 0); // level-2 1.001: STEERING bind the direction coordinate for its full local lifetime to preserve other function relocations.
-					Dir256 dir = ::Direction(Center_Coord(), exitcellcoord).As_Dir256();
-
-					Cell to = exitcell;
-					Cell cell = Get_Cell();
-					int x = cell.X;
-					if (to.X >= x + Class->Width()) {
-						to.X -= 1;
-					} else if (to.X < cell.X) {
-						to.X += 1;
-					}
-					int y = cell.Y;
-					if (to.Y >= y + Class->Height()) {
-						to.Y -= 1;
-					} else if (to.Y < cell.Y) {
-						to.Y += 1;
-					}
-
-					/*
-					 * The barracks types have a special exit door location that the
-					 * exiting object should be placed at.
-					 */
-					Coord exitcoord = Coord(to, 0);
-					if (Class->IsGDIBarracks) {
-						if (exitcell.X == x + 1 && exitcell.Y == y + 2) {
-							exitcoord = exitcoord + Class->ExitCoordinate;
-						}
-					}
-					if (Class->IsNODBarracks && exitcell.X == x + 2 && exitcell.Y == y + 2) {
-						exitcoord = exitcoord + Class->ExitCoordinate;
-					}
-
-					ScenarioInit++;
-					if (base->Unlimbo(exitcoord, dir)) {
-
-						base->QueueMission(MISSION_MOVE, false);
-						base->Assign_Destination(&Map[exitcell]);
-
-						/*
-						 * When the computer produces a unit, it has the unit guard an
-						 * area around the spot it should head to.
-						 */
-						if (!House->Is_Human_Player()) {
-							base->QueueMission(MISSION_GUARD_AREA, false);
-
-							Cell cell = House->Where_To_Go((FootClass *)base);
-							base->Assign_Archive_Target(cell != CELL_NONE && Class->ToBuild != RTTI_NONE ? (AbstractClass *)&Map[cell] : NULL);
-						}
-
-						ScenarioInit--;
-						return(2);
-					}
-
-				} else {
+				} else if (Class->ToBuild == RTTI_INFANTRYTYPE || Class->IsHospital || Class->IsArmory || Class->Cloning) { // level-2 1.001: infantry arm first (gibbo101/meastes order); VC6 still emits the vehicle arm first and keeps its success tail
 
 					/*
 					**	level-2 1.001: infantry from a building that is not a cloning vat is
@@ -3454,7 +3391,7 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 					Dir256 dir = ::Direction(Center_Coord(), Coord(exitcell)).As_Dir256();
 
 					Cell to = exitcell;
-					cell = Get_Cell();
+					Cell cell = Get_Cell();
 					int x = cell.X;
 					if (to.X >= x + Class->Width()) {
 						to.X -= 1;
@@ -3521,6 +3458,70 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 						ScenarioInit--;
 						return(2);
 					}
+				} else {
+
+					exitcell = Find_Exit_Cell(base);
+					if (exitcell == CELL_NONE) {
+						return(0);
+					}
+
+					Coord const & exitcellcoord = Coord(exitcell, 0); // level-2 1.001: STEERING bind the direction coordinate for its full local lifetime to preserve other function relocations.
+					Dir256 dir = ::Direction(Center_Coord(), exitcellcoord).As_Dir256();
+
+					Cell to = exitcell;
+					Cell cell = Get_Cell();
+					int x = cell.X;
+					if (to.X >= x + Class->Width()) {
+						to.X -= 1;
+					} else if (to.X < cell.X) {
+						to.X += 1;
+					}
+					int y = cell.Y;
+					if (to.Y >= y + Class->Height()) {
+						to.Y -= 1;
+					} else if (to.Y < cell.Y) {
+						to.Y += 1;
+					}
+
+					/*
+					 * The barracks types have a special exit door location that the
+					 * exiting object should be placed at.
+					 */
+					Coord exitcoord = Coord(to, 0);
+					if (Class->IsGDIBarracks) {
+						if (exitcell.X == x + 1 && exitcell.Y == y + 2) {
+							exitcoord = exitcoord + Class->ExitCoordinate;
+						}
+					}
+					if (Class->IsNODBarracks && exitcell.X == x + 2 && exitcell.Y == y + 2) {
+						exitcoord = exitcoord + Class->ExitCoordinate;
+					}
+
+					ScenarioInit++;
+					if (base->Unlimbo(exitcoord, dir)) {
+
+						base->QueueMission(MISSION_MOVE, false);
+						base->Assign_Destination(&Map[exitcell]);
+
+						/*
+						 * When the computer produces a unit, it has the unit guard an
+						 * area around the spot it should head to.
+						 */
+						if (!House->Is_Human_Player()) {
+							base->QueueMission(MISSION_GUARD_AREA, false);
+
+							Cell cell = House->Where_To_Go((FootClass *)base);
+							if (cell != CELL_NONE && Class->ToBuild != RTTI_NONE) { // level-2 1.001: two calls, cross-jumped by VC6 into one (push eax / push 0)
+								base->Assign_Archive_Target(&Map[cell]);
+							} else {
+								base->Assign_Archive_Target(NULL);
+							}
+						}
+
+						ScenarioInit--;
+						return(2);
+					}
+
 				}
 
 			} else {
@@ -3531,10 +3532,10 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 				 */
 				if (base->Fetch_RTTI() == RTTI_UNIT) {
 
-					cell = Adjacent_Cell(Center_Coord().As_Cell(), FACING_SW); // level-2 1.001: STEERING reuse the outer cell for the refinery exit
+					exitcell = Center_Coord().As_Cell() + AdjacentCell[FACING_SW]; // level-2 1.001: STEERING the shared exit cell (stored to 0x18 as in 1.001) and the direct sum instead of Adjacent_Cell() reproduce the original symbol state
 
 					ScenarioInit++;
-					if (base->Unlimbo(Coord(Adjacent_Cell(cell, FACING_S), 0), DIR_SW)) {
+					if (base->Unlimbo(Coord(Adjacent_Cell(exitcell, FACING_S), 0), DIR_SW)) {
 						base->PrimaryFacing.Set(DirType(DIR_S));
 						base->QueueMission(MISSION_HARVEST, false);
 					}
@@ -3599,8 +3600,7 @@ int BuildingClass::Exit_Object(TechnoClass * base)
 
 				if (placementcoord != COORD_NONE) {
 
-					Cell cellnum = placementcoord.As_Cell();
-					switch (((BuildingTypeClass *)base->Class_Of())->Flush_For_Placement(cellnum, House)) {
+					switch (((BuildingTypeClass *)base->Class_Of())->Flush_For_Placement(placementcoord.As_Cell(), House)) {
 
 						default:
 							return(0);

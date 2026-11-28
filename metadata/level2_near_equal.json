@@ -296,10 +296,10 @@
    "rva": "0x402b0",
    "symbol": "BuildingClass::Exit_Object",
    "tu": "building.cpp",
-   "diff_bytes": 1291,
+   "diff_bytes": 10,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): 119 regions proven: 95 previously undecided are CODEGEN_ONLY, 2 MEANING call bindings repaired and integrated, 22 CODEGEN_ONLY",
+   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): 119 regions proven: 95 previously undecided are CODEGEN_ONLY, 2 MEANING call bindings repaired and integrated, 22 CODEGEN_ONLY; 2026-11-28 Claude agent exit1: 1291 -> 10 bytes (docs/level2/batch_reports/claude_exit1_REPORT.md); residue at +0x1103 refinery add ecx,edx vs add edx,ecx, codegen-only, not count-type",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
