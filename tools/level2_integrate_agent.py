@@ -18,7 +18,7 @@ Steps:
      If the TU's final check shows a lost EXISTING claim, restore the backup and say so.
 """
 import argparse, glob, json, os, re, shutil, subprocess, sys
-P = r'D:\<project-folder>\Coding\RedAlert2'; W = r'D:\<work-root>\RedAlert2Temp'; L = os.path.join(W, 'analysis', 'level2')
+P = r'D:\OneDrive - RDI\Coding\RedAlert2'; W = r'D:\CodexTemp\RedAlert2Temp'; L = os.path.join(W, 'analysis', 'level2')
 ap = argparse.ArgumentParser()
 ap.add_argument('tu'); ap.add_argument('dir'); ap.add_argument('--claims'); ap.add_argument('--append', nargs='*')
 ap.add_argument('--no-append', action='store_true'); ap.add_argument('--extra', nargs='*', default=[]); ap.add_argument('--dry-run', action='store_true')
@@ -44,6 +44,11 @@ for f in sorted(glob.glob(os.path.join(D, 'edits*.json'))):
     if norm in seen_sets:      # agents sometimes leave an LF/CRLF copy of the same set (edits_lf.json); apply it once
         print('skip duplicate edit set:', os.path.basename(f)); continue
     seen_sets.append(norm); edits += es
+# 2026-11-28 guard: a deliverable dir without any edits.py / edits*.json / append file and without extra claims used to
+# rewrite the TU unchanged and report "matched", which hid two integrations whose edits.json sat one folder higher.
+if not edits and not a.extra and not glob.glob(os.path.join(D, 'proposal.cpp')) and not a.append \
+        and not (a.claims or glob.glob(os.path.join(D, '*claims*.json'))):
+    sys.exit('no edits.py, edits*.json, proposal.cpp, --append, --extra or claims found in %s: nothing to integrate (is edits.json in another folder?)' % D)
 for i, (old, new) in enumerate(edits):
     old = old.replace('\r\n', '\n'); new = new.replace('\r\n', '\n'); n = text.count(old)
     if n != 1:
@@ -154,6 +159,6 @@ else:
 
 try:
     import subprocess as _sp, sys as _sy
-    _sp.run([_sy.executable, '-I', '<RA2_WORK>/tools/level2_journal.py', 'integrate', '%s from %s: %s' % (a.tu, a.dir, (r.stdout.strip().splitlines() or [''])[-1] if 'r' in dir() else 'no claims')], timeout=60)
+    _sp.run([_sy.executable, '-I', 'D:/CodexTemp/RedAlert2Temp/tools/level2_journal.py', 'integrate', '%s from %s: %s' % (a.tu, a.dir, (r.stdout.strip().splitlines() or [''])[-1] if 'r' in dir() else 'no claims')], timeout=60)
 except Exception:
     pass

@@ -6463,49 +6463,14 @@ Cell HouseClass::Find_Cell_In_Zone(TechnoClass const * techno, ZoneType zone) co
 }
 
 
-// level-2 1.001: INFERRED a base zone rotates its random direction back one facing.
-// level-2 1.001: STEERING keep the 16-bit field accesses in the selected edge blocks.
-struct ZoneFacingBits {
-	unsigned angle : 16;
-};
-
-// level-2 1.001: INFERRED use the same eighth-turn rotation on the bit-field representation.
-static DirType Rotate_Back_One_Facing(ZoneFacingBits & dir)
+// level-2 1.001: STEERING fill the whole direction storage before the facing. 1.001 stores only the
+// facing word and then reads the full dword (an uninitialised upper half); writing the dword first keeps
+// VC6's word store / dword reload in the stack slot with defined contents. Only the low word reaches the
+// result, so the value is the same as the facing alone.
+static inline void Zone_Direction(DirType & dir, int value)
 {
-	int back = (short)((dir.angle & 0xe000) - 1);
-	return DirType((back & ~0x1fff) ^ ((short)dir.angle & 0x1fff));
-}
-
-
-// level-2 1.001: INFERRED rotate within a random base quadrant.
-// level-2 1.001: STEERING keep the snapped sector in a separate direction.
-static DirType const & Rotate_Edge_Facing(DirType & dir)
-{
-	DirType sector(dir.As_Int());
-	int back = sector.Snap_To_8().As_Int() - 1;
-	dir.Facing = short((dir.As_Int() & 0x1fff) | (back & 0xe000));
-	return(dir);
-}
-
-
-// level-2 1.001: INFERRED apply the quadrant mask to a complete direction.
-// level-2 1.001: STEERING copy initialized direction storage through its object representation.
-static inline unsigned Zone_Direction_Bits(DirType const & dir)
-{
-    unsigned bits;
-    memcpy(&bits, &dir, sizeof(bits));
-    return bits;
-}
-static inline void Set_Zone_Direction_Bits(DirType & dir, unsigned bits)
-{
-    memcpy(&dir, &bits, sizeof(bits));
-}
-static DirType const & Rotate_Zone_Facing(DirType & dir)
-{
-	DirType sector(dir);
-	int back = sector.Snap_To_8().As_Int() - 1;
-	Set_Zone_Direction_Bits(dir, (Zone_Direction_Bits(dir) & ~0xE000) | (back & 0xE000));
-	return(dir);
+	dir.Raw = value;
+	dir.Facing = value;
 }
 
 
@@ -6535,20 +6500,23 @@ static DirType Rotate_Zone_Angle(unsigned int const & angle)
  *   11/04/1996 JLB : Created.                                                                 *
  *=============================================================================================*/
 // level-2 1.001: INFERRED rotate a random quadrant direction by one facing.
+// level-2 1.001: STEERING force the quadrant in a separate copy and take the fine angle from it; the
+// direction itself keeps its random value until the final merge. Same low word as an in-place rotate.
 static DirType const & Rotate_Back(DirType & dir, int clear, int set)
 {
-	dir.Facing &= ~clear;
-	dir.Facing |= set;
-	DirType sector(dir);
+	DirType quadrant(dir);
+	quadrant.Raw &= ~clear;
+	quadrant.Raw |= set;
+	DirType sector(quadrant);
 	sector.Snap_To_8();
-	dir.Facing = (dir.Facing & ~0xE000) | ((sector.As_Int() - 1) & 0xE000);
+	dir.Raw = (quadrant.Raw & ~0xE000) | ((sector.As_Int() - 1) & 0xE000);
 	return(dir);
 }
 
 Cell HouseClass::Random_Cell_In_Zone(ZoneType zone) const
 {
-	Cell cell;
 	Coord coord;
+	bool none = false;
 	int maxdist = 0;
 
 	int radius = MAX(3 * CELL_LEPTON, MIN(Radius, 8 * CELL_LEPTON));
@@ -6564,59 +6532,69 @@ Cell HouseClass::Random_Cell_In_Zone(ZoneType zone) const
 		 * compass quadrant, then rotates back 45 degrees so that the quadrant is
 		 * centered upon the compass direction (e.g., north covers NW..NE). Each
 		 * quadrant clears the top bits that must be zero and sets the ones that
-		 * must be one, so north needs no set and west needs no clear.
+		 * must be one.
+		 *
+		 * level-2 1.001: STEERING the masks are written as full dwords: the bits above
+		 * the facing word are storage padding that never reaches the result (south
+		 * clears both quadrant bits before setting its own). This keeps 1.001's
+		 * instruction lengths with the defined dword write in Zone_Direction.
 		 */
 		case ZONE_NORTH: {
 			int distance = Random_Pick(radius, maxdist);
-			ZoneFacingBits dir; // level-2 1.001: STEERING retain the 16-bit field load here.
-			dir.angle = (unsigned short)Scen->RandomNumber();
-			dir.angle &= ~(DIR_W << 8);
-			coord = Move_Coord(Center, Rotate_Back_One_Facing(dir), distance);
+			DirType dir;
+			Zone_Direction(dir, Scen->RandomNumber());
+			coord = Move_Coord(Center, Rotate_Back(dir, ~0x3FFF, 0), distance);
 			break;
 		}
 
 		case ZONE_EAST: {
 			int distance = Random_Pick(radius, maxdist);
-			DirType dir(Scen->RandomNumber());
-			dir.Facing &= ~(DIR_S << 8);
-			dir.Facing |= DIR_E << 8;
-			coord = Move_Coord(Center, Rotate_Edge_Facing(dir), distance);
+			DirType dir;
+			Zone_Direction(dir, Scen->RandomNumber());
+			coord = Move_Coord(Center, Rotate_Back(dir, ~0x7FFF, DIR_E << 8), distance);
 			break;
 		}
 
 		case ZONE_SOUTH: {
 			int distance = Random_Pick(radius, maxdist);
-			DirType dir(Scen->RandomNumber);
-			coord = Move_Coord(Center, Rotate_Back(dir, DIR_E << 8, DIR_S << 8), distance);
+			DirType dir;
+			Zone_Direction(dir, Scen->RandomNumber());
+			coord = Move_Coord(Center, Rotate_Back(dir, ~0x3FFF, DIR_S << 8), distance);
 			break;
 		}
 
 		case ZONE_WEST: {
 			int distance = Random_Pick(radius, maxdist);
-			DirType dir(0);
-			Set_Zone_Direction_Bits(dir, 0);
-			dir.Facing = (short)Scen->RandomNumber();
-			Set_Zone_Direction_Bits(dir, Zone_Direction_Bits(dir) | (DIR_W << 8));
-			coord = Move_Coord(Center, Rotate_Zone_Facing(dir), distance);
+			DirType dir;
+			Zone_Direction(dir, Scen->RandomNumber());
+			coord = Move_Coord(Center, Rotate_Back(dir, 0, ~0x3FFF), distance);
 			break;
 		}
+
 		default:
-			coord = COORD_NONE;
+			none = true;
 			break;
 	}
 
 	/*
 	**	Double check that the location is valid and if so, convert it into a cell
-	**	number.
+	**	number. An unknown zone has no location at all.
+	**	level-2 1.001: INFERRED the flag lets VC6 send the default arm straight to the
+	**	zone test, as 1.001 does, without comparing an unassigned coordinate.
 	*/
-	if (coord == COORD_NONE /*|| !Map.In_Radar(coord.As_Cell())*/) {
+	if (!none && coord == COORD_NONE) {
+		none = true;
+	}
+
+	Cell cell;
+	if (none) {
 		if (zone == ZONE_CORE) {
 
 			/*
 			**	Finding a cell within the core failed, so just pick the center
 			**	cell. This cell is guaranteed to be valid.
 			*/
-			cell = Cell(Center);
+			cell = Center.As_Cell();
 		} else {
 
 			/*
@@ -6625,7 +6603,7 @@ Cell HouseClass::Random_Cell_In_Zone(ZoneType zone) const
 			cell = Random_Cell_In_Zone(ZONE_CORE);
 		}
 	} else {
-		cell = Cell(coord);
+		cell = Cell(coord); // level-2 1.001: STEERING the cell is built through Cell(Coord const &) (meastes form); the extra inline level sends this site's Cell(int,int) out of line as 1.001 does (Y converted first, X in ecx: tail 90 -> 0 bytes, sm4 REPORT). Same value as coord.As_Cell().
 	}
 
 	/*

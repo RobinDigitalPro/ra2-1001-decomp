@@ -759,9 +759,14 @@ void BulletClass::AI(void) // level-2 1.001: at 0x45F380; whole-branch port of g
 				impact = IMPACT_NORMAL;
 				forced = true;
 			}
-			coord.X = (int)position.X;
-			coord.Y = (int)position.Y;
+			/*
+			 * level-2 1.001: STEERING the planar part is converted into its own point and copied in after the height, so VC6 holds X and Y in esi/edi across the __ftol calls as 1.001 does (fixes the +0x1043 length at its cause; 695 -> 16, sm4 REPORT). Same values and the same X, Y, Z conversion order as three field stores.
+			 */
+			TPoint2D<int> planar;
+			planar.X = (int)position.X;
+			planar.Y = (int)position.Y;
 			coord.Z = (int)position.Z;
+			static_cast<TPoint2D<int> &>(coord) = planar;
 		}
 
 		/*
