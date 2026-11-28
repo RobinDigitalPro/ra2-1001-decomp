@@ -293,16 +293,6 @@
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
-   "rva": "0x2bfe50",
-   "symbol": "?Fire_At@TechnoClass@@UAEPAVBulletClass@@PAVAbstractClass@@H@Z",
-   "tu": "techno.cpp",
-   "diff_bytes": null,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Fire_At: batch 73 x87 rounding difference repaired for every signed 32-bit displacement (MEANING fixed); remaining regions CODEGEN_ONLY",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
    "rva": "0x312de0",
    "symbol": "?Movement_AI@WalkLocomotionClass@@QAEX_N@Z",
    "tu": "walk.cpp",
@@ -373,16 +363,6 @@
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
-   "rva": "0x2ebb60",
-   "symbol": "?Combatant_Select_Command@@YIX_N@Z",
-   "tu": "UICmnds.cpp",
-   "diff_bytes": null,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Combatant_Select_Command: all 26 undecided regions CODEGEN_ONLY",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
    "rva": "0x5f380",
    "symbol": "BulletClass::AI",
    "tu": "bullet.cpp",
@@ -420,36 +400,6 @@
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Standard_Dialog_Proc: NEAR_EQUAL_CANDIDATE (unsigned hit-test local order)",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
-   "rva": "0x2ec1b0",
-   "symbol": "?Type_Select_Command@@YIXXZ",
-   "tu": "UICmnds.cpp",
-   "diff_bytes": null,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Type_Select_Command: formatter call restored; NEAR_EQUAL_CANDIDATE",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
-   "rva": "0x2eccf0",
-   "symbol": "?Veterancy_Nav_Command@@YIX_N@Z",
-   "tu": "UICmnds.cpp",
-   "diff_bytes": null,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Veterancy_Nav_Command: 14 open regions resolved CODEGEN_ONLY",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
-   "rva": "0x2ec9c0",
-   "symbol": "?Health_Nav_Command@@YIX_N@Z",
-   "tu": "UICmnds.cpp",
-   "diff_bytes": null,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Health_Nav_Command: 12 open regions resolved CODEGEN_ONLY",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

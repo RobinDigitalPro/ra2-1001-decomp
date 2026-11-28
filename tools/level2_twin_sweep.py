@@ -86,7 +86,7 @@ def by_size(ne):
     f = os.path.join(ref, 'meastes_redalert2-decomp', 'manifests', 'function_map.csv')
     if os.path.exists(f):
         for r in csv.DictReader(open(f, encoding='utf-8', errors='replace')):
-            if 'exact' in (r.get('flags') or '') and (r.get('size') or '').isdigit():
+            if (r.get('flags') or '').split()[:1] == ['exact'] and (r.get('size') or '').isdigit():
                 com.append((int(r['size']), 'meastes %s %s' % (r['address'], r.get('symbol') or '?')))
     rows = ['', '## Same-size community candidates (within 8 bytes; size alone proves nothing)', '',
             '| RVA | Function | Our size | Candidates (size: source address name) |', '|---|---|---:|---|']

@@ -86,3 +86,4 @@ Every external source used. Credit them in the final release, and notify their a
 - src/building.cpp FUN_0043B150 + include/cast.h As_Techno + file-local Is_Cell + the members' Coord(a - b).Length() distance form -> Psychic_Detector_Covers_Techno 0x38570 (matched, agent own2).
 - src/multiplayer.cpp Fill_Game_Mode_List 0x5D6000 / FUN_005D6130 accessor form -> Fill_Game_Mode_Combo 0x1b3bc0 / Fill_Game_Mode_List 0x1b3cf0 (matched, agent own1; found afterwards, the accessor form agrees).
 - src/building.cpp Exit_Object (29081fa) -> 0x402b0 (lead, 1291 -> 10 bytes, agent exit1); src/bullet.cpp BulletClass::AI + Ballistic_Move (cb43f59) -> 0x5f380 (lead, 4760 -> 1939, agent bullet1); src/dropship.cpp Dropship_Screen (lead, no gain from the twin; 4026 -> 5 by own work, agent drop1).
+- Fire_At 0x2bfe50 (matched, agent fire1): gibbo101 src/techno.cpp:3530 (YR twin) and meastes/redalert2-decomp src/techno.cpp:4577 @d2a9ed2 (RA2 1.006 distance, flak and muzzle forms).

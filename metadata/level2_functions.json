@@ -86267,6 +86267,12 @@
   "name": "?Expected_Damage@TechnoClass@@QAEHPAV1@PBVWeaponTypeClass@@@Z"
  },
  {
+  "rva": "0x2bfe50",
+  "tu": "src/m85/src/techno.cpp",
+  "symbol": "?Fire_At@TechnoClass@@UAEPAVBulletClass@@PAVAbstractClass@@H@Z",
+  "name": "TechnoClass::Fire_At"
+ },
+ {
   "rva": "0x2c15d0",
   "tu": "src/m85/src/techno.cpp",
   "symbol": "?Draw_Target_Laser@TechnoClass@@QBEXXZ",
@@ -92285,6 +92291,12 @@
   "name": "Find_Name"
  },
  {
+  "rva": "0x2ebb60",
+  "tu": "src/ra2/UICmnds.cpp",
+  "symbol": "?Combatant_Select_Command@@YIX_N@Z",
+  "name": "Combatant_Select_Command"
+ },
+ {
   "rva": "0x2ebe30",
   "tu": "src/ra2/UICmnds.cpp",
   "symbol": "?Is_Own_Active@@YI_NPAVTechnoClass@@PBX@Z",
@@ -92307,6 +92319,12 @@
   "tu": "src/m85/src/uicmnds.cpp",
   "symbol": "?Select_Type@@YIXPBD@Z",
   "name": "?Select_Type@@YIXPBD@Z"
+ },
+ {
+  "rva": "0x2ec1b0",
+  "tu": "src/ra2/UICmnds.cpp",
+  "symbol": "?Type_Select_Command@@YIXXZ",
+  "name": "Type_Select_Command"
  },
  {
   "rva": "0x2ec450",
@@ -92357,6 +92375,12 @@
   "name": "?Refresh_Type_Select_List@@YAXXZ"
  },
  {
+  "rva": "0x2ec9c0",
+  "tu": "src/ra2/UICmnds.cpp",
+  "symbol": "?Health_Nav_Command@@YIX_N@Z",
+  "name": "Health_Nav_Command"
+ },
+ {
   "rva": "0x2ecc20",
   "tu": "src/ra2/UICmnds.cpp",
   "symbol": "?Is_Own_Active_Unit@@YI_NPAVTechnoClass@@PBX@Z",
@@ -92373,6 +92397,12 @@
   "tu": "src/ra2/UICmnds.cpp",
   "symbol": "?Next_Health_State@@YIHH@Z",
   "name": "Next_Health_State"
+ },
+ {
+  "rva": "0x2eccf0",
+  "tu": "src/ra2/UICmnds.cpp",
+  "symbol": "?Veterancy_Nav_Command@@YIX_N@Z",
+  "name": "Veterancy_Nav_Command"
  },
  {
   "rva": "0x2ecf60",
@@ -92418,7 +92448,7 @@
  },
  {
   "rva": "0x2ed780",
-  "tu": "src/ra2/UICmnds.cpp",
+  "tu": "src/m85/src/uicmnds.cpp",
   "symbol": "??0?$DynamicVectorClass@PBD@@QAE@IPBQBD@Z",
   "name": "??0?$DynamicVectorClass@PBD@@QAE@IPBQBD@Z"
  },

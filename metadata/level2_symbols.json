@@ -25335,5 +25335,15 @@
   "address": "0x81b9d4",
   "evidence": "data",
   "note": "auto-bound data address from the original operand (level2_autobind.py --data); section verified by level2_check, consistency by conflict detection"
+ },
+ "?Func_6A03B0@TacticalClass@@QAEXXZ": {
+  "address": "0x6a03b0",
+  "evidence": "function_start",
+  "note": "ra2 UICmnds.cpp placeholder name for the claimed ?Unselect_Foreign_Object@Tactical@@QAE_NXZ at RVA 0x2a03b0 (same address; call target of the matched UI commands, Claude agent own3 2026-11-28)"
+ },
+ "?Level@VeterancyClass@@QBEHXZ": {
+  "address": "0x708000",
+  "evidence": "function_start",
+  "note": "ra2 UICmnds.cpp name for the claimed ?Remaining_Levels@VeterancyClass@@QBEHXZ at RVA 0x308000 (same address; call target of the matched Veterancy_Nav_Command, Claude agent own3 2026-11-28)"
  }
 }

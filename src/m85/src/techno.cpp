@@ -4862,6 +4862,7 @@ static inline Rect Target_Laser_Rect(Point2D const & point)
 
 // level-2 1.001: helpers that 1.001 expands inline in Fire_At (Has_Ability and RecoilData::Fire are called directly; VC6 expands them from their later definitions)
 static inline FootClass * Fire_As_Foot(AbstractClass * object) {return((object != NULL && (object->AbstractFlags & 4)) ? (FootClass *)object : NULL);} // level-2 1.001: the foot cast of the team tests
+static inline float Fire_Flak_Length(TPoint3D<float> const & v) {return((float)fastmath::sqrt(((double)v.Y * (double)v.Y + (double)v.Z * (double)v.Z) + (double)v.X * (double)v.X));} // level-2 1.001: STEERING the flak scatter distance as 1.001 sums it, Y and Z first, then X (the explicit parentheses and the helper keep VC6 to that order and to the original Rule load schedule; TPoint3D::Length sums X, Y, Z)
 static inline float Fire_Vector_Length(Vector3 const & v) {double z = v.Z; double y = v.Y; double x = v.X; return((float)fastmath::sqrt(y * y + z * z + x * x));} // level-2 1.001: the flak scatter distance
 
 
@@ -4982,12 +4983,8 @@ BulletClass * TechnoClass::Fire_At(AbstractClass * target, int which) // level-2
 		}
 	}
 
-	// level-2 1.001: STEERING stage the squared planar range before converting to flight distance.
-	Point2D delta(target_coord.X - fire_coord.X, target_coord.Y - fire_coord.Y);
-	int dx2 = delta.X * delta.X;
-	int dy2 = delta.Y * delta.Y;
-	int range_squared = dx2 + dy2;
-	int distance = (int)fastmath::sqrt((double)(range_squared));
+	Point2D delta = Point2D(target_coord.X, target_coord.Y) - Point2D(fire_coord.X, fire_coord.Y);
+	int distance = (int)fastmath::sqrt((double)(delta.X * delta.X + delta.Y * delta.Y));
 	int max_speed = weapon->Get_Speed(distance);
 
 	BulletClass * bullet = weapon->Bullet->Create_Bullet(target, this, firepower, weapon->WarheadPtr, max_speed, weapon->IsBright);
@@ -5017,16 +5014,13 @@ BulletClass * TechnoClass::Fire_At(AbstractClass * target, int which) // level-2
 
 		if (btype->IsInaccurate && btype->IsArcing) {
 			if (btype->FlakScatter && !btype->IsInvisible) {
-				Vector3 shot; // level-2 1.001: STEERING assign each displacement component separately for VC6 scheduling.
-				shot.X = displacement.X;
-				shot.Y = displacement.Y;
-				shot.Z = displacement.Z;
-				double x = shot.X, y = shot.Y, z = shot.Z; // level-2 1.001: STEERING keep Z in x87 and round X and Y through their float slots.
-				y = y * y + z * z; // level-2 1.001: STEERING finish the Y/Z sum before adding X.
-				float distance = (float)fastmath::sqrt(y + x * x);
-				int spread = Scen->RandomNumber(0, Rule->BallisticScatter) * (int)distance / Weapon_Range(which);
+				TPoint3D<float> vec(displacement.X, displacement.Y, displacement.Z);
+				float distance = Fire_Flak_Length(vec);
+				int scatter = Random_Pick(0, Rule->BallisticScatter);
+				scatter *= (int)distance;
+				scatter /= Weapon_Range(which);
 				DirType sdir(Random_Double(0.0, M_PI * 2));
-				displacement = Move_Coord(displacement, sdir, spread);
+				displacement = Move_Coord(displacement, sdir, scatter);
 			} else {
 				int spread = Scen->RandomNumber(Rule->BallisticScatter / 2, Rule->BallisticScatter);
 				DirType sdir(Random_Double(0.0, M_PI * 2));
@@ -5060,13 +5054,11 @@ BulletClass * TechnoClass::Fire_At(AbstractClass * target, int which) // level-2
 			bullet->MaxSpeed = weapon->MaxSpeed;
 		}
 
-		velocity.Set(0.0, 0.0, 0.0);
-		// level-2 1.001: STEERING expose the live launch-speed scale to VC6.
-		velocity.Nonzero_Check();
-		double scale = max_speed / velocity.Speed();
-		velocity.X *= scale;
-		velocity.Y *= scale;
-		velocity.Z *= scale;
+		velocity.Z = 0.0; // level-2 1.001: STEERING a first, dead Z store: VC6 orders the later Speed() sums by first field reference (Z, Y, X gives X, Y, Z) while the live zero stores stay in the 1.001 order Y, Z, X
+		velocity.Y = 0.0;
+		velocity.Z = 0.0;
+		velocity.X = 0.0;
+		velocity.Set_Speed(max_speed);
 		if (segments > 0) {
 			double offset = M_PI / segments * RadialFireSegment - M_PI_2;
 			DirType facing = PrimaryFacing.Current(); // level-2 1.001: a named facing (its temporary leaves the dir slot)
@@ -5179,10 +5171,8 @@ BulletClass * TechnoClass::Fire_At(AbstractClass * target, int which) // level-2
 				if (a != NULL) {
 					AnimClass * anim = new AnimClass(a, fire_coord);
 					if (RTTI == RTTI_BUILDING) {
-						Coord delta_coord = fire_coord - Render_Coord();
-						int delta = delta_coord.Y;
-						int zadjust = delta / -4;
-						anim->ZAdjust = MIN(0, zadjust);
+						int zadjust = (fire_coord - Render_Coord()).Y / -4;
+						anim->ZAdjust = min(zadjust, 0);
 						BuildingClass * building = (BuildingClass *)this;
 						if (building->GetOccupantCount() > 0) {
 							anim->ZAdjust = -200;

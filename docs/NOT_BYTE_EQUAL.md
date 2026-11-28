@@ -9,7 +9,6 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 1 | Dropship_Screen | 0xa68a0 | 10797 | 5 |
 | 2 | BuildingClass::Exit_Object | 0x402b0 | 6515 | 10 |
 | 3 | BulletClass::AI | 0x5f380 | 6382 | 1939 |
-| 4 | TechnoClass::Fire_At | 0x2bfe50 | 6002 | 2869 |
 | 5 | MapClass::Set_Map_Dimensions | 0x145970 | 5335 | 590 |
 | 6 | WalkLocomotionClass::Movement_AI | 0x312de0 | 4967 | 858 |
 | 7 | SuperClass::Place | 0x292ef0 | 4332 | 0 |
@@ -58,10 +57,6 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 27 | SurfaceCacheClass::CachePCX | 0x281d00 | render | 1046 | 9 |
 | 28 | OwnerDraw::Init_Control_Animation | 0x1e04d0 | UI/network/platform | 1021 | 687 |
 | 29 | Tactical::Draw_Radial_Indicators | 0x2a1a70 | render | 893 | 250 |
-| 31 | Combatant_Select_Command | 0x2ebb60 | UI/network/platform | 718 | 521 |
-| 32 | Type_Select_Command | 0x2ec1b0 | UI/network/platform | 669 | 638 |
-| 33 | Veterancy_Nav_Command | 0x2eccf0 | UI/network/platform | 618 | 313 |
-| 34 | Health_Nav_Command | 0x2ec9c0 | UI/network/platform | 608 | 568 |
 | 35 | SchemeLibrary::Set_Mode | 0x1fc6b0 | render | 511 | 104 |
 | 37 | Set_Scheme_Table_Theater | 0x1fb330 | render | 504 | 488 |
 | 38 | Fill_Color_List | 0xd18c0 | UI/network/platform | 437 | 128 |

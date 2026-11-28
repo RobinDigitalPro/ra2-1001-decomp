@@ -342,7 +342,8 @@ inline bool Is_Techno(ObjectClass const * object)
     if (!object) {
         return false;
     }
-    return object->Flag1;
+    bool flag = object->Flag1;
+    return flag;
 }
 
 inline bool Is_Foot(ObjectClass const * object)
@@ -563,7 +564,7 @@ static bool AttackMoveArmed;                    // 0xaa8db8
 static bool SelectAcrossMap;                    // 0xaa8db9
 static bool TypeSelectDown;                     // 0xaa8dba
 static unsigned long TypeSelectTime;            // 0xaa8dbc
-static DynamicVectorClass<TechnoClass *> * CycleList;   // 0xaa8dc0
+DynamicVectorClass<TechnoClass *> * CycleList;          // 0xaa8dc0
 static int LastTypeCost;                        // 0xaa8dc4
 static int NextCheerFrame;                      // 0xaa8dc8
 
@@ -1048,8 +1049,11 @@ DynamicVectorClass<TechnoClass *> * Collect_Visible(TechnoFilterFunc filter, voi
     int count = TacticalMap->Visible_Count();
     for (int index = 0; index < count; index++) {
         ObjectClass * object = TacticalMap->Visible_Object(index);
-        if (Is_Techno(object) && filter((TechnoClass *)object, data)) {
-            list->Add((TechnoClass *)object);
+        if (Is_Techno(object)) {
+            TechnoClass * techno = (TechnoClass *)object;
+            if (filter(techno, data)) {
+                list->Add(techno);
+            }
         }
     }
     return list;
@@ -1128,82 +1132,58 @@ int Find_Name(DynamicVectorClass<char const *> & list, char const * name)
 bool Is_Own_Active(TechnoClass * techno, void const * data);
 bool Is_Type_Match(TechnoClass * techno, void const * name);
 
-inline bool Is_Combatant(TechnoClass * techno)
+// Selection tests and action expanded through the pointer-taking helpers (no copies of their own in the image).
+// Adapted from meastes/redalert2-decomp (7c68e23b61) src/uicmnds.cpp, GPL-3.0-or-later.
+static inline bool Is_Selectable_Combatant(TechnoClass * techno, void const *)
 {
-    return techno->Kind_Of() != RTTI_BUILDING && techno->Techno_Type_Class()->IsCombatant;
+    if (techno->Kind_Of() != RTTI_BUILDING && techno->Techno_Type_Class()->IsCombatant) {
+        return true;
+    }
+    return false;
 }
 
-// Helper body adapted from the same 1.006 reference as the command below.
-static bool No_Unselected_Combatant(DynamicVectorClass<TechnoClass *> * list)
+static inline bool Is_Unselected_Combatant(TechnoClass * techno, void const *)
 {
-    int count = list->Count();
-    for (int index = 0; index < count; index++) {
-        TechnoClass * techno = (*list)[index];
-        if (Is_Combatant(techno) && !techno->IsSelected) {
-            return false;
-        }
+    if (techno->Kind_Of() != RTTI_BUILDING && techno->Techno_Type_Class()->IsCombatant && !techno->IsSelected) {
+        return true;
     }
-    return true;
+    return false;
 }
 
-// level-2 1.001: INFERRED Collect visible objects for a selection command.
-static DynamicVectorClass<TechnoClass *> * Collect_Visible_Combatant_Candidates()
+static inline void Select_Techno(TechnoClass * techno, void const *)
 {
-    DynamicVectorClass<TechnoClass *> * list = new DynamicVectorClass<TechnoClass *>;
-    int count = TacticalMap->Visible_Count();
-    for (int index = 0; index < count; index++) {
-        ObjectClass * object = TacticalMap->Visible_Object(index);
-        // level-2 1.001: STEERING Test the complemented one-bit kind flag without spilling it to a byte local.
-        if (!object || (1 ^ object->Flag1) != 0) {
-            continue;
-        }
-        TechnoClass * techno = (TechnoClass *)object;
-        if (Is_Own_Active(techno, NULL)) {
-            list->Add(techno);
-        }
-    }
-    return list;
+    techno->Select();
 }
 
 // 0x2ebb60 (CombatantSelect)
-// Adapted from meastes/redalert2-decomp (7c68e23b61), 1.006 Unknown_006F6D00, GPL-3.0-or-later.
+// Adapted from meastes/redalert2-decomp (7c68e23b61), 1.006 Select_All_Combatants 0x6F6D00, GPL-3.0-or-later.
 void Combatant_Select_Command(bool clear)
 {
-    wchar_t buffer[256];
-
     TacticalMap->Func_6A03B0();
     if (LastCommand != 1) {
         SelectAcrossMap = false;
     }
-
+    TechnoFilterFunc test = Is_Own_Active;
     DynamicVectorClass<TechnoClass *> * list;
     if (SelectAcrossMap) {
-        list = Collect_Technos(Is_Own_Active, NULL);
+        list = Collect_Technos(test, NULL);
     } else {
-        list = Collect_Visible_Combatant_Candidates();
-        if (No_Unselected_Combatant(list)) {
+        list = Collect_Visible(test, NULL);
+        if (!Any_Of(*list, Is_Unselected_Combatant, NULL)) {
             SelectAcrossMap = true;
         }
         if (SelectAcrossMap) {
             delete list;
-            list = Collect_Technos(Is_Own_Active, NULL);
+            list = Collect_Technos(test, NULL);
         }
     }
-
     if (clear) {
         TacticalMap->Unselect_All();
     }
-    int count = list->Count();
-    for (int index = 0; index < count; index++) {
-        TechnoClass * techno = (*list)[index];
-        if (Is_Combatant(techno)) {
-            techno->Select();
-        }
-    }
+    For_Each_If(*list, Is_Selectable_Combatant, Select_Techno, NULL, NULL);
+    wchar_t buffer[256];
     Selection_Scope_Message(buffer);
-    // level-2 1.001: STEERING Dispatch the message through its original out-of-line helper.
-    void (*show)(wchar_t const *, int) = Show_Command_Message;
-    show(buffer, -1);
+    Show_Command_Message(buffer, -1);
     delete list;
     LastCommand = 1;
     AttackMoveArmed = false;
@@ -1211,22 +1191,18 @@ void Combatant_Select_Command(bool clear)
 
 #line 990
 // 0x2ebe30
-#pragma auto_inline(off)
 bool Is_Own_Active(TechnoClass * techno, void const *)
 {
     return techno && techno->IsActive && techno->Is_Owned_By_Human();
 }
-#pragma auto_inline(on)
 
 
 
 // 0x2ebfe0
-#pragma auto_inline(off)
 bool Is_Type_Match(TechnoClass * techno, void const * name)
 {
     return techno && techno->IsActive && techno->Is_Owned_By_Human() && techno->Is_Type((char const *)name);
 }
-#pragma auto_inline(on)
 
 
 
@@ -1246,26 +1222,22 @@ private:
     T *Pointer;
 };
 
-// Action and predicates adapted from the meastes 1.006 selection commands.
-static void Select_Command_Object(TechnoClass *object, void const *)
-{
-    object->Select();
-}
-
-static bool Accept_Named(TechnoClass *object, void const *data)
-{
-    return Has_Type_Name(object, (DynamicVectorClass<char const *> *)data);
-}
-
-// Predicate adapted from meastes Named_Selection_Test.
-static bool Pending_Named(TechnoClass *object, void const *data)
+// Predicate adapted from meastes Named_Selection_Test (expanded through Any_Of; no copy of its own in the image).
+static inline bool Pending_Named(TechnoClass * object, void const * data)
 {
     bool named = Has_Type_Name(object, (DynamicVectorClass<char const *> *)data);
     bool selected = object->IsSelected;
     return named && !selected;
 }
 
+// Filter for the final selection (expanded through For_Each_If; no copy of its own in the image).
+static inline bool Accept_Named(TechnoClass * object, void const * data)
+{
+    return Has_Type_Name(object, (DynamicVectorClass<char const *> *)data);
+}
+
 // 0x2ec1b0 (TypeSelect)
+// Adapted from meastes/redalert2-decomp (7c68e23b61), 1.006 Command_Type_Select, GPL-3.0-or-later.
 void Type_Select_Command()
 {
     wchar_t buffer[256];
@@ -1274,28 +1246,26 @@ void Type_Select_Command()
     if (LastCommand != 2) {
         SelectAcrossMap = false;
     }
-
-    // level-2 1.001: STEERING The reference pointer wrappers retain the two list lifetimes during inlining.
-    SmartPtr<DynamicVectorClass<char const *> > names(Collect_Selected_Names());
-    SmartPtr<DynamicVectorClass<TechnoClass *> > list;
+    DynamicVectorClass<char const *> * names = Collect_Selected_Names();
+    // level-2 1.001: STEERING the test goes through a local (as in Combatant_Select_Command and the 1.006 twins) so the
+    // inlined collectors keep Is_Own_Active a call; replaces the former #pragma auto_inline(off) on Is_Own_Active.
+    TechnoFilterFunc test = Is_Own_Active;
+    DynamicVectorClass<TechnoClass *> * list;
     if (SelectAcrossMap) {
-        list = Collect_Technos(Is_Own_Active, NULL);
+        list = Collect_Technos(test, NULL);
     } else {
-        list = Collect_Visible(Is_Own_Active, NULL);
+        list = Collect_Visible(test, NULL);
         if (!Any_Of(*list, Pending_Named, names)) {
             SelectAcrossMap = true;
         }
         if (SelectAcrossMap) {
             delete list;
-            list = Collect_Technos(Is_Own_Active, NULL);
+            list = Collect_Technos(test, NULL);
         }
     }
-
-    For_Each_If(*list, Accept_Named, Select_Command_Object, names, NULL);
-    // level-2 1.001: STEERING Preserve the out-of-line native message formatter.
-    void (*format)(wchar_t *) = Selection_Scope_Message;
-    format(buffer);
-    Show_Command_Message(buffer);
+    For_Each_If(*list, Accept_Named, Select_Techno, names, NULL);
+    Selection_Scope_Message(buffer);
+    Show_Command_Message(buffer, -1);
     LastCommand = 2;
     AttackMoveArmed = false;
     delete names;
@@ -1359,11 +1329,12 @@ DynamicVectorClass<char const *> * Collect_Selected_Names()
 // 0x2ec640
 void For_Each_Of_Type(char const * name, TechnoActionFunc action, void const * data)
 {
+    TechnoFilterFunc test = Is_Type_Match;
     DynamicVectorClass<TechnoClass *> * list;
     if (SelectAcrossMap) {
-        list = Collect_Technos(Is_Type_Match, name);
+        list = Collect_Technos(test, name);
     } else {
-        list = Collect_Visible(Is_Type_Match, name);
+        list = Collect_Visible(test, name);
     }
     For_Each(*list, action, data);
     delete list;
@@ -1467,12 +1438,10 @@ void Health_Nav_Command(bool clear)
 }
 
 // 0x2ecc20
-#pragma auto_inline(off)
 bool Is_Own_Active_Unit(TechnoClass * techno, void const *)
 {
     return techno && techno->IsActive && techno->Is_Owned_By_Human() && techno->Kind_Of() != RTTI_BUILDING;
 }
-#pragma auto_inline(on)
 
 // 0x2ecc70
 wchar_t const * Health_Name(int state)
