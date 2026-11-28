@@ -256,10 +256,10 @@
    "rva": "0x12a490",
    "symbol": "?Draw_Tile@IsometricTileTypeClass@@QBEXPAVLightConvertClass@@HAAVSurface@@HHV?$TRect@H@@HH_NH333H@Z",
    "tu": "isotype.cpp",
-   "diff_bytes": null,
+   "diff_bytes": 3422,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Draw_Tile: persistent scanline write restored (batch 74) and tile checkerboard fixed; 4220->3483; 98 paired fixtures pass; 2026-11-28 Claude agent own8: unchanged 3483; call lists identical (register/slot allocation over the whole function); meastes-body witness 612-633 differing instructions vs 1057 for P (claude_agents/own8/result/isotype_witness); frame-slot map, `x` in ebx, clip_top in edx, K steps of 4 from K=5",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Draw_Tile: persistent scanline write restored (batch 74) and tile checkerboard fixed; 4220->3483; 98 paired fixtures pass; 2026-11-28 Claude agent own8: unchanged 3483; call lists identical (register/slot allocation over the whole function); meastes-body witness 612-633 differing instructions vs 1057 for P (claude_agents/own8/result/isotype_witness); frame-slot map, `x` in ebx, clip_top in edx, K steps of 4 from K=5; 2026-11-28 Claude agent tile2: semantic audit (99 hunks, all same meaning; same 283 stores, 16 calls as 1.001; batch-79 fix in both texts) and a whole-loop recombination of P and meastes: 3483 -> 3422 bytes, 0xbf8-0x11c2 (316 instructions) exact at shift 0; statement-multiset check clean; three adjacent store pairs to different fields swapped (as in P), no meaning change (docs/level2/batch_reports/claude_tile2_*). Residue ~1850 bytes in 0x0-0xbf8: register priority (1.001 keeps x in ebx and record in [esp+0x30])",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

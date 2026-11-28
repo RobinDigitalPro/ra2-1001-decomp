@@ -25,7 +25,7 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 |---:|---|---|---|---:|---:|
 | 1 | OwnerDraw::List_Proc | 0x1ee640 | UI/network/platform | 14526 | 11812 |
 | 2 | OwnerDraw::Control_Proc | 0x1e6550 | UI/network/platform | 7269 | 3634 |
-| 3 | IsometricTileTypeClass::Draw_Tile | 0x12a490 | render | 6967 | 3483 |
+| 3 | IsometricTileTypeClass::Draw_Tile | 0x12a490 | render | 6967 | 3422 |
 | 4 | OwnerDraw::Combo_Proc | 0x1ecc60 | UI/network/platform | 6618 | ? |
 | 5 | DSurface::Draw_Depth_Antialiased_Line | 0xac360 | render | 6064 | 6 |
 | 6 | Net2DecodeGameopt | 0x1beaf0 | UI/network/platform | 5591 | 509 |
