@@ -244,12 +244,12 @@
   },
   {
    "rva": "0xac360",
-   "symbol": "DSurface::Draw_Depth_Antialiased_Line",
+   "symbol": "?Draw_Depth_Antialiased_Line@DSurface@@UAE_NABV?$TRect@H@@ABVPoint2D@@1AAVRGBClass@@HH_N333M@Z",
    "tu": "dsurface.cpp",
-   "diff_bytes": null,
+   "diff_bytes": 6,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Draw_Depth_Antialiased_Line: NEAR_EQUAL_CANDIDATE (4421 incl. omitted bytes)",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Draw_Depth_Antialiased_Line: NEAR_EQUAL_CANDIDATE (4421 incl. omitted bytes); 2026-11-28 Claude agent own8: 4309 -> 6 bytes (meastes 8ec3839 \"non-exact\" same-size body: inline `Unlock(); return(false);` and the `if (buffer != NULL)` shape replaced a goto); residue: load order of z/abuffer/zbuffer on the else edge of `otherweight > 256` (+0x8f3), order only; ~45 forms and K gauges flat. Symbol corrected from the placeholder name",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
@@ -279,7 +279,7 @@
    "diff_bytes": null,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Draw_Tile: persistent scanline write restored (batch 74) and tile checkerboard fixed; 4220->3483; 98 paired fixtures pass",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): Draw_Tile: persistent scanline write restored (batch 74) and tile checkerboard fixed; 4220->3483; 98 paired fixtures pass; 2026-11-28 Claude agent own8: unchanged 3483; call lists identical (register/slot allocation over the whole function); meastes-body witness 612-633 differing instructions vs 1057 for P (claude_agents/own8/result/isotype_witness); frame-slot map, `x` in ebx, clip_top in edx, K steps of 4 from K=5",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
