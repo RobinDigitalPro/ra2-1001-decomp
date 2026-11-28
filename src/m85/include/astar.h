@@ -114,10 +114,10 @@ class AStarClass
 
 			bool operator==(const RegularOpenNode & other) const { return((double)Score == (double)other.Score); }
 			bool operator!=(const RegularOpenNode & other) const { return((double)Score != (double)other.Score); }
-			bool operator<(const RegularOpenNode & other) const { return((double)Score < (double)other.Score); }
-			bool operator>(const RegularOpenNode & other) const { return((double)Score > (double)other.Score); }
-			bool operator<=(const RegularOpenNode & other) const { return((double)Score <= (double)other.Score); }
-			bool operator>=(const RegularOpenNode & other) const { return((double)Score >= (double)other.Score); }
+			bool operator<(const RegularOpenNode & other) const { double score = Score; return(score < (double)other.Score); } // level-2 1.001: the score is read through a named double (gibbo101/ra2-decomp cb43f59 include/astar.h)
+			bool operator>(const RegularOpenNode & other) const { double score = Score; return(score > (double)other.Score); }
+			bool operator<=(const RegularOpenNode & other) const { double score = Score; return(score <= (double)other.Score); }
+			bool operator>=(const RegularOpenNode & other) const { double score = Score; return(score >= (double)other.Score); }
 		};
 
 		struct RegularNodePool {

@@ -459,17 +459,24 @@ void ParticleSystemClass::Spark_AI(void)
 
 
 
-// level-2 1.001: INFERRED smoke split helper follows the reference Spawn_Particle return path.
-static inline ParticleClass *Spawn_Smoke_Successor(DynamicVectorClass<ParticleClass *> &particles, ParticleTypeClass *type, Coord const &coordinate)
+/*
+**	RA2: an object is flagged as such in its abstract flags (as in tracker.cpp and techno.cpp).
+*/
+static inline bool Is_Object(AbstractClass const * a)
 {
-	typedef DynamicVectorClass<ParticleClass *> ParticleList;
-	bool (ParticleList::*add_particle)(ParticleClass * const &) = &ParticleList::Add; // level-2 1.001: STEERING keep the reference Add call
-	ParticleClass *particle = new ParticleClass(type, coordinate, COORD_NONE, NULL);
-	if (particle != NULL) {
-		(particles.*add_particle)(particle);
-		return particle;
-	}
-	return NULL;
+	if (a == NULL) return(false);
+	unsigned char flag = (a->AbstractFlags >> 1) & 1;
+	return(flag != 0);
+}
+
+/*
+**	RA2: a foot object is flagged as such in its abstract flags.
+*/
+static inline FootClass * As_Foot(AbstractClass * object)
+{
+	if (object == NULL) return(NULL);
+	if (object->AbstractFlags & 4) return((FootClass *)object);
+	return(NULL);
 }
 
 /// <summary>
@@ -483,11 +490,8 @@ void ParticleSystemClass::Smoke_AI(void)
 {
 	int i;
 
-	if (Source != NULL) { // RA2: the object test is the abstract flag read into a byte temporary, no cast
-		unsigned char const & object = (Source->AbstractFlags >> 1) & 1; // RA2: as above
-		if (object && Source->What_Am_I() != RTTI_BUILDING) { // RA2: as above
-			Set_Coord(Source->Center_Coord() + CoordOffset); // RA2: as above
-		}
+	if (Is_Object(Source) && Source->What_Am_I() != RTTI_BUILDING) { // level-2 1.001: body from gibbo101/ra2-decomp cb43f59 src/partsys.cpp (YR 1.001 MATCH 0x0062ED40)
+		Set_Coord(Source->Center_Coord() + CoordOffset);
 	}
 
 	for (i = 0; i < SystemParticles.Count(); i++) {
@@ -499,51 +503,41 @@ void ParticleSystemClass::Smoke_AI(void)
 		if (spart->IsToDie) {
 			if (spart->Class->NextParticle != PARTICLE_NONE) {
 				Coord coord = spart->Get_Coord();
-				int x = coord.X;
-				int y = coord.Y;
-				int z = coord.Z;
-
-				int xspread = spart->Class->Radius >> 3;
-				int xrand = Scen->RandomNumber() % xspread;
-				xrand = xrand > 0 ? xspread + xrand : xrand - xspread; // level-2 1.001: STEERING keep the signed X offset in one expression.
-
-				ParticleTypeClass const *type = spart->Class;
-				int yspread = type->Radius >> 3;
-				int yrand = Scen->RandomNumber() % yspread;
-				yrand = yrand > 0 ? yspread + yrand : yrand - yspread; // level-2 1.001: STEERING keep the signed Y offset in one expression.
-
-				ParticleTypeClass *next = ParticleTypes[type->NextParticle];
-
-				Coord ncoord;
-				ncoord.Y = y + yrand;
-				ncoord.Z = z;
-				ncoord.X = x + xrand;
-				ParticleClass *npart = Spawn_Smoke_Successor(SystemParticles, next, ncoord);
+				int xrand = Scen->RandomNumber % (spart->Class->Radius >> 3);
+				if (xrand <= 0) {
+					xrand = xrand - (spart->Class->Radius >> 3);
+				} else {
+					xrand = (spart->Class->Radius >> 3) + xrand;
+				}
+				int yrand = Scen->RandomNumber % (spart->Class->Radius >> 3);
+				if (yrand <= 0) {
+					yrand = yrand - (spart->Class->Radius >> 3);
+				} else {
+					yrand = (spart->Class->Radius >> 3) + yrand;
+				}
+				ParticleTypeClass *next = ParticleTypes[spart->Class->NextParticle];
+				Point2D offset(xrand, yrand);
+				ParticleClass *npart = Spawn_Particle(next, coord + offset);
 				if (npart != NULL) {
 					npart->Speed = spart->Speed;
-					npart->Translucency = spart->Translucency + (Scen->RandomNumber() % 6 != 0 ? 25 : 0);
+					npart->Translucency = spart->Translucency + (Scen->RandomNumber % 6 != 0 ? 25 : 0);
 				}
-
-				Coord pcoord;
-				pcoord.Z = z; // level-2 1.001: STEERING store the unchanged height first.
-				pcoord.Y = y - yrand; // level-2 1.001: STEERING store Y before X.
-				pcoord.X = x - xrand; // level-2 1.001: STEERING finish the negative offset with X.
-				ParticleClass *ppart = Spawn_Smoke_Successor(SystemParticles, next, pcoord);
+				ParticleClass *ppart = Spawn_Particle(next, coord - offset);
 				if (ppart != NULL) {
 					ppart->Speed = spart->Speed;
-					ppart->Translucency = spart->Translucency + (Scen->RandomNumber() % 6 != 0 ? 25 : 0);
+					ppart->Translucency = spart->Translucency + (Scen->RandomNumber % 6 != 0 ? 25 : 0);
 				}
 			}
 			spart->Delete_Me();
 		} else {
-			SystemParticles[i]->Motion_AI();
+			spart->Motion_AI();
 		}
 	}
 
 	if (!IsMarkedForDeletion && IsActive && (Frame % (int)SpawnFrames) == 0) {
-		if (Source == NULL || (Source->AbstractFlags & 4) == 0 || static_cast<FootClass *>(Source)->CurrentTube < 0) {
-			Coord scoord = Get_Coord() + Coord(int(Scen->RandomNumber) % (Class->SpawnRadius + 1), int(Scen->RandomNumber) % (Class->SpawnRadius + 1), 10);
-
+		FootClass *foot = As_Foot(Source);
+		if (foot == NULL || foot->CurrentTube < 0) {
+			Coord scoord = Get_Coord() + Coord(Scen->RandomNumber % (Class->SpawnRadius + 1), Scen->RandomNumber % (Class->SpawnRadius + 1), 10);
 			if (Class->HoldsWhat != PARTICLE_NONE) {
 				ParticleClass *npart = new ParticleClass(ParticleTypes[Class->HoldsWhat], scoord, SpawnCoord, this);
 				if (npart != NULL) {
@@ -553,7 +547,7 @@ void ParticleSystemClass::Smoke_AI(void)
 					}
 					npart->Speed = npart->Speed - (SpawnFrames - Class->SpawnFrames) * 0.35f;
 					if (npart->Speed < 2.0) {
-						npart->Speed = 2.0;
+						npart->Speed = 2.0f;
 					}
 				}
 			}

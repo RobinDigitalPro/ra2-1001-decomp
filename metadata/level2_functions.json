@@ -7987,6 +7987,12 @@
   "name": "?Get_Movement_Cost@AStarClass@@AAENPAPAVCellClass@@0_NW4MoveType@@PAVFootClass@@@Z"
  },
  {
+  "rva": "0x27370",
+  "tu": "src/m85/src/astar.cpp",
+  "symbol": "?Find_Path_Regular@AStarClass@@AAEPAUPathStruct@@ABVCell@@0PAVFootClass@@PAW4FacingType@@H_N@Z",
+  "name": "AStarClass::Find_Path_Regular"
+ },
+ {
   "rva": "0x27d40",
   "tu": "src/m85/src/astar.cpp",
   "symbol": "?Create_Node@AStarClass@@AAEPAURegularOpenNode@1@PAU21@PAPAVCellClass@@ABVCell@@M@Z",
@@ -63506,6 +63512,12 @@
   "tu": "src/m85/src/partsys.cpp",
   "symbol": "?Spark_AI@ParticleSystemClass@@AAEXXZ",
   "name": "ParticleSystemClass::Spark_AI"
+ },
+ {
+  "rva": "0x203750",
+  "tu": "src/m85/src/partsys.cpp",
+  "symbol": "?Smoke_AI@ParticleSystemClass@@AAEXXZ",
+  "name": "ParticleSystemClass::Smoke_AI"
  },
  {
   "rva": "0x203c30",

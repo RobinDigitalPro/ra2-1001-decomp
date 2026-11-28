@@ -417,26 +417,23 @@ PathStruct * AStarClass::Find_Path_Regular(Cell const & from, Cell const & to, F
 				movement_cost = MAX(dx, dy);
 			}
 
-			if (move >= MOVE_NO) {
-				// level-2 1.001: STEERING only an active unit at the destination gives a byte difference of one.
-				if ((unsigned char)(int(working_to == to_pptr) - int(is_passive)) == 1u) {
-					// level-2 1.001: STEERING compile the three adjacent height differences as one unsigned range.
-					if (unsigned(CurrentCellHeight) - unsigned(DestCellHeight) + 1u <= 2u) {
-						goto breakout;
-					}
+			if (move < MOVE_NO) { // level-2 1.001: branch order and early unvisited test as gibbo101/ra2-decomp cb43f59 src/astar.cpp (YR 1.001 MATCH 0x00429A90)
+				if (Is_Visited(0, base_level, node_index)) {
+					continue;
 				}
-			} else if (!Is_Visited(0, base_level, node_index)) {
+
 				RegularOpenNode * new_node = Create_Node(working_node, working_to, to, movement_cost);
-				if (temp_node) {
+				if (temp_node == NULL) {
+					temp_node = new_node;
+				} else {
 					if (new_node->Score < temp_node->Score) {
 						RegularQueue->Insert(*temp_node);
 						temp_node = new_node;
 					} else {
 						RegularQueue->Insert(*new_node);
 					}
-				} else {
-					temp_node = new_node;
 				}
+
 				if (base_level) {
 					RegularVisited[node_index] = UniqueID;
 					RegularMovementCosts[node_index] = new_node->MovementCost;
@@ -447,6 +444,10 @@ PathStruct * AStarClass::Find_Path_Regular(Cell const & from, Cell const & to, F
 				if (subzone_id == HierSubzonePath[SUBZONE_FINE][HierNodeIndex + 1]) {
 					HierNodeIndex++;
 					HierLastNodeCell = neighbor_cell->CellID;
+				}
+			} else if (working_to == to_pptr && !is_passive) {
+				if (abs(CurrentCellHeight - DestCellHeight) <= 1) {
+					goto breakout;
 				}
 			}
 
@@ -583,15 +584,15 @@ void AStarClass::Clear(void)
 bool AStarClass::Is_Visited(int, bool base_level, int index)
 {
 	if (base_level) {
-		if (RegularVisited[index] == UniqueID) {
-			return(true);
+		if (RegularVisited[index] != UniqueID) { // level-2 1.001: tests for an unvisited cell and returns early (gibbo101 cb43f59)
+			return(false);
 		}
-		return(false);
-	}
-	if (RegularBridgeVisited[index] == UniqueID) {
 		return(true);
 	}
-	return(false);
+	if (RegularBridgeVisited[index] != UniqueID) {
+		return(false);
+	}
+	return(true);
 }
 
 

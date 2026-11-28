@@ -15,12 +15,10 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 8 | MapRegionClass::Split_Region | 0x16bd10 | 4012 | 1354 |
 | 9 | Spread_Units_Around_Cell | 0x220ac0 | 3048 | 4 |
 | 10 | BuildingClass::Do_MISSION_MISSILE | 0x480f0 | 3036 | 10 |
-| 11 | AStarClass::Find_Path_Regular | 0x27370 | 2506 | 426 |
 | 12 | MapGeneratorClass::Read_RMG_INI | 0x176750 | 1897 | 97 |
 | 13 | FootClass::Search_For_Tiberium_Weighted | 0xcb740 | 1467 | 2 |
 | 14 | Extract_Compressed_Events | 0x21fa40 | 1455 | 580 |
 | 15 | HouseClass::Random_Cell_In_Zone | 0xebf50 | 1276 | 664 |
-| 16 | ParticleSystemClass::Smoke_AI | 0x203750 | 1240 | 625 |
 | 20 | SyncState::SyncState | 0x21ad30 | 69 | 0 |
 | 21 | SyncState::~SyncState | 0x21ad80 | 18 | 0 |
 

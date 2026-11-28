@@ -273,16 +273,6 @@
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
-   "rva": "0x27370",
-   "symbol": "?Find_Path_Regular@AStarClass@@AAEPAUPathStruct@@ABVCell@@0PAVFootClass@@PAW4FacingType@@H_N@Z",
-   "tu": "astar.cpp",
-   "diff_bytes": 426,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 31 regions CODEGEN_ONLY, zero MEANING",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
    "rva": "0x21fa40",
    "symbol": "?Extract_Compressed_Events@@YIHPAXH@Z",
    "tu": "queue.cpp",
@@ -319,17 +309,7 @@
    "diff_bytes": null,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Random_Cell_In_Zone: all 41 undecided regions CODEGEN_ONLY; switch ordinals and all gameplay actions agree; SOUTH/WEST entries 13/8 bytes shifted",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
-   "rva": "0x203750",
-   "symbol": "?Smoke_AI@ParticleSystemClass@@AAEXXZ",
-   "tu": "partsys.cpp",
-   "diff_bytes": null,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Smoke_AI: NEAR_EQUAL_CANDIDATE (batch 74 report)",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Random_Cell_In_Zone: all 41 undecided regions CODEGEN_ONLY; switch ordinals and all gameplay actions agree; SOUTH/WEST entries 13/8 bytes shifted; 2026-11-28 Claude agent gib3: the 1.001 code writes DirType::Facing and then reads/writes Raw whose high half is never written; reproducing that needs an uninitialised read (kind 3, rejected); a scratch dir.Raw form made all four cases exact, 197 bytes left in default-arm jump threading. Stays NEAR_EQUAL",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
