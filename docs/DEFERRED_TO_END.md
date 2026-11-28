@@ -213,3 +213,6 @@ The techtype.h Unused2 member, the script.h Detach override and the faithful que
 
 ## Create_Game_Channel 0x339df0 and Spread_Units_Around_Cell 0x220ac0 (2026-11-28, Claude agent own11)
 - Both are 1.001-specific operand/reload-order ties: the 1.006 binary (and meastes' exact 1.006 body for Spread_Units) has OUR order. Count probes, flags and rewrites flat. End phase with the full file linked.
+
+## Exit_Object 0x402b0 and Dropship_Screen 0xa68a0 (2026-11-28, Claude agent gp1): COUNT-TYPE, coupled
+- Dropship: base/index order flips at K mod 32 = 13..27 initialised dead locals, but the +0x16ec lea needs K < 8. Exit_Object: `add edx,ecx` at 14 probes but the frame shrinks 0x12c -> 0x128; one period-32 counter. Both need an end-phase count anchor (labelled kind-2 dummy declaration allowed there, AGENTS rule 9).

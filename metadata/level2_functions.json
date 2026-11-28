@@ -67282,6 +67282,18 @@
   "name": "_$E13"
  },
  {
+  "rva": "0x21ad30",
+  "tu": "src/m85/src/queue.cpp",
+  "symbol": "??0SyncState@@QAE@XZ",
+  "name": "SyncState::SyncState"
+ },
+ {
+  "rva": "0x21ad80",
+  "tu": "src/m85/src/queue.cpp",
+  "symbol": "??1SyncState@@QAE@XZ",
+  "name": "SyncState::~SyncState"
+ },
+ {
   "rva": "0x21ada0",
   "tu": "src/m85/src/queue.cpp",
   "symbol": "??0FrameSyncStruct@@QAE@XZ",

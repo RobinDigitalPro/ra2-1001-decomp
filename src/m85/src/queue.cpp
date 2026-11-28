@@ -430,26 +430,38 @@ struct SyncState { // RA2: the game state of one frame, kept for the sync log (2
 	char *Buffer; // RA2: +0x334, the records, allocated on first use
 	unsigned int BufferSize; // RA2: +0x338, grown in 64K steps
 
-	SyncState(void) // RA2: as above
-	{
-		Objects = NULL;
-		ObjectCount = 0;
-		for (int index = 0; index < 5; index++) {
-			Layers[index] = NULL;
-			LayerCounts[index] = 0;
-		}
-		Logic = NULL;
-		LogicCount = 0;
-		BufferSize = 0x20000;
-		Buffer = NULL;
-	}
-	~SyncState(void) // RA2: as above
-	{
-		if (Buffer != NULL) {
-			delete [] Buffer;
-		}
-	}
+	SyncState(); // RA2: 0x0061AD30; level-2 1.001: STEERING empty parameter lists on all four SyncState ctor/dtor spellings (TU-wide count: each "(void)" adds one unit and moves Print_CRCs 0x221b90 off its window)
+	~SyncState(); // RA2: 0x0061AD80
 };
+
+/// <summary>
+/// Clears the record pointers and counts of an empty sync state. The record buffer is allocated on first use with this
+/// initial size. 1.001 emits this constructor out of line and also expands it in the SyncStates array initializer.
+/// </summary>
+SyncState::SyncState() // RA2: 0x0061AD30
+{
+	Objects = NULL;
+	ObjectCount = 0;
+	for (int index = 0; index < 5; index++) {
+		Layers[index] = NULL;
+		LayerCounts[index] = 0;
+	}
+	Logic = NULL;
+	LogicCount = 0;
+	BufferSize = 0x20000;
+	Buffer = NULL;
+}
+
+/// <summary>
+/// Frees the record buffer of a sync state.
+/// </summary>
+SyncState::~SyncState() // RA2: 0x0061AD80
+{
+	if (Buffer != NULL) {
+		delete [] Buffer;
+	}
+}
+
 SyncState SyncStates[256]; // RA2: 0x00A780D8; filled by Fill_Sync_State when ExtraSyncInfo is set
 int SyncRandomNumber; // RA2: 0x00AABCE0; the random number of the frame while no sync log is kept
 char const * Get_CPU_Type_Name(void); // RA2: 0x004D2B80, the name of the CPU type ("Pentium" ...) used in the sync log
