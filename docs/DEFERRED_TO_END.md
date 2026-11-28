@@ -219,3 +219,6 @@ The techtype.h Unused2 member, the script.h Detach override and the faithful que
 
 ## Commutative operand order is count-type (2026-11-28, Claude agent c2study, C2.DLL rule)
 - VC6 C2.DLL sorts commutative operands by a rank key whose low 16 bits hash symbol IDs; only the function's own initialized locals move it. Operand-order residues therefore are count-type: Create_Game_Channel 0x339df0 (both 1.001 forms at K=78..86), and very likely Exit_Object 0x402b0 and Dropship_Screen 0xa68a0 (period-32 flips, agent gp1). End phase: a labelled kind-2 count anchor per function (AGENTS rule 9), chosen with the rank-key rule (docs/level2/lessons/C2_RULES_20261128.md).
+
+## Do_MISSION_MISSILE 0x480f0 and BulletClass::AI 0x5f380: register-pressure ties (2026-11-28, Claude agent gp3)
+- Do_MISSION_MISSILE: the warhead load takes 1.001's position when any one real value goes away (yaw live past Create_Bullet, speed's memory home, the discarded Get_Height_GL call); one extra live int puts it back. 24 velocity.h forms did not help. BulletClass::AI +0x218: the same scheduler effect in reverse. End phase.

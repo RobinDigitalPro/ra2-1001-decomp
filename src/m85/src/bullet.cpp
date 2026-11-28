@@ -47,6 +47,7 @@
  *   BulletClass::~BulletClass -- Destructor for bullet objects.                               *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+#define RA2_VELOCITY_PLANAR // level-2 1.001: STEERING per-TU header form (kind 1, GUIDE L62): this TU uses the (planar, z) velocity constructor (velocity.h); other TUs keep the header without it (Print_CRCs)
 #define INCLUDE_COM
 #include "always.h"
 #include "geoconst1.h" // level-2 1.001: per-module geometry constants
@@ -692,11 +693,8 @@ void BulletClass::AI(void) // level-2 1.001: at 0x45F380; whole-branch port of g
 		 * two velocity locals and the slow-speed check before being reused as
 		 * the floating point position for the flight step below.
 		 */
-		TVelocity3D<double> position;
 		TVelocity3D<double> const & previous = Velocity;
-		double z = previous.Z; // level-2 1.001: STEERING Z is read before the planar copy, as the (planar, z) velocity constructor of 1.001 does (our velocity.h has none)
-		position.TVelocity2D<double>::operator = (previous);
-		position.Z = z;
+		TVelocity3D<double> position(previous, previous.Z); // level-2 1.001: the (planar, z) velocity constructor reads Z before the planar copy
 		TVelocity3D<double> new_velocity;
 		new_velocity = position;
 		TVelocity3D<double> velocity;

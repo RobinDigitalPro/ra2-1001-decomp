@@ -3,6 +3,7 @@
  *******************************************************************************
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Copyright 2026 OpenTS contributors
+ * Copyright 2026 ra2-decomp contributors
  *
  * See LICENSE.md for applicable additional terms and warranty disclaimers.
  ******************************************************************************/
@@ -96,6 +97,9 @@ class TVelocity3D : public TVelocity2D<T>
 		TVelocity3D(double angle, T magnitude);
 		TVelocity3D(T x, T y, T z) : BASECLASS(TVelocity2D<T>(x, y)), Z(z) {}
 		TVelocity3D(TPoint3D<int> const & pt) { T x = pt.X; T y = pt.Y; TVelocity2D<T> flat(x, y); BASECLASS::operator = (flat); Z = pt.Z; }
+#ifdef RA2_VELOCITY_PLANAR
+		TVelocity3D(BASECLASS const & planar, T z); // level-2 1.001: the planar part and Z apart (gibbo101/ra2-decomp include/velocity.h)
+#endif
 
 		void Set(T x, T y, T z)
 		{
@@ -184,6 +188,20 @@ class TVelocity3D : public TVelocity2D<T>
 	public:
 		T Z;
 };
+
+
+#ifdef RA2_VELOCITY_PLANAR
+/*
+ * level-2 1.001: builds a velocity from a planar velocity and a separate vertical
+ * speed (gibbo101/ra2-decomp include/velocity.h). Z is passed by value, so a caller
+ * that reads it from the source velocity does so before the planar copy. Per-TU
+ * switch (GUIDE L62): the bare declaration shifts queue.cpp's Print_CRCs by 4 bytes.
+ */
+template <typename T>
+TVelocity3D<T>::TVelocity3D(BASECLASS const & planar, T z) : BASECLASS(planar), Z(z)
+{
+}
+#endif
 
 
 template <typename T>
