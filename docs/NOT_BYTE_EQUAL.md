@@ -8,7 +8,7 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 |---:|---|---|---:|---:|
 | 1 | Dropship_Screen | 0xa68a0 | 10797 | 4026 |
 | 2 | BuildingClass::Exit_Object | 0x402b0 | 6515 | 10 |
-| 3 | BulletClass::AI | 0x5f380 | 6382 | 4760 |
+| 3 | BulletClass::AI | 0x5f380 | 6382 | 1939 |
 | 4 | TechnoClass::Fire_At | 0x2bfe50 | 6002 | 2869 |
 | 5 | MapClass::Set_Map_Dimensions | 0x145970 | 5335 | 590 |
 | 6 | WalkLocomotionClass::Movement_AI | 0x312de0 | 4967 | 858 |

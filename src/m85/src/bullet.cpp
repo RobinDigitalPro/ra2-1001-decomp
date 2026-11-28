@@ -293,25 +293,34 @@ bool BulletClass::Mark(MarkType mark)
 
 
 /*
- * level-2 1.001: INFERRED one inline ballistic step (as bounce.cpp / particle.cpp Ballistic_Step, here on
- * the double velocities): gravity, the move, the bridge / obstacle classification and the slope bounce.
- * Returns true when the projectile struck a surface.
+ * level-2 1.001: the 3D distance helper of this module, defined further down with Bullet_Explodes. AI uses it
+ * for the near-miss test (as gibbo101/ra2-decomp @cb43f59 src/bullet.cpp does for YR 0x4666E0).
  */
-static inline bool Ballistic_Step(TVelocity3D<double> & position, TVelocity3D<double> & velocity, double gravity, TechnoClass * payback, double elasticity)
+static inline int Coord_Dist(Coord const & a, Coord const & b);
+
+/*
+ * level-2 1.001: one inline ballistic step on the double velocities (the double twin of bounce.cpp's
+ * Ballistic_Move and particle.cpp's Ballistic_Step; structure from gibbo101/ra2-decomp @cb43f59 src/bullet.cpp,
+ * adapted to RA2 1.001): gravity, the optional speed limit, the move, the bridge / obstacle classification and
+ * the slope bounce. Returns true when the projectile struck a surface. 1.001 calls TPoint3D(int,int,int),
+ * TVelocity3D<double>::operator+=, Coord(int,int,int), Vector3(float,float,float) and Vector3::operator*= out of
+ * line here, as this compile does.
+ */
+static inline bool Ballistic_Move(TVelocity3D<double> & position, TVelocity3D<double> & velocity, double gravity, double elasticity, double max_velocity, TechnoClass * payback)
 {
 	/*
-	 * Pull the projectile down by gravity and then step it forward along
-	 * its arc.
+	 * Pull the projectile down by gravity, hold it to the speed limit (none
+	 * when the limit is zero) and then step it forward along its arc.
 	 */
 	velocity.Z -= gravity;
-
+	if (max_velocity > 0.0 && velocity.Speed() > max_velocity) { // level-2 1.001: STEERING the shared step's speed limit, unused by bullets (0.0); its inline cost sends operator+= and Coord(int,int,int) out of line as in 1.001
+		velocity *= max_velocity / velocity.Speed();
+	}
 	Coord old_coord(position.X, position.Y, position.Z);
 	position += velocity;
-
-	Coord new_coord = Coord(position.X, position.Y, position.Z);
+	Coord new_coord(position.X, position.Y, position.Z);
 	int height = Map.Get_Height_GL(new_coord);
 	int bridge_height = height + BRIDGE_LEPTON_HEIGHT;
-
 	CellClass * cellptr = &Map[new_coord];
 
 	/*
@@ -340,8 +349,8 @@ static inline bool Ballistic_Step(TVelocity3D<double> & position, TVelocity3D<do
 	if (!fell_through_bridge && !rose_through_bridge) {
 		if (position.Z >= height && position.Z - 150 < height) {
 			BuildingClass * building = cellptr->Cell_Building();
-			if (building != NULL || cellptr->Has_Wall_Or_Gate()) {
-				hit_obstacle = true;
+			hit_obstacle = building != NULL || cellptr->Has_Wall_Or_Gate();
+			if (hit_obstacle) {
 				if (building != NULL) {
 					if (building == payback || building->Class->IsLaserFence && building->LaserFenceFrame >= 8) {
 						hit_obstacle = false;
@@ -361,7 +370,9 @@ static inline bool Ballistic_Step(TVelocity3D<double> & position, TVelocity3D<do
 	 * The projectile strikes something unless it is still clear of the
 	 * ground and has struck nothing along the way.
 	 */
+	bool contact = false;
 	if (position.Z < height || fell_through_bridge || rose_through_bridge || hit_obstacle) {
+		contact = true;
 		if (payback == NULL) { // level-2 1.001: only a projectile without a firer is bounced off the slope
 			/*
 			 * Bring the projectile back to the surface it struck -- the deck it
@@ -382,8 +393,8 @@ static inline bool Ballistic_Step(TVelocity3D<double> & position, TVelocity3D<do
 			 * projectile's elasticity, reflected in Z, and then rotated back
 			 * out again.
 			 */
-			Matrix3D slope_matrix; // level-2 1.001: one full expression (1.001 keeps both Matrix3D return temporaries apart and copies each)
-			Matrix3D slope_matrix_inv = Matrix3D::Orthogonal_Inverse(slope_matrix = Get_Slope_Matrix(TacticalMap->Get_Cell_Ramp(new_coord)));
+			Matrix3D slope_matrix = Get_Slope_Matrix(TacticalMap->Get_Cell_Ramp(new_coord));
+			Matrix3D slope_matrix_inv = Matrix3D::Orthogonal_Inverse(slope_matrix);
 			Vector3 vec(velocity.X, -velocity.Y, velocity.Z);
 			vec = slope_matrix_inv.Rotate_Vector(vec);
 			vec *= elasticity;
@@ -392,18 +403,27 @@ static inline bool Ballistic_Step(TVelocity3D<double> & position, TVelocity3D<do
 			velocity.X = vec.X;
 			velocity.Y = -vec.Y;
 			velocity.Z = vec.Z;
-			return(true);
-		}
-		if (fell_through_bridge) {
-			position.Z = bridge_height;
-			return(true);
-		}
-		if (rose_through_bridge) {
-			position.Z = bridge_height - 20;
-			return(true);
+		} else {
+			if (fell_through_bridge) {
+				position.Z = bridge_height;
+			} else if (rose_through_bridge) {
+				position.Z = bridge_height - 20;
+			} else {
+				contact = false;
+			}
 		}
 	}
-	return(false);
+	return(contact);
+}
+
+/*
+ * level-2 1.001: sets the horizontal components of a velocity (gibbo101/ra2-decomp @cb43f59 src/bullet.cpp).
+ */
+static inline void Set_Horizontal_Velocity(TVelocity3D<double> & velocity,
+		double const & x, double const & y)
+{
+	velocity.X = x;
+	velocity.Y = y;
 }
 
 /***********************************************************************************************
@@ -422,7 +442,7 @@ static inline bool Ballistic_Step(TVelocity3D<double> & position, TVelocity3D<do
  * HISTORY:                                                                                    *
  *   05/02/1994 JLB : Created.                                                                 *
  *=============================================================================================*/
-void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly at 0x45F380
+void BulletClass::AI(void) // level-2 1.001: at 0x45F380; whole-branch port of gibbo101/ra2-decomp @cb43f59 src/bullet.cpp (YR 0x4666E0) with the RA2 1.001 differences
 {
 	/*
 	 * This is how many frames the closure detector spends warming up, and also
@@ -430,13 +450,10 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 	 * stopped gaining on its target.
 	 */
 	static const int _limit = 4 * TICKS_PER_SECOND;
-
-	Cell target_cell; // level-2 1.001: STEERING reuse the cell temporary for the final map update
-	Coord	coord;
-	int		distance;
+	Coord coord;
+	int distance;
 
 	BASECLASS::AI();
-
 	if (!IsActive) return;
 
 	/*
@@ -560,19 +577,14 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 			Velocity.Set_Speed(speed);
 		}
 
-		TVelocity3D<double> velocity = Velocity; // level-2 1.001: STEERING materialize motion inputs before the coordinate update
+		TVelocity3D<double> velocity = Velocity;
 
 		/*
 		 * Fetch the point to home on. An object is aimed at through its target
 		 * coordinate so that the projectile strikes the body of the victim
 		 * rather than the ground it happens to be standing on.
 		 */
-		Coord target_coord; // level-2 1.001: STEERING keep the homing target live across the branch
-		if (TarCom != NULL) { // level-2 1.001: STEERING preserve the recovered frame and branch layout
-			target_coord = TarCom->As_Coord(); // level-2 1.001: STEERING keep the homing target live across the branch
-		} else {
-			target_coord = COORD_NONE; // level-2 1.001: STEERING keep the homing target live across the branch
-		}
+		Coord target_coord = TarCom != NULL ? TarCom->As_Coord() : COORD_NONE;
 		if (TarCom != NULL && (TarCom->AbstractFlags & 2)) { // level-2 1.001: the object flag (+0x14 bit 1) instead of a dynamic cast
 			target_coord = ((ObjectClass *)TarCom)->Target_Coord();
 		}
@@ -596,20 +608,16 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 		}
 
 		/*
-		 * A projectile chasing an aircraft flies straight at its quarry rather
-		 * than hugging the terrain on the way, since there is no ground between
-		 * the two of them that needs clearing.
+		 * Steer the projectile. One chasing an aircraft flies straight at its
+		 * quarry rather than hugging the terrain on the way, since there is no
+		 * ground between the two of them that needs clearing. level-2 1.001: the
+		 * aircraft test is the argument expression itself (1.001 keeps it in ESI).
 		 */
-		bool is_aircraft = false;
-		if (TarCom != NULL) { // level-2 1.001: STEERING materialize the guarded aircraft test before the motion call
-			is_aircraft = TarCom->RTTI == RTTI_AIRCRAFT;
-		}
-
-		Coord old_coord = coord; // level-2 1.001: STEERING place the snapshot next to the motion call
-		DirType heading((Dir256)(IsLaunching ? 0 : rot)); // level-2 1.001: STEERING materialize the launch heading before the motion call
-		distance = Projectile_Motion(coord, velocity, target_coord, heading, is_aircraft, Class->IsAirburst, Class->IsVeryHigh, Class->Level); // RA2: the eighth argument (BulletTypeClass +0x26D) is pushed at 0x0045FD0E; level-2 1.001: STEERING materialize motion inputs before the coordinate update
+		Coord old_coord = coord;
+		distance = Projectile_Motion(coord, velocity, target_coord, DirType((Dir256)(IsLaunching ? 0 : rot)), TarCom != NULL && TarCom->RTTI == RTTI_AIRCRAFT, Class->IsAirburst, Class->IsVeryHigh, Class->Level); // RA2: the eighth argument (BulletTypeClass +0x26D) is pushed at 0x0045FD0E
 		CellClass * cellptr = &Map[coord];
-		Velocity = velocity;
+		TVelocity3D<double> new_velocity = velocity;
+		Velocity = new_velocity;
 
 		/*
 		 * The projectile has arrived once it is within half a frame's travel of
@@ -622,7 +630,7 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 		if (distance <= half_speed || HeightAGL <= 0) {
 			forced = true;
 			impact = IMPACT_NORMAL;
-			if (HeightAGL > 0 && target_coord != COORD_NONE && !Class->IsAirburst) { // level-2 1.001: not without a target; level-2 1.001: STEERING keep the homing target live across the branch
+			if (HeightAGL > 0 && !Class->IsAirburst && target_coord != COORD_NONE) { // level-2 1.001: not without a target
 				coord = target_coord;
 			}
 		}
@@ -645,13 +653,7 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 		 * forever. Airburst and very high projectiles are exempt, since they
 		 * come down on their targets from above.
 		 */
-		Point3D next_offset; // level-2 1.001: STEERING materialize the components separately so both lengths sum X and Y before Z
-		next_offset.Y = coord.Y - target_coord.Y; // level-2 1.001: STEERING retain the native square-add order
-		next_offset.X = coord.X - target_coord.X; // level-2 1.001: STEERING retain the native square-add order
-		next_offset.Z = coord.Z - target_coord.Z; // level-2 1.001: STEERING retain the native square-add order
-		Point3D previous_offset = old_coord - target_coord; // level-2 1.001: STEERING keep both distance vectors live across the length calculations
-		int delta = previous_offset.Length() - next_offset.Length(); // level-2 1.001: the 3D distances (1.001 calls TPoint3D<int>::Length 0x41b780 twice); level-2 1.001: STEERING preserve the recovered frame and branch layout
-
+		int delta = old_coord.Distance_To(target_coord) - coord.Distance_To(target_coord); // level-2 1.001: the 3D distances (1.001 calls TPoint3D<int>::Length 0x41b780 twice)
 		if (!IsLaunching) {
 			if (ClosureSamples < _limit) {
 				ClosureSamples++;
@@ -672,8 +674,13 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 		 * from either side, strikes the bridge instead of passing through it.
 		 */
 		if (impact == IMPACT_NONE && (cellptr->IsUnderBridge || Map[old_coord].IsUnderBridge)) {
-			int bridge_height = Map.Get_Height_GL(coord) + BRIDGE_LEPTON_HEIGHT;
-			if (coord.Z > bridge_height && old_coord.Z < bridge_height || coord.Z < bridge_height && old_coord.Z > bridge_height) {
+			int ground = Map.Get_Height_GL(coord);
+			int bridge_height = ground + BRIDGE_LEPTON_HEIGHT;
+			if (coord.Z > bridge_height && old_coord.Z < bridge_height) {
+				impact = IMPACT_NORMAL;
+				coord.Z = bridge_height;
+				forced = true;
+			} else if (coord.Z < bridge_height && old_coord.Z > bridge_height) {
 				impact = IMPACT_NORMAL;
 				coord.Z = bridge_height;
 				forced = true;
@@ -685,19 +692,25 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 		 * two velocity locals and the slow-speed check before being reused as
 		 * the floating point position for the flight step below.
 		 */
-		TVelocity3D<double> position = Velocity;
-		TVelocity3D<double> new_velocity = position;
+		TVelocity3D<double> position;
+		TVelocity3D<double> const & previous = Velocity;
+		double z = previous.Z; // level-2 1.001: STEERING Z is read before the planar copy, as the (planar, z) velocity constructor of 1.001 does (our velocity.h has none)
+		position.TVelocity2D<double>::operator = (previous);
+		position.Z = z;
+		TVelocity3D<double> new_velocity;
+		new_velocity = position;
 		TVelocity3D<double> velocity;
-		velocity.Set(position.X, position.Y, position.Z);
+		Set_Horizontal_Velocity(velocity, position.X, position.Y);
+		velocity.Z = position.Z;
 
 		/*
 		 * A projectile that is barely moving at all has nothing left to do but
 		 * land.
 		 */
-		if (position.Speed() < 8) {
+		if (new_velocity.Speed() < 8) {
 			impact = IMPACT_NORMAL;
 		}
-		position.Set(coord.X, coord.Y, coord.Z); // level-2 1.001: through Set (closer inlining)
+		position.Set(coord.X, coord.Y, coord.Z);
 
 		/*
 		 * Floating projectiles fall at half gravity, which is what gives them
@@ -716,12 +729,12 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 			 */
 			int speed = Velocity.Speed();
 			if (speed < MaxSpeed) {
-				Velocity.Set_Speed(Class->Acceleration + speed);
+				Velocity.Set_Speed(speed + Class->Acceleration);
 			}
-			TVelocity3D<double> step = Velocity; // level-2 1.001: STEERING snapshot vertical velocity before the integer step
-			Coord delta(step.X, step.Y, step.Z); // level-2 1.001: STEERING convert all step components together
+			TVelocity3D<double> move_velocity = Velocity;
+			Point3D displacement(move_velocity.X, move_velocity.Y, move_velocity.Z);
 			Coord old_coord = coord;
-			coord = coord + delta; // level-2 1.001: closer to the original's inlining than three adds; level-2 1.001: STEERING preserve the recovered frame and branch layout
+			coord = old_coord + displacement;
 			if (coord.Z > Class->DetonationAltitude) {
 				impact = IMPACT_NORMAL;
 				forced = true;
@@ -729,7 +742,8 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 				impact = IMPACT_NORMAL;
 				forced = true;
 			} else {
-				int bridge_height = Map.Get_Height_GL(coord) + BRIDGE_LEPTON_HEIGHT;
+				int ground = Map.Get_Height_GL(coord);
+				int bridge_height = ground + BRIDGE_LEPTON_HEIGHT;
 				if (Map[coord].IsUnderBridge || Map[old_coord].IsUnderBridge) {
 					if (coord.Z >= bridge_height) {
 						if (old_coord.Z < bridge_height) {
@@ -743,28 +757,24 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 				}
 			}
 		} else {
-			TechnoClass * payback = Payback;
-			double elasticity = Class->Elasticity;
-			if (Ballistic_Step(position, velocity, gravity, payback, elasticity)) { // level-2 1.001: INFERRED the inline step (1.001 calls its nested inlines out of line)
+			if (Ballistic_Move(position, velocity, gravity, Class->Elasticity, 0.0, Payback)) {
 				impact = IMPACT_NORMAL;
 				forced = true;
 			}
-
-			int x = (int)position.X;
-			int y = (int)position.Y;
-			int z = (int)position.Z;
-			coord = Coord(x, y, z);
+			coord.X = (int)position.X;
+			coord.Y = (int)position.Y;
+			coord.Z = (int)position.Z;
 		}
 
 		/*
 		 * level-2 1.001: a projectile that comes down low in the cell of its target,
 		 * or on the building that holds its target, has reached it.
 		 */
-		target_cell = TargetCoords.As_Cell(); // level-2 1.001: STEERING order the two cell temporaries before collision checks
 		Cell cell = coord.As_Cell();
+		Cell target_cell = TargetCoords.As_Cell();
 		if (cell == target_cell && !Class->Vertical && HeightAGL < LEVEL_LEPTON_H * 2) {
-			forced = true; // level-2 1.001: STEERING order the independent impact locals
 			impact = IMPACT_NORMAL;
+			forced = true;
 			collided = true;
 		} else {
 			CellClass * cellptr = &Map[cell];
@@ -772,8 +782,8 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 			BuildingClass * building = cellptr->Cell_Building();
 			BuildingClass * target_building = target_cellptr->Cell_Building();
 			if (building != NULL && !Class->Vertical && building == target_building && HeightAGL < LEVEL_LEPTON_H * 2) {
-				forced = true; // level-2 1.001: STEERING order the independent impact locals
 				impact = IMPACT_NORMAL;
+				forced = true;
 				collided = true;
 			} else {
 				/*
@@ -782,14 +792,16 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 				 * ignored.
 				 */
 				TechnoClass * techno = Map[coord].Cell_Techno();
-				bool is_payback = Payback != NULL && techno == Payback;
-				bool is_ally = techno != NULL && Payback != NULL && Payback->House->Is_Ally(techno);
-				bool is_close = techno != NULL && coord.Distance_To(techno->PositionCoord) < CELL_LEPTON / 2; // level-2 1.001: through the Get_Coord copy
-				if (!is_payback && !is_ally && is_close) {
-					forced = true; // level-2 1.001: STEERING order the independent impact locals
+				bool has_techno = techno != NULL;
+				bool has_payback = Payback != NULL;
+				bool is_payback = has_payback && techno == Payback;
+				bool is_ally = has_techno && has_payback && Payback->House->Is_Ally(techno);
+				bool nearby = has_techno && Coord_Dist(coord, techno->PositionCoord) < CELL_LEPTON / 2;
+				if (!is_payback && !is_ally && nearby) {
 					impact = IMPACT_NORMAL;
+					forced = true;
 					if (!Class->IsInaccurate) {
-						coord = techno->Position;
+						coord = techno->PositionCoord;
 					}
 				} else if (!Map.In_Radar(coord)) {
 					/*
@@ -798,12 +810,13 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 					 */
 					impact = IMPACT_EDGE;
 					forced = true;
-					coord = Position;
+					coord = PositionCoord;
 				} else {
-					new_velocity.X = velocity.X;
-					new_velocity.Y = velocity.Y;
+					Set_Horizontal_Velocity(new_velocity, velocity.X, velocity.Y);
 					if (!Class->Vertical) {
-						Velocity = TVelocity3D<double>(new_velocity.X, new_velocity.Y, velocity.Z);
+						TVelocity3D<double> updated_velocity = new_velocity;
+						updated_velocity.Z = velocity.Z;
+						Velocity = updated_velocity;
 					}
 
 					/*
@@ -873,23 +886,20 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 			/*
 			**	If the bullet is not to explode, then perform normal flight
 			**	maintenance (usually nothing). Otherwise, explode and then
-			**	delete the bullet.
+			**	delete the bullet. level-2 1.001: fueled projectiles check the fuse
+			**	too, and the shots of a jump jet go off close.
 			*/
-			FuseResultType fuse = FUSE_WAIT; // level-2 1.001: STEERING order impact tests to retain the recovered case layout
-			if (Class->ROT > 0 || Class->IsFueled) { // level-2 1.001: STEERING order impact tests to retain the recovered case layout
-				fuse = Fuse.Fuse_Checkup(coord); // level-2 1.001: STEERING order impact tests to retain the recovered case layout
-			} // level-2 1.001: fueled projectiles check the fuse too
-			if (Payback != NULL && Payback->TClass->JumpJet && fuse == FUSE_EXPLODE_FAR) { // level-2 1.001: shots of a jump jet go off close; level-2 1.001: STEERING order impact tests to retain the recovered case layout
+			FuseResultType fuse = (Class->ROT > 0 || Class->IsFueled) ? Fuse.Fuse_Checkup(coord) : FUSE_WAIT;
+			if (Payback != NULL && Payback->TClass->JumpJet && fuse == FUSE_EXPLODE_FAR) {
 				fuse = FUSE_EXPLODE_CLOSE;
 			}
-			if (!forced && (fuse == FUSE_WAIT || Class->IsDropping)) { // level-2 1.001: STEERING order impact tests to retain the recovered case layout
+			if (!forced && (Class->IsDropping || fuse == FUSE_WAIT)) {
 				/*
 				**	Certain projectiles lose strength when they travel.
 				*/
-				if (Strength > 5 && Class->IsDegenerate) { // level-2 1.001: STEERING test strength first in the maintenance path
+				if (Class->IsDegenerate && Strength > 5) {
 					Strength--;
 				}
-
 			} else {
 				/*
 				 * Nudge the detonation onto the target itself when the
@@ -900,7 +910,7 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 				 * left where it went off.
 				 */
 				if (TarCom != NULL) {
-					if (!Class->IsAirburst && !Class->IsInaccurate && (fuse == FUSE_EXPLODE_CLOSE || collided)) { // level-2 1.001: STEERING order impact tests to retain the recovered case layout
+					if ((fuse == FUSE_EXPLODE_CLOSE || collided) && !Class->IsAirburst && !Class->IsInaccurate) {
 						Coord midpoint = coord;
 						Coord target_coord = TarCom->As_Coord();
 						midpoint.Z = (midpoint.Z + target_coord.Z) / 2;
@@ -908,7 +918,6 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 						if (collided) {
 							target_distance /= 3;
 						}
-
 						if (fuse == FUSE_EXPLODE_CLOSE || target_distance <= MAX(CELL_LEPTON / 2, Velocity.Speed() * 2)) {
 							PositionCoord = TarCom->Center_Coord();
 						}
@@ -927,9 +936,9 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 					LightningStormClass::Flash_Start();
 					AnimType anim = AnimTypeClass::From_Name("NUKEBALL");
 					if (anim != ANIM_NONE) {
-						AnimTypeClass * animtype = AnimTypes[anim];
-						if (animtype != NULL) {
-							NextAnim = new AnimClass(animtype, PositionCoord, 0, 1, ShapeFlags_Type(0x2600), Get_Explosion_Z(PositionCoord)); // level-2 1.001: flags 0x2600 as pushed
+						AnimTypeClass * anim_type = AnimTypes[anim];
+						if (anim_type != NULL) {
+							NextAnim = new AnimClass(anim_type, PositionCoord, 0, 1, ShapeFlags_Type(0x2600), Get_Explosion_Z(PositionCoord)); // level-2 1.001: flags 0x2600 as pushed
 							SpawnNextAnim = true;
 							AnimPtrTracker.Add(this);
 							break;
@@ -942,8 +951,7 @@ void BulletClass::AI(void) // level-2 1.001: rebuilt from the 1.001 disassembly 
 			break;
 		}
 	}
-	target_cell = coord.As_Cell();
-	LastMapCoords = target_cell; // level-2 1.001: remembers the cell the projectile is over
+	LastMapCoords = coord.As_Cell(); // level-2 1.001: remembers the cell the projectile is over
 }
 
 
