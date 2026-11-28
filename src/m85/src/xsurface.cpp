@@ -525,11 +525,13 @@ bool XSurface::Plot_Line(Rect const & xcliprect, Point2D & startpoint, Point2D &
 		}
 	} else {
 		/*
-		 * Distances to x and y.
+		 * Distances to x and y, and the point the walk starts from.
 		 */
-		int x2 = end.X;
-		int dx = x2 - start.X;
+		int dx = end.X - start.X;
 		int dy = end.Y - start.Y;
+		int y = start.Y;
+		int x = start.X;
+
 		/*
 		 * The line isn't straight so we need to do some maths.
 		 */
@@ -540,50 +542,45 @@ bool XSurface::Plot_Line(Rect const & xcliprect, Point2D & startpoint, Point2D &
 
 		dy = abs(dy);
 		int dx2 = 2 * dx;
-		int dy2 = 2 * dy;
 
-		if (dx > dy) {
+		/*
+		 * From here on dx holds the running error term of the walk (it starts as twice the
+		 * y distance); span keeps the x distance for the slope test. This single reused
+		 * error variable is the 1.001 form (gibbo101/ra2-decomp 29081fa, YR 1.001): a separate
+		 * named error term per branch compiles to different register and slot assignments.
+		 */
+		int span = dx;
+		dx = 2 * dy;
+		int dy2 = dx;
+		int x2 = end.X;
+
+		if (span > dy) {
 
 			/*
-			 * The slope is not steep.
+			 * The slope is not steep: plot the low line, one step in x per point.
 			 */
-			int delta = dy2 - dx;
-			int y = start.Y;
-
-			/*
-			 * Plot low line.
-			 */
-			for (int i = start.X; i <= x2; i++) {
+			dx -= span;
+			for (int i = x; i <= x2; i++) {
 				drawer_callback(Point2D(i, y));
-
-				if (delta > 0) {
-					delta -= dx2;
+				if (dx > 0) {
+					dx -= dx2;
 					y += pitch;
 				}
-
-				delta += dy2;
+				dx += dy2;
 			}
 		} else {
 
 			/*
-			 * The slope is steep.
+			 * The slope is steep: plot the high line, one step in y per point.
 			 */
-			int delta = dx2 - dy;
-			int x = start.X;
-			int y = start.Y;
-
-			/*
-			 * Plot high line.
-			 */
+			dx = dx2 - dy;
 			for (int i = 0; i <= dy; i++) {
 				drawer_callback(Point2D(x, y));
-
-				if (delta > 0) {
-					x++; // level-2 1.001: steps x itself (no separate offset)
-					delta -= dy2;
+				if (dx > 0) {
+					x++;
+					dx -= dy2;
 				}
-
-				delta += dx2;
+				dx += dx2;
 				y += pitch;
 			}
 		}

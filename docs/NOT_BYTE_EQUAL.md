@@ -67,7 +67,6 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 33 | Veterancy_Nav_Command | 0x2eccf0 | UI/network/platform | 618 | 313 |
 | 34 | Health_Nav_Command | 0x2ec9c0 | UI/network/platform | 608 | 568 |
 | 35 | SchemeLibrary::Set_Mode | 0x1fc6b0 | render | 511 | 104 |
-| 36 | XSurface::Slot17 | 0x35f840 | render | 511 | 133 |
 | 37 | Set_Scheme_Table_Theater | 0x1fb330 | render | 504 | 488 |
 | 38 | Fill_Color_List | 0xd18c0 | UI/network/platform | 437 | 128 |
 

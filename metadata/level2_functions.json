@@ -105666,6 +105666,12 @@
   "name": "XSurface::Slot16 (stub, false) [slot 16]"
  },
  {
+  "rva": "0x35f840",
+  "tu": "src/m85/src/xsurface.cpp",
+  "symbol": "?Plot_Line@XSurface@@UAE_NABV?$TRect@H@@AAVPoint2D@@1P6IXABV3@@Z@Z",
+  "name": "XSurface::Plot_Line"
+ },
+ {
   "rva": "0x35fa40",
   "tu": "src/ra2/unnamed/TU_75F270.cpp",
   "symbol": "?Draw_Rect@XSurface@@UAE_NAAURectangleStruct@@I@Z",
