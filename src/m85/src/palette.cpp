@@ -364,16 +364,9 @@ SchemeNode::SchemeNode(char const * name, DynamicVectorClass<ColorScheme *> * sc
 }
 
 
-void SchemeNode::Release(void) // RA2: deletes the schemes (level-2 1.001: 0x1FAE20, no direct caller; the two functions have identical bytes)
+SchemeNode::~SchemeNode(void) // level-2 1.001: 0x1FAE20, no direct caller (inline at the delete in ~SchemeLibrary); same bytes as Release, order and names as gibbo101 palette.cpp
 {
-	if (Schemes) { // RA2: as above
-		int count = Schemes->Count(); // RA2: as above
-		for (int index = 0; index < count; index++) { // RA2: as above
-			delete (*Schemes)[index]; // RA2: as above
-		}
-		delete Schemes; // RA2: as above
-		Schemes = NULL; // RA2: as above
-	}
+	Release(); // RA2: as above
 }
 
 
@@ -384,12 +377,17 @@ void SchemeNode::Replace(DynamicVectorClass<ColorScheme *> * schemes) // RA2: 0x
 }
 
 
-#pragma auto_inline(off) // level-2 1.001: the destructor is called out of line from ~SchemeLibrary
-SchemeNode::~SchemeNode(void) // level-2 1.001: 0x1FAF00, the target of both delete-node sites (0x1FB4FF, 0x1FBFAC), so it follows Replace
+void SchemeNode::Release(void) // RA2: deletes the schemes (level-2 1.001: 0x1FAF00, called from the inline Replace in Set_Scheme_Table_Theater (0x1FB4FF) and the inline destructor in ~SchemeLibrary (0x1FBFAC))
 {
-	Release(); // RA2: as above
+	if (Schemes) { // RA2: as above
+		int count = Schemes->Count(); // RA2: as above
+		for (int index = 0; index < count; index++) { // RA2: as above
+			delete (*Schemes)[index]; // RA2: as above
+		}
+		delete Schemes; // RA2: as above
+		Schemes = NULL; // RA2: as above
+	}
 }
-#pragma auto_inline(on)
 
 
 DynamicVectorClass<ColorScheme *> * __fastcall Generate_Palette(char const * name) // RA2: 0x00603380, the schemes of a palette file, generated on first use
@@ -434,15 +432,13 @@ DynamicVectorClass<ColorScheme *> * SchemeListIterator::Next(void) // RA2: 0x006
 }
 
 
-void SchemeLibrary::Set_Mode(int mode) // level-2 1.001: 0x1FC6B0, adopted from gibbo101 palette.cpp (no Mode test; the caller tests)
+void SchemeLibrary::Set_Mode(int mode) // level-2 1.001: 0x1FC6B0, adopted from gibbo101 palette.cpp (no Mode test; the caller tests; the walk goes through Replace)
 {
 	Mode = mode;
-	HashIterator it = {0, 0, false};
+	SchemeListIterator it;
 	HashString * key = Table->Next(&it);
 	while (key != NULL) {
-		HashString name(key->Str);
-		SchemeNode * node = *Table->Find(name);
-		node->Replace(Generate(key->Str));
+		Replace(key->Str);
 		key = Table->Next(&it);
 	}
 }
@@ -450,9 +446,9 @@ void SchemeLibrary::Set_Mode(int mode) // level-2 1.001: 0x1FC6B0, adopted from 
 
 void __fastcall Set_Scheme_Table_Theater(TheaterType theater) // level-2 1.001: 0x1FB330, regenerates every palette's schemes for the theater
 {
-	SchemeLibrary * library = Scheme_Library(); // level-2 1.001: the theater test is the caller's, Set_Mode (0x1FC6B0) has none
-	if (library->Mode != theater) {
-		library->Set_Mode(theater);
+	Scheme_Library(); // level-2 1.001: the theater test is the caller's, Set_Mode (0x1FC6B0) has none
+	if (TheSchemeLibrary->Mode != theater) {
+		TheSchemeLibrary->Set_Mode(theater);
 	}
 }
 
@@ -526,43 +522,21 @@ SchemeLibrary::SchemeLibrary(void) : // level-2 1.001: 0x1FBD00
 }
 
 
-static inline HashString * Next_Key(SchemeTable * table, HashIterator * it) // level-2 1.001: adopted from gibbo101 palette.cpp (the walk of SchemeTable::Next as a free inline helper)
-{
-	if (!it->OutOfBuckets) {
-		while (it->BucketIndex < table->NumBuckets) {
-			SchemeHashTable::BucketType & bucket = table->Buckets[it->BucketIndex];
-			while (it->InBucketIndex < bucket.Count()) {
-				SchemeHashTable::ObjectType * object = &bucket[it->InBucketIndex];
-				it->InBucketIndex++;
-				if (!!object->Key) {
-					return(&object->Key);
-				}
-			}
-			it->BucketIndex++;
-			it->InBucketIndex = 0;
-		}
-		it->OutOfBuckets = true;
-	}
-	return(NULL);
-}
-
-
-SchemeLibrary::~SchemeLibrary(void) // level-2 1.001: 0x1FBE30, adopted from gibbo101 palette.cpp
+SchemeLibrary::~SchemeLibrary(void) // level-2 1.001: 0x1FBE30, adopted from gibbo101 palette.cpp (walk through Table->Next, Table->Clear)
 {
 	if (Table != NULL) {
 		SchemeLibrary_Free();
 		delete Names;
 		delete Colors;
 
-		HashIterator it = {0, 0, false};
-		for (HashString * key = Next_Key(Table, &it); key != NULL; key = Next_Key(Table, &it)) {
-			SchemeNode * node = *Table->Find(*key);
-			delete node;
+		SchemeListIterator it;
+		HashString * key = Table->Next(&it);
+		while (key != NULL) {
+			SchemeNode ** node = Table->Find(*key);
+			delete *node;
+			key = Table->Next(&it);
 		}
-		SchemeTable * table = Table;
-		for (int index = 0; index < table->NumBuckets; index++) {
-			table->Buckets[index].Clear();
-		}
+		Table->Clear();
 		delete Table;
 	}
 }
@@ -576,11 +550,12 @@ void SchemeLibrary::Add(char const * name) // level-2 1.001: 0x1FC450
 }
 
 
-void SchemeLibrary::Replace(char const * name) // level-2 1.001: 0x1FC5A0, adopted from gibbo101 palette.cpp
+void SchemeLibrary::Replace(char const * name) // level-2 1.001: 0x1FC5A0, adopted from gibbo101 palette.cpp (Find's slot, then its node: decides the registers of the copy inline in Set_Scheme_Table_Theater)
 {
 	HashString key(name);
-	SchemeNode * node = *Table->Find(key);
-	node->Replace(Generate(name));
+	SchemeNode ** node = Table->Find(key);
+	SchemeNode * entry = *node;
+	entry->Replace(Generate(name));
 }
 
 

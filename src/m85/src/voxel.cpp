@@ -7,10 +7,13 @@
  * See LICENSE.md for applicable additional terms and warranty disclaimers.
  ******************************************************************************/
 
+#define RA2_IMPLICIT_MATRIX_ASSIGN // level-2 1.001: STEERING per-TU header form (kind 1): this TU uses the implicit Matrix3D/Vector4 copy assignment (matrix3d.h, vector4.h); Init_Voxel_Matrices 0x30cc20 25 -> 0 bytes (gibbo101 YR 0x754CB0)
 #include "always.h"
 
 #include "_voxel.h"
+#include "geoconst1.h" // level-2 1.001: this module holds its own copy (per-TU constant addresses)
 #include "globals.h"
+#include "geoconst2.h" // level-2 1.001: this module holds its own copy (per-TU constant addresses)
 #include "inline.h"
 #include "matrix3d.h"
 #include "objtype.h"

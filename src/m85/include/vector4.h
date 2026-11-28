@@ -19,7 +19,9 @@ class Vector4
 		//Vector4(void) {};
 		//Vector4(float x, float y, float z, float w) { X = x; Y = y; Z = z; W = w; }
 
+#ifndef RA2_IMPLICIT_MATRIX_ASSIGN // level-2 1.001: STEERING per-TU header form (kind 1), see matrix3d.h
 		Vector4 & operator = (const Vector4 & v) { X = v.X; Y = v.Y; Z = v.Z; W = v.W; return(*this); }
+#endif
 
 		void Set(float x, float y, float z, float w) { X = x; Y = y; Z = z; W = w; }
 

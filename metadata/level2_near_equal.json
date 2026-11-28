@@ -23,16 +23,6 @@
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
-   "rva": "0xcb740",
-   "symbol": "?Search_For_Tiberium_Weighted@FootClass@@QAE?AVCell@@H@Z",
-   "tu": "foot.cpp",
-   "diff_bytes": 2,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
-   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
-  },
-  {
    "rva": "0x274f90",
    "symbol": "?Draw_It@StripClass@SidebarClass@@QAEX_N@Z",
    "tu": "sidebar.cpp",
@@ -79,7 +69,7 @@
    "diff_bytes": 9,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7); 2026-11-28 Claude agent gib4: body already equals gibbo; one swapped reload pair at +0x1da (this/bpp), codegen only; YR has an 8-byte larger frame; 12 variants flat",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -90,16 +80,6 @@
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7); 2026-11-28 Claude agent hdr1: bytes exact with the per-TU RA2_VECTOR_UNSIGNED_INDEX switch; claim blocked by two unverified bindings: the original calls ?Clear@?$VectorClass@V?$TRect@H@@@@UAEXXZ at 0x58b490 (a copy in another TU) while this TU claims its own copy at 0x720110, and the TU-local VectorCursor operator= copy at 0x71fb10 (per-TU COMDAT copies, same checker C-item as SuperClass::Place); 2026-11-28 tool1: the Clear binding (0x58b490) is now verified by the new checker rule (local COMDAT copy at another TU's claimed address, verify_copy); only the VectorCursor operator= at 0x71fb10 remains (source difference)",
-   "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
-  },
-  {
-   "rva": "0x30cc20",
-   "symbol": "?Init_Voxel_Matrices@@YIXXZ",
-   "tu": "voxel.cpp",
-   "diff_bytes": 25,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -213,26 +193,6 @@
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {
-   "rva": "0x1fc6b0",
-   "symbol": "SchemeLibrary::Set_Mode",
-   "tu": "palette.cpp",
-   "diff_bytes": 104,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
-   "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
-  },
-  {
-   "rva": "0x1fb330",
-   "symbol": "?Set_Scheme_Table_Theater@@YIXW4TheaterType@@@Z",
-   "tu": "palette.cpp",
-   "diff_bytes": 488,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
-   "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
-  },
-  {
    "rva": "0xd18c0",
    "symbol": "?Fill_Color_List@@YIXPAUHWND__@@H@Z",
    "tu": "GDlgSupp.cpp",
@@ -270,16 +230,6 @@
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 94 regions CODEGEN_ONLY after operand-binding checks",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
-   "rva": "0x312de0",
-   "symbol": "?Movement_AI@WalkLocomotionClass@@QAEX_N@Z",
-   "tu": "walk.cpp",
-   "diff_bytes": 820,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Movement_AI: all 128 regions CODEGEN_ONLY with operand-level proofs; 2026-11-28 Claude agent own6: 858 -> 820 bytes (merged arrival test, mech.cpp form); witnesses in claude_agents/own6/witness (call list equal with Adjacent_Cell + plain Get_Coord sum and mech tube text, but VC6 then picks the aligned frame, ~4084 bytes)",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

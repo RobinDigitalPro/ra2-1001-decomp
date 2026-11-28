@@ -4843,10 +4843,7 @@ Cell FootClass::Search_For_Tiberium_Weighted(int rad)
 		bool southrun = false;
 		bool westrun = false;
 		bool eastrun = false;
-		int divisor = 1;
-		if (share >= 1) {
-			divisor = share;
-		}
+		int divisor = max(1, share); // level-2: adopted from meastes src/foot.cpp @8ec3839 (the template max is an inline site, lane F116)
 		double scale = 1.0 / (double)divisor;
 		for (int x = -radius; x <= radius; x++) {
 			Cell cell;
@@ -4902,7 +4899,7 @@ Cell FootClass::Search_For_Tiberium_Weighted(int rad)
 
 	CellClass *cellptr = celldist.Sample();
 	if (cellptr != NULL) {
-		return(cellptr->Fetch_CellID());
+		return(cellptr->CellID); // level-2: adopted from meastes src/foot.cpp @8ec3839
 	}
 	return(CELL_NONE);
 }

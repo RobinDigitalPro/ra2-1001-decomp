@@ -65,7 +65,11 @@ class Matrix3D
 		Matrix3D(const Matrix3DStruct & m);
 
 		// Assignment operator
+#ifndef RA2_IMPLICIT_MATRIX_ASSIGN
+		// level-2 1.001: STEERING per-TU header form (kind 1): TUs that define RA2_IMPLICIT_MATRIX_ASSIGN use the implicit
+		// copy assignment of Matrix3D and Vector4 (vector4.h), as gibbo101's matrix3d.h; same bytes copied. Init_Voxel_Matrices 0x30cc20.
 		Matrix3D & operator=(Matrix3D const & that) { memcpy(this, &that, sizeof(*this)); return(*this);}
+#endif
 
 
 		Vector4 & operator [] (int i) {

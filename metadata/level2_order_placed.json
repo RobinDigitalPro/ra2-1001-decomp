@@ -43,6 +43,20 @@
    "tu": "src/ra2/unnamed/TU_5301B0.cpp",
    "status": "ORDER_PLACED",
    "evidence": "batch 76 (job a29c828f): exact 16 bytes; name from donor/neighbour order, no independent binding clue"
+  },
+  {
+   "rva": "0x1fae20",
+   "symbol": "??1SchemeNode@@QAE@XZ",
+   "tu": "src/m85/src/palette.cpp",
+   "status": "ORDER_PLACED",
+   "evidence": "2026-11-28 Claude agent gib4: identical bodies at 0x1fae20/0x1faf00; names swapped to follow gibbo101 cb43f59 palette.cpp source order (matched YR TU) after porting Set_Mode/Replace/~SchemeLibrary; name not independently proven"
+  },
+  {
+   "rva": "0x1faf00",
+   "symbol": "?Release@SchemeNode@@QAEXXZ",
+   "tu": "src/m85/src/palette.cpp",
+   "status": "ORDER_PLACED",
+   "evidence": "2026-11-28 Claude agent gib4: identical bodies at 0x1fae20/0x1faf00; names swapped to follow gibbo101 cb43f59 palette.cpp source order (matched YR TU) after porting Set_Mode/Replace/~SchemeLibrary; name not independently proven"
   }
  ]
 }

@@ -24,6 +24,12 @@ class DiscreteDistributionClass
 				bool operator == (DistributionObject const & that) const { return(Object == that.Object && Weight == that.Weight); }
 				bool operator != (DistributionObject const & that) const { return(Object != that.Object || Weight != that.Weight); }
 
+				/// level-2 1.001: STEERING Sample reads an entry through these two accessors (meastes include/ddist.h
+				/// @8ec3839, their "flagged variation form", lane F116). Same result as the member reads; with them
+				/// FootClass::Search_For_Tiberium_Weighted is exact, house.cpp and teamtype.cpp compile unchanged.
+				U Get_Object(void) const { return(Object); }
+				unsigned int Get_Weight(void) const { return(Weight); }
+
 				/*
 				 * This is the candidate this entry stands for, and what the Sample function
 				 * returns when the entry is the one picked.
@@ -124,9 +130,9 @@ inline T * DiscreteDistributionClass<T>::Sample(void)
 	if (TotalWeight >= 1 && Count()) {
 		unsigned int pick = Random_Pick<unsigned int>(1, TotalWeight);
 		for (int index = 0; index < Objects.Count(); index++) {
-			cumulative += Objects[index].Weight;
+			cumulative += Objects[index].Get_Weight();
 			if (cumulative >= pick) {
-				return(Objects[index].Object);
+				return(Objects[index].Get_Object());
 			}
 		}
 	}

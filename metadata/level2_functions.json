@@ -27147,6 +27147,12 @@
   "name": "?Search_For_Tiberium@FootClass@@QAE?AVCell@@H_N@Z"
  },
  {
+  "rva": "0xcb740",
+  "tu": "src/m85/src/foot.cpp",
+  "symbol": "?Search_For_Tiberium_Weighted@FootClass@@QAE?AVCell@@H@Z",
+  "name": "FootClass::Search_For_Tiberium_Weighted"
+ },
+ {
   "rva": "0xcbd00",
   "tu": "src/m85/src/foot.cpp",
   "symbol": "?Search_For_Weed@FootClass@@QAE?AVCell@@H@Z",
@@ -62448,8 +62454,8 @@
  {
   "rva": "0x1fae20",
   "tu": "src/m85/src/palette.cpp",
-  "symbol": "?Release@SchemeNode@@QAEXXZ",
-  "name": "SchemeNode::Release"
+  "symbol": "??1SchemeNode@@QAE@XZ",
+  "name": "SchemeNode::~SchemeNode"
  },
  {
   "rva": "0x1fae80",
@@ -62460,8 +62466,8 @@
  {
   "rva": "0x1faf00",
   "tu": "src/m85/src/palette.cpp",
-  "symbol": "??1SchemeNode@@QAE@XZ",
-  "name": "SchemeNode::~SchemeNode"
+  "symbol": "?Release@SchemeNode@@QAEXXZ",
+  "name": "SchemeNode::Release"
  },
  {
   "rva": "0x1faf60",
@@ -62480,6 +62486,12 @@
   "tu": "src/m85/src/palette.cpp",
   "symbol": "?Next@SchemeListIterator@@QAEPAV?$DynamicVectorClass@PAVColorScheme@@@@XZ",
   "name": "?Next@SchemeListIterator@@QAEPAV?$DynamicVectorClass@PAVColorScheme@@@@XZ"
+ },
+ {
+  "rva": "0x1fb330",
+  "tu": "src/m85/src/palette.cpp",
+  "symbol": "?Set_Scheme_Table_Theater@@YIXW4TheaterType@@@Z",
+  "name": "Set_Scheme_Table_Theater"
  },
  {
   "rva": "0x1fb530",
@@ -62552,6 +62564,12 @@
   "tu": "src/m85/src/palette.cpp",
   "symbol": "?Replace@SchemeLibrary@@QAEXPBD@Z",
   "name": "SchemeLibrary::Replace"
+ },
+ {
+  "rva": "0x1fc6b0",
+  "tu": "src/m85/src/palette.cpp",
+  "symbol": "?Set_Mode@SchemeLibrary@@QAEXH@Z",
+  "name": "SchemeLibrary::Set_Mode"
  },
  {
   "rva": "0x1fc8b0",
@@ -95653,50 +95671,50 @@
  {
   "rva": "0x30ca90",
   "tu": "src/m85/src/voxel.cpp",
-  "symbol": "_$E19",
-  "name": "static initializer _$E19 (no relocations)"
+  "symbol": "_$E55",
+  "name": "static initializer _$E55 (no relocations)"
  },
  {
   "rva": "0x30caa0",
   "tu": "src/m85/src/voxel.cpp",
-  "symbol": "_$E22",
-  "name": "static initializer _$E22 (no relocations)"
+  "symbol": "_$E58",
+  "name": "static initializer _$E58 (no relocations)"
  },
  {
   "rva": "0x30cab0",
   "tu": "src/m85/src/voxel.cpp",
-  "symbol": "_$E25",
+  "symbol": "_$E61",
   "name": "dynamic initializer of ?ScreenSlopeQuaternions@@3PAVQuaternion@@A"
  },
  {
   "rva": "0x30cae0",
   "tu": "src/m85/src/voxel.cpp",
-  "symbol": "_$E28",
+  "symbol": "_$E64",
   "name": "dynamic initializer of ?SlopeQuaternions@@3PAVQuaternion@@A"
  },
  {
   "rva": "0x30cb10",
   "tu": "src/m85/src/voxel.cpp",
-  "symbol": "_$E31",
-  "name": "static initializer _$E31 (no relocations)"
+  "symbol": "_$E67",
+  "name": "static initializer _$E67 (no relocations)"
  },
  {
   "rva": "0x30cb20",
   "tu": "src/m85/src/voxel.cpp",
-  "symbol": "_$E34",
-  "name": "static initializer _$E34 (no relocations)"
+  "symbol": "_$E70",
+  "name": "static initializer _$E70 (no relocations)"
  },
  {
   "rva": "0x30cb30",
   "tu": "src/m85/src/voxel.cpp",
-  "symbol": "_$E37",
-  "name": "static initializer _$E37 (no relocations)"
+  "symbol": "_$E73",
+  "name": "static initializer _$E73 (no relocations)"
  },
  {
   "rva": "0x30cb40",
   "tu": "src/m85/src/voxel.cpp",
-  "symbol": "_$E40",
-  "name": "static initializer _$E40 (no relocations)"
+  "symbol": "_$E76",
+  "name": "static initializer _$E76 (no relocations)"
  },
  {
   "rva": "0x30cb50",
@@ -95709,6 +95727,12 @@
   "tu": "src/m85/src/voxel.cpp",
   "symbol": "?Set_Voxel_Light_Angle@@YIXM@Z",
   "name": "?Set_Voxel_Light_Angle@@YIXM@Z"
+ },
+ {
+  "rva": "0x30cc20",
+  "tu": "src/m85/src/voxel.cpp",
+  "symbol": "?Init_Voxel_Matrices@@YIXXZ",
+  "name": "Init_Voxel_Matrices"
  },
  {
   "rva": "0x30d900",
@@ -96562,6 +96586,12 @@
   "tu": "src/m85/src/walk.cpp",
   "symbol": "?Force_Immediate_Destination@WalkLocomotionClass@@UAGXUCoordStruct@@@Z",
   "name": "?Force_Immediate_Destination@WalkLocomotionClass@@UAGXUCoordStruct@@@Z"
+ },
+ {
+  "rva": "0x312de0",
+  "tu": "src/m85/src/walk.cpp",
+  "symbol": "?Movement_AI@WalkLocomotionClass@@QAEX_N@Z",
+  "name": "WalkLocomotionClass::Movement_AI"
  },
  {
   "rva": "0x314150",
