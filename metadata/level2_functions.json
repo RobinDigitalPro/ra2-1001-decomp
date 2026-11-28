@@ -58336,6 +58336,12 @@
   "name": "Save_Skirmish_Settings"
  },
  {
+  "rva": "0x1c5350",
+  "tu": "src/m85/src/netshare.cpp",
+  "symbol": "?Load_Lobby_Options@@YIXPAUHWND__@@PAUSessionOptionsClass@@@Z",
+  "name": "Load_Lobby_Options"
+ },
+ {
   "rva": "0x1c5850",
   "tu": "src/m85/src/netshare.cpp",
   "symbol": "?Limit_Name_Text@@YI?AVWideWstring@@PAUHWND__@@@Z",

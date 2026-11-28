@@ -134,12 +134,12 @@
   },
   {
    "rva": "0x360000",
-   "symbol": "?Draw_Ellipse@XSurface@@UAE_NHHHHURectangleStruct@@I@Z",
+   "symbol": "?Draw_Ellipse@XSurface@@UAE_NVPoint2D@@HHV?$TRect@H@@H@Z",
    "tu": "xsurface.cpp",
    "diff_bytes": 1220,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
+   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions); 2026-11-28 Claude agent mst4: symbol corrected from the placeholder; meastes port 1254 bytes, isd 601 -> 375 (witness); register-allocation tie, as meastes also found",
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {
@@ -246,10 +246,10 @@
    "rva": "0x275a60",
    "symbol": "?Recalc@StripClass@SidebarClass@@QAE_NXZ",
    "tu": "sidebar.cpp",
-   "diff_bytes": null,
+   "diff_bytes": 3,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): StripClass::Recalc: all 14 undecided regions CODEGEN_ONLY; redundant bounds check removed",
+   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): StripClass::Recalc: all 14 undecided regions CODEGEN_ONLY; redundant bounds check removed; 2026-11-28 Claude agent mst4: 188 -> 3 bytes (one scan position `pos` reused for both searches with `int oldpos = pos;` saved before the second reproduces 1.001's register copy); residue: two loop initialisations in swapped order",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
@@ -333,16 +333,6 @@
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
-   "rva": "0x1c5350",
-   "symbol": "Load_Lobby_Options",
-   "tu": "netshare.cpp",
-   "diff_bytes": null,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "batch 76 (job a29c828f): Load_Lobby_Options: Set_Slot_Node restored (MEANING fixed); all 127 regions classified",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
    "rva": "0x1ee640",
    "symbol": "?List_Proc@OwnerDraw@@YGJPAUHWND__@@IIJ@Z",
    "tu": "ownrdraw.cpp",
@@ -359,7 +349,7 @@
    "diff_bytes": null,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "batch 77 (job f415f739): Net2DecodeGameopt: all 176 regions statically equivalent (Session+0x14 and decoding fixes integrated)",
+   "evidence": "batch 77 (job f415f739): Net2DecodeGameopt: all 176 regions statically equivalent (Session+0x14 and decoding fixes integrated); 2026-11-28 Claude agent mst4: witness (mst4/result/netshare_with_decode, NOT integrated) with every frame slot exact (two-call K switch, `char number[4]`, 36-byte before/after lists; isd 126 -> 62) but positional bytes 2064 (one byte-register choice lengthens an instruction); the narrowed buffer reproduces 1.001's 4-byte frame slot and needs a behaviour review before any use",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

@@ -3894,7 +3894,8 @@ void __fastcall Load_Lobby_Options(HWND dialog, SessionOptionsClass * options) /
 		options->ScenIndex = 0; // RA2: as above
 	}
 	Session.Options.ScenarioIndex = Set_Scenario_Info_From_Index(options->ScenIndex) ? options->ScenIndex : 0; // RA2: as above
-	if (!mode->IsMapAllowed(Session.Scenarios[Session.Options.ScenarioIndex])) { // RA2: as above
+	MultiMission * scenario = Session.Scenarios[Session.Options.ScenarioIndex]; // level-2 1.001: the scenario being checked, named as in meastes' exact 1.006 text (redalert2-decomp, tag historical-final)
+	if (!mode->IsMapAllowed(scenario)) { // RA2: as above
 		int index = mode->FirstValidMapIndex(); // RA2: as above
 		if (index == -1) { // RA2: as above
 			mode = First_Game_Mode(); // RA2: as above

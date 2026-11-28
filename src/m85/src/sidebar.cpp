@@ -2516,9 +2516,9 @@ bool SidebarClass::StripClass::Recalc(void)
 	if (scroll) {
 		bool got_old = false;
 
-		int oldpos;
-		for (oldpos = 0; oldpos < max_visible; oldpos++) {
-			BuildType const & entry = unshifted[oldpos]; // level-2 1.001: STEERING
+		int pos; // level-2 1.001: one scan position for both searches (the old list, then the new one)
+		for (pos = 0; pos < max_visible; pos++) {
+			BuildType const & entry = unshifted[pos]; // level-2 1.001: STEERING
 			if (entry != BuildType(0, RTTI_NONE)) {
 				got_old = true;
 				break;
@@ -2526,12 +2526,12 @@ bool SidebarClass::StripClass::Recalc(void)
 		}
 
 		bool const can_scroll = got_old && BuildableCount != 0; // level-2 1.001: STEERING
-		// A successful first scan leaves oldpos within the visible range.
+		// A successful first scan leaves pos within the visible range.
 		if (can_scroll) {
+			int oldpos = pos; // level-2 1.001: the old position is kept while pos walks the new list
 			bool got_new = false;
-			int newpos;
-			for (newpos = 0; newpos < BuildableCount; newpos++) {
-				BuildType const & new_entry = Buildables[newpos]; // level-2 1.001: STEERING
+			for (pos = 0; pos < BuildableCount; pos++) {
+				BuildType const & new_entry = Buildables[pos]; // level-2 1.001: STEERING
 				if (new_entry == unshifted[oldpos]) {
 					got_new = true;
 					break;
@@ -2539,7 +2539,7 @@ bool SidebarClass::StripClass::Recalc(void)
 			}
 
 			if (got_new) {
-				int const row_shift = (oldpos - newpos) / 2; // level-2 1.001: STEERING
+				int const row_shift = (oldpos - pos) / 2; // level-2 1.001: STEERING
 				TopIndex = TopIndex - row_shift; // level-2 1.001: TopIndex counts rows of two
 				int const last_row = (BuildableCount - max_visible) / 2; // level-2 1.001: STEERING
 				// level-2 1.001: STEERING keep the donor clamp expression so VC6 repeats the signed upper bound.

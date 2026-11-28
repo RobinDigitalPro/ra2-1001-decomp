@@ -25355,5 +25355,30 @@
   "address": "0x722a60",
   "evidence": "function_start",
   "note": "src/ra2 WDTSel.cpp name for the claimed ?Init_Target@Selection@WorldDominationTour@@QAEXAAVINIClass@@ABVWstring@@@Z at RVA 0x322a60 (m85 wdtsel.cpp; same address; call target of the matched Selection constructor, Claude agent wdt2 2026-11-28)"
+ },
+ "?Side_Combo_Data@@YIHPAUHWND__@@HH@Z": {
+  "address": "0x4d14f0",
+  "evidence": "function_start",
+  "note": "m85 netshare.cpp name for the claimed ?Get_Side_Data@@YIHPAUHWND__@@HH@Z in src/ra2/GDlgSupp.cpp (same address; call target of the matched Load_Lobby_Options, Claude agent mst4 2026-11-28)"
+ },
+ "?Side_Combo_Player@@YIHH@Z": {
+  "address": "0x4d0dd0",
+  "evidence": "function_start",
+  "note": "m85 netshare.cpp name for the claimed ?Player_Side_Slot@@YIHH@Z in src/ra2/GDlgSupp.cpp (same address; call target of the matched Load_Lobby_Options, Claude agent mst4 2026-11-28)"
+ },
+ "?Color_Combo_Data@@YIHPAUHWND__@@HH@Z": {
+  "address": "0x4d1fd0",
+  "evidence": "function_start",
+  "note": "m85 netshare.cpp name for the claimed ?Get_Color_Data@@YIHPAUHWND__@@HH@Z in src/ra2/GDlgSupp.cpp (same address; call target of the matched Load_Lobby_Options, Claude agent mst4 2026-11-28)"
+ },
+ "?Color_Combo_Player@@YIHH@Z": {
+  "address": "0x4d1590",
+  "evidence": "function_start",
+  "note": "m85 netshare.cpp name for the claimed ?Player_Color_Slot@@YIHH@Z in src/ra2/GDlgSupp.cpp (same address; call target of the matched Load_Lobby_Options, Claude agent mst4 2026-11-28)"
+ },
+ "?Color_Combo_Changed@@YIXPAUHWND__@@H@Z": {
+  "address": "0x4d1e00",
+  "evidence": "function_start",
+  "note": "m85 netshare.cpp name for the claimed ?Color_Changed@@YIXPAUHWND__@@H@Z in src/ra2/GDlgSupp.cpp (same address; call target of the matched Load_Lobby_Options, Claude agent mst4 2026-11-28)"
  }
 }

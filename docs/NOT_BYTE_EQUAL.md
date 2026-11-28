@@ -36,14 +36,13 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 13 | Create_Game_Channel | 0x339df0 | UI/network/platform | 2181 | 3 |
 | 15 | CChatEventSink::OnUserList | 0x34e040 | UI/network/platform | 1989 | 1345 |
 | 16 | OwnerDraw::Adjust_Control_Position | 0x1e1760 | UI/network/platform | 1919 | 1 |
-| 17 | SidebarClass::StripClass::Recalc | 0x275a60 | UI/network/platform | 1762 | 184 |
+| 17 | SidebarClass::StripClass::Recalc | 0x275a60 | UI/network/platform | 1762 | 3 |
 | 18 | WDT_Write_Map_Ini | 0x31f440 | UI/network/platform | 1652 | 0 (bindings open) |
 | 19 | WorldDominationTour::Selection::Show_State | 0x323340 | UI/network/platform | 1531 | 12 |
 | 20 | XSurface::Draw_Ellipse | 0x360000 | render | 1478 | 1198 |
 | 21 | Read_Text_File | 0x2ee430 | UI/network/platform | 1469 | 6 |
 | 22 | Standard_Dialog_Proc | 0x1f77c0 | UI/network/platform | 1450 | 707 |
 | 23 | SidebarClass::Reposition_Sidebar | 0x2770d0 | UI/network/platform | 1314 | 1 |
-| 24 | Load_Lobby_Options | 0x1c5350 | UI/network/platform | 1270 | 441 |
 | 26 | ProgressScreenClass::Draw_Player | 0x2177c0 | UI/network/platform | 1048 | 132 |
 | 27 | SurfaceCacheClass::CachePCX | 0x281d00 | render | 1046 | 9 |
 | 28 | OwnerDraw::Init_Control_Animation | 0x1e04d0 | UI/network/platform | 1021 | 687 |
