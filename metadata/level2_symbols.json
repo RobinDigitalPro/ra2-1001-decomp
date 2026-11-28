@@ -25350,5 +25350,10 @@
   "address": "0x692e10",
   "evidence": "function_start",
   "note": "sidebar.cpp name for the claimed SuperClass status-text function at RVA 0x292e10 (same address; call target of the matched StripClass::Draw_It, Claude agent gib5 2026-11-28)"
+ },
+ "?Load_Layout@Selection@WorldDominationTour@@QAEXAAVINIClass@@ABVCharStringClass@@@Z": {
+  "address": "0x722a60",
+  "evidence": "function_start",
+  "note": "src/ra2 WDTSel.cpp name for the claimed ?Init_Target@Selection@WorldDominationTour@@QAEXAAVINIClass@@ABVWstring@@@Z at RVA 0x322a60 (m85 wdtsel.cpp; same address; call target of the matched Selection constructor, Claude agent wdt2 2026-11-28)"
  }
 }

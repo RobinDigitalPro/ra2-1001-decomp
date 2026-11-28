@@ -45,7 +45,6 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 22 | Standard_Dialog_Proc | 0x1f77c0 | UI/network/platform | 1450 | 707 |
 | 23 | SidebarClass::Reposition_Sidebar | 0x2770d0 | UI/network/platform | 1314 | 1 |
 | 24 | Load_Lobby_Options | 0x1c5350 | UI/network/platform | 1270 | 441 |
-| 25 | WorldDominationTour::Selection::Selection | 0x322120 | UI/network/platform | 1072 | 450 |
 | 26 | ProgressScreenClass::Draw_Player | 0x2177c0 | UI/network/platform | 1048 | 132 |
 | 27 | SurfaceCacheClass::CachePCX | 0x281d00 | render | 1046 | 9 |
 | 28 | OwnerDraw::Init_Control_Animation | 0x1e04d0 | UI/network/platform | 1021 | 687 |

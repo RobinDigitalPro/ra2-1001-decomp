@@ -99456,6 +99456,12 @@
   "name": "dynamic initializer of GAMECONST.H static EmptyCoord"
  },
  {
+  "rva": "0x322120",
+  "tu": "src/ra2/WDTSel.cpp",
+  "symbol": "??0Selection@WorldDominationTour@@QAE@ABV?$rc_ptr@VCampaign@WorldDominationTour@@@@H@Z",
+  "name": "WorldDominationTour::Selection::Selection"
+ },
+ {
   "rva": "0x322550",
   "tu": "src/m85/src/wdtsel.cpp",
   "symbol": "??1Selection@WorldDominationTour@@UAE@XZ",

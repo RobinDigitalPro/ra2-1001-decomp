@@ -153,16 +153,6 @@
    "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
   },
   {
-   "rva": "0x322120",
-   "symbol": "??0Selection@WorldDominationTour@@QAE@ABV?$rc_ptr@VCampaign@WorldDominationTour@@@@H@Z",
-   "tu": "WDTSel.cpp",
-   "diff_bytes": 450,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch72_*.md and classification.json (batch 72, job 7c09a082): every differing region aligned and labelled CODEGEN_ONLY (register, scheduling, stack slot or frame, block layout with identical targets and conditions)",
-   "meaning": "functionally equivalent per region classification; byte match still open (normal near-miss work continues)"
-  },
-  {
    "rva": "0x2177c0",
    "symbol": "?Draw_Player@ProgressScreenClass@@QAEXPAVColorScheme@@PBGAAVPoint2D@@H_N@Z",
    "tu": "progress.cpp",
@@ -319,7 +309,7 @@
    "diff_bytes": null,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): LoadProgressManager::Draw: NEAR_EQUAL_CANDIDATE; paired execution across 116 cases passed",
+   "evidence": "docs/level2/batch_reports/batch75_* (batch 75, job f9598cbd): LoadProgressManager::Draw: NEAR_EQUAL_CANDIDATE; paired execution across 116 cases passed; 2026-11-28 Claude agent wdt2: candidate (claude_agents/wdt2/result/ldprgmgr_candidate, 4 edits removing steering) gives 1.001's call list and byte-exact helpers but 1884 bytes (frame 0x1180 vs 0x1184 shifts lengths): kept as witness; next step stack-slot packing",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

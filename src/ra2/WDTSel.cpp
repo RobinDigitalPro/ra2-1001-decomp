@@ -226,10 +226,11 @@ extern int WDTSetting_A25604;               // 0xa25604
 extern int WDTSetting_A25608;               // 0xa25608
 
 // 16-bit pixel from RGB components with the shifts of BLIT.H (as in LdPrgMgr.cpp).
-// level-2 1.001: STEERING split packed channels before font colour conversion.
-static inline unsigned Red_Component(int color) { return color & 255; }
-static inline unsigned Green_Component(int color) { return (color >> 8) & 255; }
-static inline unsigned Blue_Component(int color) { return (color >> 16) & 255; }
+// level-2 1.001: STEERING split packed channels before font colour conversion (GetRValue/GetGValue/GetBValue
+// shapes: byte results; green through the low 16 bits, so VC6 reads the colour once and takes green with mov bl,dh).
+static inline unsigned char Red_Component(int color) { return (unsigned char)color; }
+static inline unsigned char Green_Component(unsigned short color) { return (unsigned char)(color >> 8); }
+static inline unsigned char Blue_Component(int color) { return (unsigned char)(color >> 16); }
 
 inline int RGB_To_Pixel(int red, int green, int blue)
 {
