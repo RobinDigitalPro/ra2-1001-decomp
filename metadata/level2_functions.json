@@ -10663,6 +10663,12 @@
   "name": "dynamic initializer (ZeroRect)"
  },
  {
+  "rva": "0x38570",
+  "tu": "src/m85/src/building.cpp",
+  "symbol": "?Psychic_Detector_Covers_Techno@@YI_NPBVTechnoClass@@@Z",
+  "name": "Psychic_Detector_Covers_Techno"
+ },
+ {
   "rva": "0x388e0",
   "tu": "src/m85/src/building.cpp",
   "symbol": "?Psychic_Detector_Covers_Cell@@YI_NPBVHouseClass@@PBVCellClass@@@Z",

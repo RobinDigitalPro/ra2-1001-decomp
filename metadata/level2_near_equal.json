@@ -333,16 +333,6 @@
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {
-   "rva": "0x38570",
-   "symbol": "Psychic_Detector_Covers_Techno",
-   "tu": "building.cpp",
-   "diff_bytes": null,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch74_* (batch 74, job 53ece6d9): Psychic_Detector_Covers_Techno: 20 undecided regions CODEGEN_ONLY after one source edit",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
    "rva": "0x203750",
    "symbol": "?Smoke_AI@ParticleSystemClass@@AAEXXZ",
    "tu": "partsys.cpp",

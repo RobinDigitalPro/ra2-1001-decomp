@@ -22,7 +22,6 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 14 | Extract_Compressed_Events | 0x21fa40 | 1455 | 580 |
 | 15 | HouseClass::Random_Cell_In_Zone | 0xebf50 | 1276 | 664 |
 | 16 | ParticleSystemClass::Smoke_AI | 0x203750 | 1240 | 625 |
-| 17 | Psychic_Detector_Covers_Techno | 0x38570 | 865 | ? |
 | 20 | SyncState::SyncState | 0x21ad30 | 69 | 0 |
 | 21 | SyncState::~SyncState | 0x21ad80 | 18 | 0 |
 

@@ -221,54 +221,60 @@ enum SAMState {
 
 static inline bool Techno_Flag(AbstractClass const * object); // level-2 1.001: defined before Do_MISSION_GUARD
 
+static inline TechnoClass const * As_Techno(AbstractClass const * object) // level-2 1.001: ra2-decomp's cast.h As_Techno (gibbo101 include/cast.h), file-local here
+{
+	if (object == NULL) return(NULL);
+	if (object->AbstractFlags & 1) return((TechnoClass const *)object);
+	return(NULL);
+}
+
+
+static inline bool Is_Cell(AbstractClass const * target) // level-2 1.001: ra2-decomp's file-local cell test (gibbo101 src/building.cpp)
+{
+	if (target == NULL) return(false);
+	RTTIType rtti = target->RTTI;
+	return(rtti == RTTI_CELL);
+}
+
+
 /// <summary>
 /// Whether one of the player's powered psychic detectors reaches the techno's target or its last route point; never for the player's allies.
 /// </summary>
-static inline bool Is_Techno_Target(AbstractClass const * target) { return(target && (target->AbstractFlags & 1)); } // level-2 1.001: INFERRED form: 1.001 tests the bit in place (`test byte ptr [edi+0x14],1`) at both sites, without Techno_Flag's flag byte
-static inline bool Is_Cell_Target(AbstractClass const * target) { if (!target) return(false); return(target->Fetch_RTTI() == RTTI_CELL); } // level-2 1.001: INFERRED form: two returns keep 1.001's `cmp eax,0xb; sete al; test al,al` at both cell tests (Is_Target_Cell folds to cmp/jne)
-static inline bool Psychic_Target_In_Range(BuildingClass const * detector, AbstractClass const * target) // level-2 1.001: INFERRED target range calculation
+bool __fastcall Psychic_Detector_Covers_Techno(TechnoClass const * techno) // level-2 1.001: 0x438570 (tactical.cpp calls it; name provisional); free function of the executable. Ported whole from ra2-decomp's matched YR twin FUN_0043B150 (gibbo101 src/building.cpp, 865 bytes in both images)
 {
-	Coord a = detector->Center_Coord();
-	Coord b = target->Center_Coord();
-	int distance = a.Distance_To(b);
-	return(distance <= Cell_To_Lepton(detector->Class->PsychicDetectionRadius));
-}
-
-bool __fastcall Psychic_Detector_Covers_Techno(TechnoClass const * techno) // level-2 1.001: 0x438570 (tactical.cpp calls it; name provisional); free function of the executable. Lifted from the 1.001 disassembly, not yet byte-identical; the inlining decisions and frame size match
-{
-	if (PlayerPtr->Is_Ally(techno->House)) return(false);
+	HouseClass * owner = techno->House; // level-2 1.001: the named owner decides the loop-head registers (without it 719 bytes differ)
+	if (PlayerPtr->Is_Ally(owner)) return(false);
 	int count = PlayerPtr->PsychicDetectionBuildings.Count();
-	int index = 0;
-	BuildingClass * detector;
-	goto test_detector;
-	for (;;) {
+	for (int index = 0; index < count; index++) {
+		BuildingClass * detector = PlayerPtr->PsychicDetectionBuildings[index];
 		if (detector->IsPowerOnline()) {
 			AbstractClass * target = techno->TarCom;
-			if (Is_Techno_Target(target)) {
-				bool covered = detector->Is_In_Psychic_Range(target);
-				if (covered) return(covered); // level-2 1.001: setle/test per site (a bool result returned as itself)
-			} else if (Is_Cell_Target(target)) {
-				bool covered = detector->Is_Cell_In_Psychic_Range((CellClass *)target);
-				if (covered) return(covered);
+			if (As_Techno(target) != NULL) {
+				bool in_range = detector->Is_In_Psychic_Range(As_Techno(target));
+				if (in_range) return(in_range);
+			} else if (Is_Cell(target)) {
+				bool in_range = detector->Is_Cell_In_Psychic_Range((CellClass *)target);
+				if (in_range) return(in_range);
 			}
 			if (techno->Is_Foot()) {
 				FootClass const * foot = (FootClass const *)techno;
-				AbstractClass * dest = foot->RouteQueue.Count() == 0 ? foot->NavCom : foot->RouteQueue[foot->RouteQueue.Count()-1]; // level-2 1.001: the NavCom arm first (jne over it)
-				if (Is_Cell_Target(dest)) {
-					Coord a = detector->Center_Coord(); // level-2 1.001: this site sums y, z, x (Distance_YZX)
-					Coord b = ((CellClass *)dest)->Cell_Coord();
-					bool covered = a.Distance_YZX(b) <= detector->Class->PsychicDetectionRadius << 8;
-					if (covered) return(covered);
-				} else if (Is_Techno_Target(dest)) {
-					bool covered = Psychic_Target_In_Range(detector, dest);
-					if (covered) return(covered);
+				AbstractClass * destination;
+				if (foot->RouteQueue.Count() == 0) {
+					destination = foot->NavCom;
+				} else {
+					destination = foot->RouteQueue[foot->RouteQueue.Count() - 1];
+				}
+				if (destination != NULL) {
+					if (Is_Cell(destination)) {
+						bool in_range = detector->Is_Cell_In_Psychic_Range((CellClass *)destination);
+						if (in_range) return(in_range);
+					} else if (destination->AbstractFlags & 1) {
+						bool in_range = detector->Is_In_Psychic_Range(destination);
+						if (in_range) return(in_range);
+					}
 				}
 			}
 		}
-		++index;
-	test_detector:
-		if (index >= count) break;
-		detector = PlayerPtr->PsychicDetectionBuildings[index];
 	}
 	return(false);
 }
@@ -9270,7 +9276,8 @@ bool BuildingClass::Is_In_Psychic_Range(AbstractClass const * target) // RA2: no
 {
 	Coord a = Center_Coord();
 	Coord b = target->Center_Coord();
-	return(a.Distance_To(b) <= Class->PsychicDetectionRadius << 8);
+	int distance = Coord(a - b).Length(); // level-2 1.001: ra2-decomp's FUN_004528A0 form; same out-of-line bytes, and the inline copies in Psychic_Detector_Covers_Techno need it
+	return(distance <= Class->PsychicDetectionRadius << 8);
 }
 
 
@@ -9281,7 +9288,8 @@ bool BuildingClass::Is_Cell_In_Psychic_Range(CellClass const * cell) // RA2: not
 {
 	Coord a = Center_Coord();
 	Coord b = cell->Cell_Coord();
-	return(a.Distance_To(b) <= Class->PsychicDetectionRadius << 8);
+	int distance = Coord(a - b).Length(); // level-2 1.001: ra2-decomp's FUN_00452940 form; same out-of-line bytes, and the inline copies in Psychic_Detector_Covers_Techno need it
+	return(distance <= Class->PsychicDetectionRadius << 8);
 }
 
 

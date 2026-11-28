@@ -76,5 +76,13 @@ Every external source used. Credit them in the final release, and notify their a
 - 2026-11-24 omarelarab/ra2-engine (0BSD, C++17 RA2/YR reimplementation): reference only (docs/re behaviour notes, docs/gap); https://github.com/omarelarab/ra2-engine @a8cfdcc.
 - 2026-11-24 gibbo101/ra2-decomp @8c1df26fac: MapClass::Can_Repair_Bridge and Quaternion::Make_Closest ported with byte-identical proof on RA2 1.001 (batch 54).
 
-## Detail: gibbo101 ed881f6 port (2026-11-25)
+## Detail: gibbo101 ed881f6 port (2026-11-25, Codex batch 60g)
 - gibbo101/ra2-decomp @ed881f68a4: source forms of MapClass::Subzone_Span (src/map.cpp) and OwnerDraw::StaticHandler (src/ownrdraw.cpp; our OwnerDraw::Static_Proc) adopted with byte-identical proof on our 1.001; ParticleClass::Spark_Behavior_AI (src/particle.cpp) adopted as a near miss (3 bytes left).
+- gibbo101/ra2-decomp @1ed93a9026 (2026-11-25, batch 64g): the form of Join_WOL_Lobby adopted for our Run_Online_Menu (near miss 223 -> 25); BUGS.md note on Spread_Units_Around_Cell kept as an original-behaviour note.
+
+## Claude agent ports, 2026-11-28 (gibbo101/ra2-decomp @cb43f59, read-only; GPL-3.0-or-later, upstream headers kept in the TUs)
+- src/xsurface.cpp XSurface::Plot_Line diagonal branch (29081fa) -> Plot_Line 0x35f840 (matched, agent plot1).
+- src/tactical.cpp Tactical::Draw_Tiles(Cell, Rect) (cb43f59) -> 0x29dba0 (matched, agent tiles1).
+- src/building.cpp FUN_0043B150 + include/cast.h As_Techno + file-local Is_Cell + the members' Coord(a - b).Length() distance form -> Psychic_Detector_Covers_Techno 0x38570 (matched, agent own2).
+- src/multiplayer.cpp Fill_Game_Mode_List 0x5D6000 / FUN_005D6130 accessor form -> Fill_Game_Mode_Combo 0x1b3bc0 / Fill_Game_Mode_List 0x1b3cf0 (matched, agent own1; found afterwards, the accessor form agrees).
+- src/building.cpp Exit_Object (29081fa) -> 0x402b0 (lead, 1291 -> 10 bytes, agent exit1); src/bullet.cpp BulletClass::AI + Ballistic_Move (cb43f59) -> 0x5f380 (lead, 4760 -> 1939, agent bullet1); src/dropship.cpp Dropship_Screen (lead, no gain from the twin; 4026 -> 5 by own work, agent drop1).
