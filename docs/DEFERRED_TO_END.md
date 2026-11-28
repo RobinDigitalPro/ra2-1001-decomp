@@ -197,3 +197,6 @@ The techtype.h Unused2 member, the script.h Detach override and the faithful que
 ## Do_MISSION_MISSILE 0x480f0 and BulletClass::AI 0x5f380 (2026-11-28, Claude agent own4)
 - Do_MISSION_MISSILE: 10 bytes, one warhead load scheduled after a push instead of before the shift; flat across deep d1 (739 sources) and own4 (56 specs incl. L58/L59). Codegen-only tie from the surrounding block (a micro TU schedules it naturally). End phase, with the full file linked.
 - BulletClass::AI: register-weight tie with two witnesses: (a) `int x = (int)position.X; ...; coord = Coord(x, y, z);` after the impact block fixes +0x1043 but flips bridge_height/mask to EBX/EDI (2447 bytes); (b) the same conversion before the impact/forced stores keeps EDI but misorders those stores (isd 117). Untried lever: the 1.001 Ballistic_Move inline level as a whole (L50). End phase.
+
+## MapGeneratorClass::Read_RMG_INI 0x176750 (2026-11-28, Claude agent own5)
+- 97 bytes: one inline choice of VectorClass<int>::Clear in temporary destructors, coupled with the site-2 operator= and ~CCFileClass; no count state of ~330 builds gives all three original choices. Inline-budget tie, likely a shared-header cost; retry in the end phase with the full file linked.
