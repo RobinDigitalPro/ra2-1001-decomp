@@ -272,7 +272,11 @@ inline int DSurface::Build_Hicolor_Pixel(int red, int green, int blue)
 
 inline int DSurface::Build_Hicolor_Pixel(RGBClass const & rgb)
 {
+#ifdef RA2_HICOLOR_RGB_VIA_INTS
+	return(Build_Hicolor_Pixel(rgb.Get_Red(), rgb.Get_Green(), rgb.Get_Blue())); // level-2 1.001: per-TU form (gibbo101 YR dsurface.h)
+#else
 	return(((rgb.Get_Green() >> GreenLeft) << GreenRight) | ((rgb.Get_Red() >> RedLeft) << RedRight) | ((rgb.Get_Blue() >> BlueLeft) << BlueRight)); // level-2 1.001: green first (sidebar StripClass::Draw_It 0x274f90; HEADER_BATCH #24, hdrcheck snap6 0 lost)
+#endif
 }
 
 

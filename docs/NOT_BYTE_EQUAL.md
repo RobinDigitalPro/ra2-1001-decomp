@@ -29,10 +29,9 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 4 | OwnerDraw::Combo_Proc | 0x1ecc60 | UI/network/platform | 6618 | ? |
 | 5 | DSurface::Draw_Depth_Antialiased_Line | 0xac360 | render | 6064 | 4421 |
 | 6 | Net2DecodeGameopt | 0x1beaf0 | UI/network/platform | 5591 | 509 |
-| 7 | Send_Statistics_Packet | 0x28e3f0 | UI/network/platform | 5051 | 1 |
+| 7 | Send_Statistics_Packet | 0x28e3f0 | UI/network/platform | 5051 | 2 (kind-3 read removed) |
 | 8 | LoadProgressManager::Draw | 0x133e50 | UI/network/platform | 3848 | 1665 |
 | 10 | Tactical::Render | 0x299be0 | render | 3288 | 1860 |
-| 11 | SidebarClass::StripClass::Draw_It | 0x274f90 | UI/network/platform | 2760 | 2 |
 | 12 | Run_Online_Menu | 0x3474e0 | UI/network/platform | 2539 | 25 |
 | 13 | Create_Game_Channel | 0x339df0 | UI/network/platform | 2181 | 3 |
 | 14 | Main_Options_Dialog_Proc | 0x13fc70 | UI/network/platform | 1996 | 9 |

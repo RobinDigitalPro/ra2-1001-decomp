@@ -72,6 +72,7 @@
  *   SidebarClass::Zoom_Mode_Control -- Handles the zoom mode toggle operation.                *
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+#define RA2_HICOLOR_RGB_VIA_INTS // level-2 1.001: per-TU switch (dsurface.h): Build_Hicolor_Pixel(RGBClass) expands through the (red, green, blue) form, as in gibbo101/meastes; StripClass::Draw_It 0x274f90
 #include "always.h"
 #include "geoconst1.h" // level-2 1.001: per-module geometry constants (sidebar's own CELL_NONE copy at 0xaa1198)
 
@@ -2260,10 +2261,9 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 					/*
 					**	RA2: the mouse is over this cameo, so it gets an outline in the tooltip colour.
 					*/
+					RGBClass const & color = TooltipColor; // RA2: shared by the outline and the text below (meastes 1.006 form)
 					if (hover) { // RA2: as above
-						RGBClass color = TooltipColor; // RA2: as above
-						int outline = DSurface::Build_Hicolor_Pixel(color); // RA2: as above
-						SidebarSurface->Draw_Rect(window, Rect(x, y, 60, 48), outline); // RA2: as above
+						SidebarSurface->Draw_Rect(window, Rect(x, y, 60, 48), DSurface::Build_Hicolor_Pixel(RGBClass(color))); // RA2: the outline packs a copy of the colour (meastes 1.006 form)
 					}
 
 					/*
@@ -2286,7 +2286,7 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 					}
 
 					bool hasqueuecount = false; // RA2: as above
-					unsigned pixel = DSurface::Build_Hicolor_Pixel(TooltipColor); // RA2: the text colour is the tooltip colour
+					unsigned pixel = DSurface::Build_Hicolor_Pixel(color); // RA2: the text colour is the tooltip colour
 					if (obj != NULL) { // RA2: as above
 						FactoryClass * queue = PlayerPtr->Fetch_Factory(obj->Fetch_RTTI(), obj->Naval, 0); // RA2: the factory is picked by type and naval flag
 						if (queue != NULL) { // RA2: as above
@@ -2295,9 +2295,10 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 								wchar_t buffer[256]; // RA2: the queued count, with a dimmed box behind it
 								swprintf(buffer, L"%d", total); // RA2: as above
 								Point2D point(x + QUEUE_COUNT_X_OFFSET, y + 1); // RA2: as above
-								Rect rect = Text_Rect(buffer, point, 0x242, 2, 1); // RA2: as above
+								TextPrintType style = TextPrintType(0x242); // level-2 1.001: STEERING named print style (gibbo101 form); with the two below and `onhold` it sets Draw_It's local count that decides the text pixel's channel order (count-type, fragile; REMATCH)
+								Rect rect = Text_Rect(buffer, point, style, 2, 1); // RA2: as above
 								Blend_Rect(&rect, SidebarSurface, 0, 175); // RA2: as above
-								Fancy_Text_Print(L"%d", *SidebarSurface, cliprect, point, pixel, 0, TextPrintType(0x242), total); // RA2: as above
+								Fancy_Text_Print(L"%d", *SidebarSurface, cliprect, point, pixel, 0, style, total); // RA2: as above
 								hasqueuecount = true; // RA2: as above
 							}
 						}
@@ -2314,9 +2315,10 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 						*/
 						if (state != NULL) { // RA2: as above
 							Point2D point(x + TEXT_X_OFFSET, y + 1); // RA2: the readout sits on a dimmed box
-							Rect rect = Text_Rect(state, point, 0x142, 2, 1); // RA2: as above
+							TextPrintType style = TextPrintType(0x142); // level-2 1.001: STEERING named print style, as above
+							Rect rect = Text_Rect(state, point, style, 2, 1); // RA2: as above
 							Blend_Rect(&rect, SidebarSurface, 0, 175); // RA2: as above
-							Fancy_Text_Print(state, *SidebarSurface, cliprect, point, pixel, 0, TextPrintType(0x142)); // RA2: as above
+							Fancy_Text_Print(state, *SidebarSurface, cliprect, point, pixel, 0, style); // RA2: as above
 						}
 
 						if (!completed) { // RA2: as above
@@ -2326,13 +2328,15 @@ void SidebarClass::StripClass::Draw_It(bool complete)
 							/*
 							**	Display text showing that the construction is temporarily on hold.
 							*/
-							if (factory && !factory->Is_Building() || Buildables[index].Unknown_10 == 2) { // RA2: also an entry on hold (2)
+							bool onhold = factory && !factory->Is_Building() || Buildables[index].Unknown_10 == 2; // RA2: also an entry on hold (2); level-2 1.001: STEERING named condition (one local-count unit, see the print styles)
+							if (onhold) { // RA2: as above
 								wchar_t const * hold = StringTable::LoadString("TXT_HOLD", NULL, "C:\\RA2\\Sidebar.CPP", 2998); // RA2: wide text; level-2 1.001: line 2998 (1.006: 3070)
 								if (hasqueuecount) { // RA2: as above
 									Point2D point(x + 2, y + 1); // RA2: left aligned next to the count
-									Rect rect = Text_Rect(hold, point, 0x42, 2, 1); // RA2: as above
+									TextPrintType style = TextPrintType(0x42); // level-2 1.001: STEERING named print style, as above
+									Rect rect = Text_Rect(hold, point, style, 2, 1); // RA2: as above
 									Blend_Rect(&rect, SidebarSurface, 0, 175); // RA2: as above
-									Fancy_Text_Print(hold, *SidebarSurface, cliprect, point, pixel, 0, TextPrintType(0x42)); // RA2: as above
+									Fancy_Text_Print(hold, *SidebarSurface, cliprect, point, pixel, 0, style); // RA2: as above
 								} else {
 									Point2D point(x + TEXT_X_OFFSET, y + 1); // RA2: as above
 									Rect rect = Text_Rect(hold, point, 0x142, 2, 1); // RA2: as above

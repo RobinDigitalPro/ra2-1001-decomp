@@ -75629,6 +75629,12 @@
   "name": "?Get_Progress@StripClass@SidebarClass@@QAEHH@Z"
  },
  {
+  "rva": "0x274f90",
+  "tu": "src/m85/src/sidebar.cpp",
+  "symbol": "?Draw_It@StripClass@SidebarClass@@QAEX_N@Z",
+  "name": "SidebarClass::StripClass::Draw_It"
+ },
+ {
   "rva": "0x276150",
   "tu": "src/m85/src/sidebar.cpp",
   "symbol": "??0SelectClass@StripClass@SidebarClass@@QAE@XZ",

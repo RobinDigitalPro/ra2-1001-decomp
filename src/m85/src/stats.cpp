@@ -268,7 +268,7 @@ void __fastcall Send_Statistics_Packet(bool alt_server) // RA2: 0x00698D00, __fa
 	/*
 	**	Shroud regrowth (On/Off)
 	*/
-	stats.Add_Field(FIELD_SHADOW_REGROWS, (unsigned char)(static_cast<SpecialClass const volatile &>(Special).IsShadowGrow)); // level-2 1.001: TibSun's SHAD field
+	stats.Add_Field(FIELD_SHADOW_REGROWS, (unsigned char)Special.IsShadowGrow); // level-2 1.001: TibSun's SHAD field (gib5: the kind-3 volatile read removed, V11; 1.001 loads the whole dword here, still open)
 
 	/*
 	**	Capture the flag (On/Off)

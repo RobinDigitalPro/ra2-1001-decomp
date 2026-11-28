@@ -25345,5 +25345,10 @@
   "address": "0x708000",
   "evidence": "function_start",
   "note": "ra2 UICmnds.cpp name for the claimed ?Remaining_Levels@VeterancyClass@@QBEHXZ at RVA 0x308000 (same address; call target of the matched Veterancy_Nav_Command, Claude agent own3 2026-11-28)"
+ },
+ "?State_String@SuperClass@@QBEPBGXZ": {
+  "address": "0x692e10",
+  "evidence": "function_start",
+  "note": "sidebar.cpp name for the claimed SuperClass status-text function at RVA 0x292e10 (same address; call target of the matched StripClass::Draw_It, Claude agent gib5 2026-11-28)"
  }
 }

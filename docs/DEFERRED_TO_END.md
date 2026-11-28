@@ -204,3 +204,6 @@ The techtype.h Unused2 member, the script.h Detach override and the faithful que
 ## Link phase: per-module header constants (2026-11-28)
 - super.cpp (geoconst2.h) and voxel.cpp (geoconst1.h + geoconst2.h) now define their own copies of header constants, as 1.001 does per module. Because globals.h declares several of them `extern` first, CELL_SLOPE_ANGLE, CELL_DIAG_SLOPE_ANGLE, BRIDGE_LEPTON_HEIGHT, CELL_NONE and COORD_NONE become EXTERNAL definitions in both objects: a linked build may report LNK2005. Resolve in the link phase (e.g. drop those extern declarations for the defining TUs), keeping the per-object bytes.
 - Dedupe: voxel.cpp now emits the 13 GAMECONST initializers at 0x30c8a0..0x30ca70 that src/ra2/unnamed/TU_70C8A0.cpp claims (and src/ra2 Super.CPP init claims overlap super.cpp). One owner per function (rule 10) in the dedupe pass.
+
+## SidebarClass::Reposition_Sidebar 0x2770d0 (2026-11-28, Claude agent gib5)
+- 1 byte, count-type, invariant under 127 natural forms; meastes calibrated the same twin. End phase (count-type, kind-2 dummy declaration allowed there).
