@@ -89,7 +89,7 @@
    "diff_bytes": 0,
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7); 2026-11-28 Claude agent hdr1: bytes exact with the per-TU RA2_VECTOR_UNSIGNED_INDEX switch; claim blocked by two unverified bindings: the original calls ?Clear@?$VectorClass@V?$TRect@H@@@@UAEXXZ at 0x58b490 (a copy in another TU) while this TU claims its own copy at 0x720110, and the TU-local VectorCursor operator= copy at 0x71fb10 (per-TU COMDAT copies, same checker C-item as SuperClass::Place)",
+   "evidence": "docs/level2/batch_reports/batch56_RESIDUES.md; W/analysis/level2/aistation_up/batch56_out/result/residue_classes.json (batch 56, job c4d44fe7); 2026-11-28 Claude agent hdr1: bytes exact with the per-TU RA2_VECTOR_UNSIGNED_INDEX switch; claim blocked by two unverified bindings: the original calls ?Clear@?$VectorClass@V?$TRect@H@@@@UAEXXZ at 0x58b490 (a copy in another TU) while this TU claims its own copy at 0x720110, and the TU-local VectorCursor operator= copy at 0x71fb10 (per-TU COMDAT copies, same checker C-item as SuperClass::Place); 2026-11-28 tool1: the Clear binding (0x58b490) is now verified by the new checker rule (local COMDAT copy at another TU's claimed address, verify_copy); only the VectorCursor operator= at 0x71fb10 remains (source difference)",
    "meaning": "functionally equivalent: every differing instruction is codegen only (register, order, encoding or stack slot)"
   },
   {
@@ -260,16 +260,6 @@
    "status": "NEAR_EQUAL",
    "verdict": "CODEGEN_ONLY",
    "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): 119 regions proven: 95 previously undecided are CODEGEN_ONLY, 2 MEANING call bindings repaired and integrated, 22 CODEGEN_ONLY; 2026-11-28 Claude agent exit1: 1291 -> 10 bytes (docs/level2/batch_reports/claude_exit1_REPORT.md); residue at +0x1103 refinery add ecx,edx vs add edx,ecx, codegen-only, not count-type",
-   "meaning": "functionally equivalent per region classification; byte match still open"
-  },
-  {
-   "rva": "0x292ef0",
-   "symbol": "?Place@SuperClass@@QAEXABVCell@@_N@Z",
-   "tu": "super.cpp",
-   "diff_bytes": 0,
-   "status": "NEAR_EQUAL",
-   "verdict": "CODEGEN_ONLY",
-   "evidence": "docs/level2/batch_reports/batch73_* (batch 73, job 35f8261f): all 18 undecided regions CODEGEN_ONLY for gameplay; two constants with equal values live in distinct physical storage (binding detail for the end phase) | 2026-11-26 (Codex's own job f7dcf95d, collected by collect_c1): 0 differing bytes over 4,336, all 194 relocations preserved; integrated as source. NOT claimed: it reads super.cpp's OWN copies of the header constants BRIDGE_LEPTON_HEIGHT (0xaa52e0) and CELL_NONE (0xaa5270), while the symbol map has one global address per name (0x824800, 0x8247b8) used by other TUs; needs per-TU data bindings in level2_check (C-item).",
    "meaning": "functionally equivalent per region classification; byte match still open"
   },
   {

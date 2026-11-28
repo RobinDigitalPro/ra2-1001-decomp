@@ -11,7 +11,6 @@ All are functionally equal (near-equal). Size = function bytes; diff = latest kn
 | 3 | BulletClass::AI | 0x5f380 | 6382 | 1939 |
 | 5 | MapClass::Set_Map_Dimensions | 0x145970 | 5335 | 590 |
 | 6 | WalkLocomotionClass::Movement_AI | 0x312de0 | 4967 | 820 |
-| 7 | SuperClass::Place | 0x292ef0 | 4332 | 0 |
 | 8 | MapRegionClass::Split_Region | 0x16bd10 | 4012 | 1354 |
 | 9 | Spread_Units_Around_Cell | 0x220ac0 | 3048 | 4 |
 | 10 | BuildingClass::Do_MISSION_MISSILE | 0x480f0 | 3036 | 10 |

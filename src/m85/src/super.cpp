@@ -85,6 +85,7 @@
 #include "reinf.h"	// RA2
 #include "bullettype.h"	// RA2
 #include "anim.h"	// RA2
+#include "geoconst2.h" // level-2 1.001: this module holds its own copy (per-TU constant addresses)
 
 // RA2: SuperClass in RA2's form, which shares none of YR's and few of TibSun's parts
 

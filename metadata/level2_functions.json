@@ -81041,6 +81041,12 @@
   "name": "SuperClass::Can_Fire"
  },
  {
+  "rva": "0x292ef0",
+  "tu": "src/m85/src/super.cpp",
+  "symbol": "?Place@SuperClass@@QAEXABVCell@@_N@Z",
+  "name": "SuperClass::Place"
+ },
+ {
   "rva": "0x293fe0",
   "tu": "src/ra2/Super.CPP",
   "symbol": "?Deactivate_Firestorm@SuperClass@@QBEXH_N@Z",

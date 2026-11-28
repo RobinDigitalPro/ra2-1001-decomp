@@ -6,8 +6,8 @@ Read-only on GAME.EXE.  A function is 'matched' only when every byte outside rel
 and every relocation is bound to an address with verified evidence.  This never edits metadata.
 """
 import hashlib, json, os, re, struct, subprocess, sys, time
-P = r'D:\<project-folder>\Coding\RedAlert2'
-W = r'D:\<work-root>\RedAlert2Temp'
+P = r'D:\OneDrive - RDI\Coding\RedAlert2'
+W = r'D:\CodexTemp\RedAlert2Temp'
 sys.path.insert(0, os.path.join(W, 'analysis', 'level2'))
 from coffmatch import Obj, match_function  # noqa: E402
 
@@ -513,7 +513,14 @@ def main():
                 return True, 'TU-local helper %s byte-identical at the referenced address' % symbol
         if (tu, symbol) in claimed:
             hit = address in claimed[(tu, symbol)]
-            return hit, 'level-2 claim of this TU at %s' % ','.join(hex(a) for a in sorted(claimed[(tu, symbol)]))
+            mine = ','.join(hex(a) for a in sorted(claimed[(tu, symbol)]))
+            if not hit and local_copy(obj, symbol) and address in claimed_global.get(symbol, ()):
+                # 2026-11-28 (tool1): GAME.EXE holds several copies of one inline/template COMDAT (e.g. VectorClass<TRect<int>>
+                # ::Clear at 0x58b490 and 0x720110) and a function of this TU calls another TU's claimed copy.  Accept that
+                # address only as this TU's own local copy: byte-identical there and every binding of it verified in turn.
+                ok, why = verify_copy(obj, symbol, address, tu)
+                return ok, 'level-2 claim of this TU at %s; copy claimed by another TU at %s: %s' % (mine, hex(address), why)
+            return hit, 'level-2 claim of this TU at %s' % mine
         addrs = claimed_global.get(symbol, set())
         if len(addrs) == 1 and address in addrs:
             return True, 'level-2 claimed function at %s' % hex(address)
